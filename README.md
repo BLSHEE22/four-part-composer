@@ -1,4 +1,2 @@
 # four-part-composer
-Branch: EighthQHalfOnly
-
-Allowed rhythms are limited to eighth, quarter, and half only.
+Auto-generative four-part writing.
