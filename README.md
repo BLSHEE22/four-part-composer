@@ -1,2 +1,4 @@
 # four-part-composer
-Bot. Got. Next.
+Branch: EighthQHalfOnly
+
+Allowed rhythms are limited to eighth, quarter, and half only.
