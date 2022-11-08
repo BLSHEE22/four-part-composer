@@ -14,9 +14,9 @@ Features in development:
 Setup instructions:
 
 - Prerequisites:
---> Python3
---> LilyPond (http://lilypond.org/download.html)
---> Notation software that can open MIDI files (MuseScore for example)
+-    Python3
+-    LilyPond (http://lilypond.org/download.html)
+-    Notation software that can open MIDI files (MuseScore for example)
 
 - Open terminal.
 
