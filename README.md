@@ -23,13 +23,13 @@ Clone this repository onto your computer.
 
 Navigate to the repository in your terminal (cd four-part-composer).
 
-Run makeFourParts.py by entering the command 'python3 makeFourParts.py'.
+Run the script of your choice by entering the command 'python3 <filename>'.
 
 This will create a 'ConvertMe.ly' file in that same repository.
 
 Open 'ConvertMe.ly' using LilyPond.
 
-Press cmd-R to convert the LilyPond file to MIDI. You should see the following message as well as the MIDI file 'ConvertMe.midi' appear in the repository.
+Press cmd-R to convert the LilyPond file to MIDI. You should then see the MIDI file 'ConvertMe.midi' appear in the repository.
 
 Open 'ConvertMe.midi' with your notation software of choice.
 
