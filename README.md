@@ -7,7 +7,9 @@ Current features:
 - 'melody.py' -> Generates a 16-bar melody from a randomly built scale.
 
 Features in development: 
-- Random settings of home register, dynamics, articulations, tempo, and meter.
+- Random variables to control register, dynamics, articulations, tempo, and meter.
+- 'Rhythmic Motif' feature that writes and develops rhythmic motifs.
+- Expanded choice of forms (need more variety than AABA).
 - 'counter.py' -> Writes a counter-melody to a given melody.
 - 'harmony.py -> Combines the power of 'counter.py' and the original harmonization logic to create natural sounding four-part harmonies.
 
