@@ -7,6 +7,7 @@ Current features:
 - 'melody.py' -> Generates a 16-bar melody from a randomly built scale.
 
 Features in development: 
+- Support for sixteenth notes.
 - Random variables to control register, dynamics, articulations, tempo, and meter.
 - 'Rhythmic Motif' feature that writes and develops rhythmic motifs.
 - Expanded choice of forms (need more variety than AABA).
