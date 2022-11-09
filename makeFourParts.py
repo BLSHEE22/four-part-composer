@@ -66,12 +66,13 @@ def main():
             passTones.append(False)
 
         # print(melody)
-
+        '''
         if cad == "end1":
             for i in range(10):
                 print()
-            print("*********")
-            print()
+            #print("*********")
+            #print()
+        '''
 
         # 50/50 up or down, never move by 0
         # leaps occur 30% of the time and are always following by a non-leap in the opposite direction of the leap
@@ -124,10 +125,10 @@ def main():
             holdApp = False
             passApp = False
             emerg8 = False
-            print("melody: " + str(melody))
-            print(holds)
-            print(passTones)
-            print("i: " + str(i) + " length: " + str(length) + " " + cad)
+            #print("melody: " + str([x[1] for x in melody]))
+            #print(holds)
+            #print(passTones)
+            print("i: {0:4s} length: {1:4s} {2:10s}> ".format(str(i),str(length),cad),end="")
             if cad == "half":
                 if i == length-2:
                     # if rhythmVal == 2:
@@ -168,7 +169,7 @@ def main():
                     
             elif cad == "authentic":
                 if length % 1 != 0:
-                    print("APPEND EMERGENCY EIGHTH NOTE")
+                    #print("APPEND EMERGENCY EIGHTH NOTE")
                     pUorD = random.randrange(0,2)
                     #print(pUorD)
                     nonLeap = nonLeaps[maj.index(melody[i-1][0]%12)][pUorD][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][pUorD]))]
@@ -219,8 +220,8 @@ def main():
 
                     # TONIC
                     newNote = 12
-                print(melody[-1][1])
-                print(newNote)
+                #print(melody[-1][1])
+                #print(newNote)
                 # CLOSEST REGISTER
                 if melody[-1][1] - newNote > 6:
                     newNote += 12
@@ -233,7 +234,7 @@ def main():
                     if ptOrHold == 4:
                         length -= 1
                         holdApp = True
-                        print("Hold chosen!")
+                        #"Hold chosen!")
 
                         # TONIC (in V)
                         newNote = 0
@@ -267,7 +268,7 @@ def main():
 
             elif cad == "end1":
                 if length % 1 != 0:
-                    print("APPEND EMERGENCY EIGHTH NOTE")
+                    #print("APPEND EMERGENCY EIGHTH NOTE")
                     pUorD = random.randrange(0,2)
                     #print(pUorD)
                     nonLeap = nonLeaps[maj.index(melody[i-1][0]%12)][pUorD][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][pUorD]))]
@@ -295,7 +296,7 @@ def main():
                         holds.append(False)
                         passApp = True
                         #print("PASSING TONE ADDED")
-                        print("Two eighth notes")
+                        #print("Two eighth notes")
                         melody.append((newNote%12, newNote))
                         i += 1
                         length += 1
@@ -306,7 +307,7 @@ def main():
                         newNote = melody[i-1][1] + nonLeap
                     # elif rhythmVal == 2:
                     elif ptOrHold == 4:
-                        print("Hold chosen!")
+                        #print("Hold chosen!")
                         toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
                         newNote = melody[i-1][1] - toPreDom
 
@@ -317,7 +318,7 @@ def main():
                     else:
                         toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
                         newNote = melody[i-1][1] - toPreDom
-                        print("Quarter note")
+                        #print("Quarter note")
 
                         # PREDOMINANT
                         newNote = pDom[random.randrange(0, len(pDom))]
@@ -335,7 +336,7 @@ def main():
                         holds.append(False)
                         passApp = True
                         #print("PASSING TONE ADDED")
-                        print("Two eighth notes")
+                        #print("Two eighth notes")
                         melody.append((newNote%12, newNote))
                         i += 1
                         length += 1
@@ -347,7 +348,7 @@ def main():
 
                     # elif rhythmVal == 2:
                     elif ptOrHold == 4:
-                        print("Hold chosen!")
+                        #"Hold chosen!")
                         toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
                         newNote = melody[i-1][1] - toPreDom
 
@@ -358,7 +359,7 @@ def main():
                     else:
                         toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
                         newNote = melody[i-1][1] - toPreDom
-                        print("Quarter note")
+                        #print("Quarter note")
 
                         # PREDOMINANT
                         newNote = pDom[random.randrange(0, len(pDom))]
@@ -376,7 +377,7 @@ def main():
                         holds.append(False)
                         passApp = True
                         #print("PASSING TONE ADDED")
-                        print("Two eighth notes")
+                        #print("Two eighth notes")
                         melody.append((newNote%12, newNote))
                         i += 1
                         length += 1
@@ -388,7 +389,7 @@ def main():
 
                     # elif rhythmVal == 2:
                     elif ptOrHold == 4:
-                        print("Hold chosen!")
+                        #"Hold chosen!")
                         toDom = melody[i-1][0]%12-dom[random.randrange(0, len(dom))]
                         newNote = melody[i-1][1] - toDom
 
@@ -399,7 +400,7 @@ def main():
                     else:
                         toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
                         newNote = melody[i-1][1] - toPreDom
-                        print("Quarter note")
+                        #print("Quarter note")
 
                         # PREDOMINANT
                         newNote = pDom[random.randrange(0, len(pDom))]
@@ -411,7 +412,7 @@ def main():
                 elif i == length-1:
                     toLT = melody[i-1][0]%12-11
                     newNote = melody[i-1][1] - toLT
-                    print("Quarter note")
+                    #print("Quarter note")
                     penOrUlt = True
                     #print("newNote: " + str(newNote))
                     #print("offset: " + str(offset))
@@ -533,11 +534,11 @@ def main():
                     i -= 1
                     length -= 0.5
                 # print("Rests: " + str(rests))
-                print("AFTER")
-                print("Curr melody: "  + str(melody))
-                print(holds)
-                print(passTones)
-                print()
+                #"AFTER")
+                print(" melody: "  + str([x[1] for x in melody]))
+                #print(holds)
+                #print(passTones)
+                #print()
                 i += 1
 
         # print(melody)
@@ -984,12 +985,12 @@ def main():
             newEat = eat
             newHolds = mels[0][3]
             while len(newHolds) > len(mels[0][-1]):
-                print("POPPED FROM HOLDS")
+                #print("POPPED FROM HOLDS")
                 newHolds.pop()
 
             newPassTones = mels[0][4]
             while len(newPassTones) > len(mels[0][-1]):
-                print("POPPED FROM PASS TONES")
+                #print("POPPED FROM PASS TONES")
                 newPassTones.pop()
 
             while i < newEat:
@@ -1019,7 +1020,7 @@ def main():
                 elif newPassTones[i]:
                     c -= 0.5
                 c += 1
-                print(str(mels[0][-1][i]) + " " + str(c))
+                #print(str(mels[0][-1][i]) + " " + str(c))
             if cad == "end1":
                 length = 13-c
             else:
@@ -1093,15 +1094,16 @@ def main():
     offset = random.randrange(0,12)
     #fileName = sys.argv[1]
     #offset = 11
-    print(offset)
+    #print(offset)
+    print("GENERATING A SECTION:")
     makePhrase(majScales, offset, 16, True, "half")
-    #print()
+    print("RESTATING A SECTION:")
     makePhrase(majScales, offset, 3, False, "authentic", 3)
-    #print()
+    print("GENERATING B SECTION:")
     makePhrase(majScales, offset+7, 17, True, "retran")
-    #print()
+    print("RESTATING A SECTION:")
     makePhrase(majScales, offset, 3, False, "end1", 6)
-    #print()
+    print("FINALIZING CADENCE:")
     makePhrase(majScales, offset, 1, True, "end2")
     printSong(majScales[0][offset], fullMel, alto, tenor, bass)
 
