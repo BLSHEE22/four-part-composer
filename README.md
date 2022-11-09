@@ -22,7 +22,7 @@ Setup Instructions:
 - Navigate to the repository in your terminal (cd four-part-composer).
 
 Generating Music:
-- Run the script of your choice by entering the command 'python3 <filename>'.
+- Run the script of your choice by entering the command 'python3 _filename_'.
 - This will create a 'ConvertMe.ly' file in that same repository.
 - Open 'ConvertMe.ly' using LilyPond.
 - Press cmd-R to convert the LilyPond file to MIDI. You should then see the MIDI file 'ConvertMe.midi' appear in the repository.
