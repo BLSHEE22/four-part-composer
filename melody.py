@@ -30,33 +30,20 @@ def main():
     #PTORHOLD
     #def makeMel(offset, scale, starter, length, cad, r, h, p):
     # keep melodies within a set registral range
-    def makeMel(offset, scale, starter, length, cad, rests, rhythmVals, rhythmValsPicked):
+    def makeMel(offset, scaleDict, scaleType, starter, length, cad, rests, rhythmVals, rhythmValsPicked, log):
 
-        # create option to HOLD TONE or ADD PASSING TONES
-
-        # [('b', 11), ('a', 9), ('e', 16), ('d', 14), ('c', 12), ('e', 16), ('b', 11), 
-        # ('a', 9), ('a', 21), ('g', 19), ('e', 16), ('d', 14), ('c', 12), ('a', 9), ('f', 5), ('g', -5), ('a', -3)]
-
+        # create melody list and build scale
         melody = []
-
-        #PTORHOLD
-        #holds = h
-        #passTones = p
-
-        # numToLetter = {0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"}
-        #maj = [0,2,4,5,7,9,11,12]
-
-        # rename to 'chrom' at some point
-        maj = [0,1,2,3,4,5,6,7,8,9,10,11,12]
+        if log:
+            scale = buildScale(scaleType)
         goLeap = False
         justLeaped = (False, 0)
         lastDir = 2
         consecDir = 1
-        # rename to 'diatNonLeaps' and 'diatLeaps' at some point
-        nonLeaps = [[[2,2,4],[-1,-1,-3]],[[1],[-3]],[[2,2,3],[-2,-2,-3]],[[1],[-3]],[[1,3],[-2,-2,-4]],[[2,4],[-1,-1,-3]],[[1],[-4]],[[2,4],[-2,-2,-3]],[[2],[-1]],[[2,3],[-2,-2,-4]],[[1,2],[-3]],[[1,3],[-2,-2,-4]]] # legal nonLeaps from every scale degree
-        leaps = [[[5,7,9,11,12],[-5,-7,-8]],[[5,7,9,11,12],[-5,-7,-8]],[[5,7,9,10,12],[-5,-7,-9]],[[5,7,9,10,12],[-5,-7,-9]],[[5,7,8,10,12],[-5,-7,-9]],[[7,9,11,12],[-5,-6,-8]],[[6],[-6]],[[5,7,9,10,12],[-5,-7,-8]],[[5,7,9,10,12],[-5,-7,-8]],[[5,7,8,10,12],[-5,-7,-9]],[[5,7,8,10,12],[-5,-7,-9]],[[6,8,10,12],[-6,-7,-9]]] # legal leaps from every scale degree
-        dom = [2,7,11]
-        preDom = [0,2,5,9]
+        #nonLeaps = [[[2,2,4],[-1,-1,-3]],[[1],[-3]],[[2,2,3],[-2,-2,-3]],[[1],[-3]],[[1,3],[-2,-2,-4]],[[2,4],[-1,-1,-3]],[[1],[-4]],[[2,4],[-2,-2,-3]],[[2],[-1]],[[2,3],[-2,-2,-4]],[[1,2],[-3]],[[1,3],[-2,-2,-4]]] # legal nonLeaps from every scale degree
+        #leaps = [[[5,7,9,11,12],[-5,-7,-8]],[[5,7,9,11,12],[-5,-7,-8]],[[5,7,9,10,12],[-5,-7,-9]],[[5,7,9,10,12],[-5,-7,-9]],[[5,7,8,10,12],[-5,-7,-9]],[[7,9,11,12],[-5,-6,-8]],[[6],[-6]],[[5,7,9,10,12],[-5,-7,-8]],[[5,7,9,10,12],[-5,-7,-8]],[[5,7,8,10,12],[-5,-7,-9]],[[5,7,8,10,12],[-5,-7,-9]],[[6,8,10,12],[-6,-7,-9]]] # legal leaps from every scale degree
+        # dom = [2,7,11]
+        # preDom = [0,2,5,9]
 
         # starter = maj[random.randrange(0, len(maj)-1)]
         for x in starter:
@@ -67,520 +54,236 @@ def main():
         if not rests:
             rests.append(False)
         if not rhythmValsPicked:
-            rhythmValsPicked.append(1)
-
-        # print(melody)
-
-        if cad == "end1":
-            for i in range(10):
-                print()
-            print("*********")
-            print()
+            rhythmValsPicked.append(random.choice(rhythmVals))
 
         # 50/50 up or down, never move by 0
         # leaps occur 30% of the time and are always following by a non-leap in the opposite direction of the leap
         i = 1
         spaceLeft = length - sum(rhythmValsPicked) 
 
-        while spaceLeft > 0:
-            # 0 up, 1 down
-            newNote = 0
+        if not log:
+            print("Melodic motif repeated.")
+        else:
+            while spaceLeft > 0:
+                # placeholder
+                newNote = 0
 
-            # if 0, set restApp to True
-            rest = random.randrange(0,7)
-            # 0 is up, 1 is down
-            uOrD = random.randrange(0,2)
+                # if 0, set restApp to True
+                rest = random.randrange(0,6)
+                # 0 is up, 1 is down
+                uOrD = random.randrange(0,2)
+                # if 0 or 1, leap!
+                l = random.randrange(0, 8)
 
-            # if 0 or 1, leap!
-            l = random.randrange(0, 11)
+                # PRINT EXISTING MELODY 
+                print()
+                #print("Current melody:")
+                #print("Pitches: " + str([x[1] for x in melody]))
+                #print("Rhythms: " + str(rhythmValsPicked))
+                #print("Creating new note...")
+                #print("Note created.")
 
-            # RHYTHMVAL METHOD
-            rhythmVal = rhythmVals[random.randrange(0,len(rhythmVals))]
+                # LOGIC FOR DECIDING THE RHYTHM
+                print("Choosing rhythm...")
+                rhythmVal = random.choice(rhythmVals)
+                #print("Rhythm Value Map: " + str(rhythmVals))
+                while rhythmVal not in rhythmVals or rhythmVal > spaceLeft:
+                    if rhythmVal == 0.5:
+                        break
+                    #print("Rhythm of value " + str(rhythmVal) + " chosen.")
+                    #print("RHYTHM TOO LONG, SHORTENING BY AN EIGTH NOTE...")
+                    rhythmVal -= 0.5
 
-            print(rhythmVals)
-            while rhythmVal not in rhythmVals or rhythmVal > spaceLeft:
-                if rhythmVal == 0.5:
-                    break
-                print(rhythmVal)
-                print("RHYTHM TOO LONG, SHORTENING BY AN EIGTH NOTE...")
-                rhythmVal -= 0.5
+                print("Rhythm of value " + str(rhythmVal) + " chosen.")
 
-            print("Added rhythm of val " + str(rhythmVal))
-            # init as False
-            
-            if spaceLeft < 2.5:
-                penOrUlt = True
-            penOrUlt = False
-            restApp = False
-            
-            # Used to land cadences on strong beats
-            emerg8 = False
-
-            print("melody: " + str(melody))
-            #print("i: " + str(i) + " length: " + str(length) + " " + cad)
-
-            # PTORHOLD
-            #print(holds)
-            #print(passTones)
-
-            '''
-
-            if cad == "half":
-                if spaceLeft < 4 and not spaceLeft < 2:
-                    if rhythmVal == 2:
-                    # PTORHOLD
-                    # if ptOrHold == 4:
-                        toDom = melody[i-1][0]%12-dom[random.randrange(0, len(dom))]
-                        newNote = melody[i-1][1] - toDom
-                        holdApp = True
-                        # DOMINANT
-                        #newNote = 7
-                    else:
-                        toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
-                        newNote = melody[i-1][1] - toPreDom
-                        # PREDOMINANT
-                        if newNote > 9:
-                            newNote = 9
-                        if newNote < 2:
-                            newNote = 2
-                    penOrUlt = True
-                    #print("newNote: " + str(newNote))
-                    #print("offset: " + str(offset))
-
-                elif spaceLeft < 2:
-                    toFive = melody[i-1][0]%12-7
-                    newNote = melody[i-1][1] - toFive
-                    penOrUlt = True
-                    #print("newNote: " + str(newNote))
-                    #print("offset: " + str(offset))
-
-                    # DOMINANT
-                    #newNote = 7
+                # This logic is basically ignored.            
+                #if spaceLeft < 2.5:
+                    #penOrUlt = True
+                penOrUlt = False
+                restApp = False
                 
-                # CLOSEST REGISTER
-                if melody[-1][1] - newNote > 6:
-                    newNote += 12
-                if newNote - melody[-1][1] > 6:
-                    newNote -= 12
-                    
-            
-            elif cad == "authentic":
-                if length % 1 != 0:
-                    print("APPEND EMERGENCY EIGHTH NOTE")
-                    pUorD = random.randrange(0,2)
-                    #print(pUorD)
-                    nonLeap = nonLeaps[maj.index(melody[i-1][0]%12)][pUorD][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][pUorD]))]
-                    #print("NonLeap: " + str(nonLeap))    
-                    newNote = melody[i-1][1] + nonLeap
-                    rhythmValsPicked.append(0.5)
-                    rests.append(False)
+                # Used to land cadences on strong beats, not used here.
+                emerg8 = False
 
-                    # PTORHOLD
-                    #passTones.append(True)
-                    #holds.append(False)
-                    #passApp = True
-                    #print("PASSING TONE ADDED")
-                    #print("Two eighth notes")
+                print("Deciding motion...")
+                if not penOrUlt:
+                    if rest == 0:
+                        restApp = True
+                    if not justLeaped[0] and l < 2: goLeap = True
+                    # LEAP LOGIC
+                    if goLeap:
+                        if uOrD == 0:
+                            print("Upward leap chosen.")
+                        else:
+                            print("Downward leap chosen.")
+                        # find legal leaps
+                        legalLeaps = findLegalLeaps(melody[i-1][1], scale, uOrD)
+                        print("Legal Leaps: " + str(legalLeaps))
+                        # pick a random leap in legalLeaps
+                        newNote = random.choice(legalLeaps)
+                        print(str(newNote) + " chosen.")
 
-                    # CLOSEST REGISTER
-                    if melody[-1][1] - newNote > 6:
-                        newNote += 12
-                    if newNote - melody[-1][1] > 6:
-                        newNote -= 12
+                        #leap = leaps[maj.index(melody[i-1][0]%12)][uOrD][random.randrange(0,len(leaps[maj.index(melody[i-1][0]%12)][uOrD]))]
+                        #newNote = melody[i-1][1] + leap
+                        justLeaped = (True, uOrD)
+                        goLeap = False
+                    # POST-LEAP BALANCE LOGIC
+                    elif justLeaped[0]:
+                        print("Post-leap balance required.")
+                        # direction overrides to opposite of the previous leap
+                        oppFromLeap = 1
+                        if justLeaped[1] == 1:
+                            oppFromLeap = 0
+                        # find legal steps
+                        legalSteps = findLegalSteps(melody[i-1][1], scale, oppFromLeap)
+                        print("Legal Steps: " + str(legalSteps))
 
+                        # pick a random step in legalSteps
+                        newNote = random.choice(legalSteps)
+                        print(str(newNote) + " chosen.")
+
+                        #fillIn = nonLeaps[maj.index(melody[i-1][0]%12)][oppFromLeap][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][oppFromLeap]))]
+                        #newNote = melody[i-1][1] + fillIn
+                        justLeaped = (False, 0)
+                    # STEP LOGIC
+                    else:
+                        if uOrD == 0:
+                            print("Upward step chosen.")
+                        else:
+                            print("Downward step chosen.")
+                        # find legal steps
+                        legalSteps = findLegalSteps(melody[i-1][1], scale, uOrD)
+                        print("Legal Steps: " + str(legalSteps))
+
+                        # pick a random step in legalSteps
+                        newNote = random.choice(legalSteps)
+                        print(str(newNote) + " chosen.")
+                        #nonLeap = nonLeaps[maj.index(melody[i-1][0]%12)][uOrD][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][uOrD]))]
+                        #newNote = melody[i-1][1] + nonLeap
+
+                # REGISTER CONTROL LOGIC (temporarily disabled)
+                # if note extends beyond lower bound, bring up an octave
+                #if melody[-1][1] - newNote > 6:
+                    #newNote += 12
+                # if note extends beyond upper bound, bring down an octave
+                #if newNote - melody[-1][1] > 6:
+                    #newNote -= 12
+                # emerg8 is always false, so this always executes.
+                if not emerg8:
                     melody.append((newNote%12, newNote))
-                    # DON'T INCREMENT
-                    #i += 1
-                    emerg8 = True
-                    penOrUlt = True
-                elif spaceLeft == 3:
-                    toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
-                    newNote = melody[i-1][1] - toPreDom
-                    penOrUlt = True
-                    #print("newNote: " + str(newNote))
-                    #print("offset: " + str(offset))
-
-                    # PREDOMINANT
-                    newNote = preDom[random.randrange(1, len(preDom))]
-                elif spaceLeft == 2:
-                    toLT = melody[i-1][0]%12-11
-                    newNote = melody[i-1][1] - toLT                        
-                    penOrUlt = True
-                    #print("newNote: " + str(newNote))
-                    #print("offset: " + str(offset))
-
-                    # LEADING TONE
-                    newNote = 11
-                elif spaceLeft == 1:
-                    toTon = melody[i-1][0]%12
-                    newNote = melody[i-1][1] - toTon
-                    penOrUlt = True
-                    #print("newNote: " + str(newNote))
-                    #print("offset: " + str(offset))
-
-                    # TONIC
-                    newNote = 12
-                print(melody[-1][1])
-                print(newNote)
-                # CLOSEST REGISTER
-                if melody[-1][1] - newNote > 6:
-                    newNote += 12
-                if newNote - melody[-1][1] > 6:
-                    newNote -= 12
-
-
-            elif cad == "retran": 
-                if i == length-2:
-                    if rhythmVal == 2:
-                    # PTORHOLD
-                    #if ptOrHold == 4:
-                        length -= 1
-                        holdApp = True
-                        print("Hold chosen!")
-
-                        # TONIC (in V)
-                        newNote = 0
-
-                    else:
-                        # PITCH IN DOMINANT TRIAD (in V)
-                        retDom = [-5,-1,2,7]
-                        newNote = retDom[random.randrange(0, len(retDom))]
-
-                    #newNote = melody[i-1][1] - toTon
-                    penOrUlt = True
-                    #print("newNote: " + str(newNote))
-                    #print("offset: " + str(offset))
-
-                elif i == length-1:
-                    toTon = melody[i-1][0]%12
-                    newNote = melody[i-1][1] - toTon
-                    penOrUlt = True
-                    #print("newNote: " + str(newNote))
-                    #print("offset: " + str(offset))
-
-                    # TONIC (in V)
-                    newNote = 0
-                
-                # CLOSEST REGISTER
-                if melody[-1][1] - newNote > 6:
-                    newNote += 12
-                if newNote - melody[-1][1] > 6:
-                    newNote -= 12
-
-
-            elif cad == "end1":
-                if length % 1 != 0:
-                    print("APPEND EMERGENCY EIGHTH NOTE")
-                    pUorD = random.randrange(0,2)
-                    #print(pUorD)
-                    nonLeap = nonLeaps[maj.index(melody[i-1][0]%12)][pUorD][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][pUorD]))]
-                    #print("NonLeap: " + str(nonLeap))    
-                    newNote = melody[i-1][1] + nonLeap
-                    rhythmValsPicked.append(0.5)
-                    rests.append(False)
-
-                    # PTORHOLD
-                    #passTones.append(True)
-                    #holds.append(False)
-                    #passApp = True
-                    #print("PASSING TONE ADDED")
-                    #print("Two eighth notes")
-
-                    melody.append((newNote%12, newNote))
-                    # DON'T INCREMENT
-                    #i += 1
-                    emerg8 = True
-                    penOrUlt = True                
-                    
-                elif spaceLeft == 4:
-                    pDom = [-3,0,2,5]
-                    if rhythmVal == 0.5:
-                    # PTORHOLD
-                    #if ptOrHold == 0:
-                        newNote = pDom[random.randrange(0, len(pDom))]
-                        rhythmValsPicked.append(0.5)
-                        rests.append(False)
-
-                        # PTORHOLD
-                        #passTones.append(True)
-                        #holds.append(False)
-                        #passApp = True
-                        #print("PASSING TONE ADDED")
-                        print("Two eighth notes")
-                        melody.append((newNote%12, newNote))
-                        i += 1
-                        length += 1
-                        pUorD = random.randrange(0,2)
-                        #print(pUorD)
-                        nonLeap = nonLeaps[maj.index(melody[i-1][0]%12)][pUorD][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][pUorD]))]
-                        #print("NonLeap: " + str(nonLeap))    
-                        newNote = melody[i-1][1] + nonLeap
-                    elif rhythmVal == 2:
-                    # PTORHOLD
-                    #elif ptOrHold == 4:
-                        print("Hold chosen!")
-                        toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
-                        newNote = melody[i-1][1] - toPreDom
-
-                        # DOMINANT
-                        newNote = -1
-                        length -= 1
-                        holdApp = True
-                    else:
-                        toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
-                        newNote = melody[i-1][1] - toPreDom
-                        print("Quarter note")
-
-                        # PREDOMINANT
-                        newNote = pDom[random.randrange(0, len(pDom))]
-
-                    #print("newNote: " + str(newNote))
-                    #print("offset: " + str(offset))
-                    penOrUlt = True
-                elif spaceLeft == 3:
-                    pDom = [-3,0,2,5]
-                    if rhythmVal == 0.5:
-                    # PTORHOLD
-                    #if ptOrHold == 0:
-                        newNote = pDom[random.randrange(0, len(pDom))]
-                        rhythmValsPicked.append(0.5)
-                        rests.append(False)
-
-                        # PTORHOLD
-                        passTones.append(True)
-                        holds.append(False)
-                        passApp = True
-                        #print("PASSING TONE ADDED")
-                        print("Two eighth notes")
-                        melody.append((newNote%12, newNote))
-                        i += 1
-                        length += 1
-                        pUorD = random.randrange(0,2)
-                        #print(pUorD)
-                        nonLeap = nonLeaps[maj.index(melody[i-1][0]%12)][pUorD][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][pUorD]))]
-                        #print("NonLeap: " + str(nonLeap))    
-                        newNote = melody[i-1][1] + nonLeap
-
-                    elif rhythmVal == 2:
-                    # PTORHOLD
-                    #elif ptOrHold == 4:
-                        print("Hold chosen!")
-                        toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
-                        newNote = melody[i-1][1] - toPreDom
-
-                        # DOMINANT
-                        newNote = -1
-                        length -= 1
-                        holdApp = True
-                    else:
-                        # FORCED QUARTER NOTE
-                        rhythmVal = 1
-
-                        toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
-                        newNote = melody[i-1][1] - toPreDom
-                        print("Quarter note")
-
-                        # PREDOMINANT
-                        newNote = pDom[random.randrange(0, len(pDom))]
-
-                    #print("newNote: " + str(newNote))
-                    #print("offset: " + str(offset))
-                    penOrUlt = True
-                elif spaceLeft == 2:
-                    pDom = [-3,0,2,5]
-                    if rhythmVal == 0.5:
-                    # PTORHOLD
-                    #if ptOrHold == 0:
-                        newNote = pDom[random.randrange(0, len(pDom))]
-                        rhythmValsPicked.append(0.5)
-                        rests.append(False)
-
-                        # PTORHOLD
-                        passTones.append(True)
-                        holds.append(False)
-                        passApp = True
-                        #print("PASSING TONE ADDED")
-                        print("Two eighth notes")
-                        melody.append((newNote%12, newNote))
-                        i += 1
-                        length += 1
-                        pUorD = random.randrange(0,2)
-                        #print(pUorD)
-                        nonLeap = nonLeaps[maj.index(melody[i-1][0]%12)][pUorD][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][pUorD]))]
-                        #print("NonLeap: " + str(nonLeap))    
-                        newNote = melody[i-1][1] + nonLeap
-
-                    elif rhythmVal == 2:
-                    # PTORHOLD
-                    #elif ptOrHold == 4:
-                        print("Hold chosen!")
-                        toDom = melody[i-1][0]%12-dom[random.randrange(0, len(dom))]
-                        newNote = melody[i-1][1] - toDom
-
-                        # DOMINANT
-                        newNote = -1
-                        length -= 1
-                        holdApp = True
-                    else:
-                        # FORCED QUARTER NOTE
-                        rhythmVal = 1
-
-                        toPreDom = melody[i-1][0]%12-preDom[random.randrange(0, len(preDom))]
-                        newNote = melody[i-1][1] - toPreDom
-                        print("Quarter note")
-
-                        # PREDOMINANT
-                        newNote = pDom[random.randrange(0, len(pDom))]
-
-                    #print("newNote: " + str(newNote))
-                    #print("offset: " + str(offset))
-                    penOrUlt = True
-
-                elif spaceLeft == 1:
-
-                    # FORCED QUARTER NOTE
-                    rhythmVal = 1
-
-                    toLT = melody[i-1][0]%12-11
-                    newNote = melody[i-1][1] - toLT
-                    print("Quarter note")
-                    penOrUlt = True
-                    #print("newNote: " + str(newNote))
-                    #print("offset: " + str(offset))
-
-                    # LEADING TONE
-                    newNote = -1 
-
-                # CLOSEST REGISTER
-                if melody[-1][1] - newNote > 6:
-                    newNote += 12
-                if newNote - melody[-1][1] > 6:
-                    newNote -= 12
-
-
-            '''
-
-            if not penOrUlt:
-                if rest == 0:
-                    restApp = True
-                if not justLeaped[0] and l < 2: goLeap = True
-                if goLeap:
-                    # if trying to leap down while too low, reverse direction
-                    #print("Melody currently: " + str(melody[i-1][1]+offset))
-                    #print("Direction trying to leap: " + str(uOrD))
-                    ##if melody[i-1][1]+offset < 3 and uOrD == 1:
-                        #print("NOT FINE")
-                        ##uOrD = 0
-                    # and vice versa
-                    ##if melody[i-1][1]+offset > 11 and uOrD == 0:
-                        #print("NOT FINE")
-                        ##uOrD = 1
-                    leap = leaps[maj.index(melody[i-1][0]%12)][uOrD][random.randrange(0,len(leaps[maj.index(melody[i-1][0]%12)][uOrD]))]
-                    newNote = melody[i-1][1] + leap
-                    #print("Leap: " + str(leap))
-                    justLeaped = (True, uOrD)
-                    goLeap = False
-                elif justLeaped[0]:
-                    oppFromLeap = 1
-                    if justLeaped[1] == 1:
-                        oppFromLeap = 0
-                    #print(oppFromLeap)
-                    #temp1 = nonLeaps[maj.index(melody[i-1][0]%12)][oppFromLeap]
-                    # randNum = random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][oppFromLeap]))
-                    # print(temp1)
-                    # print(randNum)
-                    fillIn = nonLeaps[maj.index(melody[i-1][0]%12)][oppFromLeap][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][oppFromLeap]))]
-                    newNote = melody[i-1][1] + fillIn
-                    #print("Fill-In: " + str(fillIn))
-                    justLeaped = (False, 0)
+                    rhythmValsPicked.append(rhythmVal)
+                    rests.append(restApp)
                 else:
-                    nonLeap = nonLeaps[maj.index(melody[i-1][0]%12)][uOrD][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][uOrD]))]
-                    #print("NonLeap: " + str(nonLeap))
-                    newNote = melody[i-1][1] + nonLeap
-                '''
-                if rhythmVal == 0.5:
-                    if not restApp:
-                        rests.append(False)
-                        rhythmValsPicked.append(0.5)
-                        #print("PASSING TONE ADDED")
-                        melody.append((newNote%12, newNote))
-                        i += 1
-                        length += 1
-                        pUorD = random.randrange(0,2)
-                        #print(pUorD)
-                        nonLeap = nonLeaps[maj.index(melody[i-1][0]%12)][pUorD][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][pUorD]))]
-                        #print("NonLeap: " + str(nonLeap))    
-                        newNote = melody[i-1][1] + nonLeap
-                elif rhythmVal == 1.5:
+                    i -= 1
                     length -= 0.5
-                elif rhythmVal == 2:
-                    length -= 1
-                elif rhythmVal == 3:
-                    length -= 2
-                elif rhythmVal == 4:
-                    length -= 3
-                '''
-            # CLOSEST REGISTER
-            if melody[-1][1] - newNote > 6:
-                newNote += 12
-            if newNote - melody[-1][1] > 6:
-                newNote -= 12
-            if not emerg8:
-                melody.append((newNote%12, newNote))
-                rhythmValsPicked.append(rhythmVal)
-                rests.append(restApp)
-            else:
-                i -= 1
-                length -= 0.5
-            # print("Rests: " + str(rests))
-            
-            spaceLeft = 16 - sum(rhythmValsPicked)
-            print(melody)
-            print(rhythmValsPicked)
-            print(sum(rhythmValsPicked))
-            print("Space left: " + str(spaceLeft))
-            print()
-            i += 1
-
-        # print(melody)
-        #print(rests)
-        #print(holds)
-        #print(passTones)
+                
+                # update spaceLeft
+                spaceLeft = length - sum(rhythmValsPicked)
+                print("New melody: " + str([x[1] for x in melody]))
+                print("            " + str(rhythmValsPicked))
+                print("Total beats used: " + str(sum(rhythmValsPicked)))
+                print("Space left: " + str(spaceLeft))
+                #print()
+                i += 1
         
         ogMel = [x for x in melody]
-        # melody bounds keeper
-        #bounds = (18,-11)
-        '''
-        for i in range(len(ogMel)):
-            if i > len(ogMel)-4:
-                bounds = (9,-5)
-            print("Is " + str(ogMel[i][1]) + " greater than " + str(bounds[0]) + "?")
-            if ogMel[i][1] > bounds[0]:
-                ogMel[i] = (ogMel[i][0], ogMel[i][1]-12)
-                print("YES, lowering to " + str(x) + ".")
-            print("Is " + str(ogMel[i][1]) + " less than " + str(bounds[1]) + "?")
-            if ogMel[i][1] < bounds[1]:
-                ogMel[i] = (ogMel[i][0], ogMel[i][1]+12)
-                print("YES, raising to " + str(ogMel[i]) + ".")
-        #print("OgMel: " + str(ogMel))
-        '''
         melody = [((x[0]+offset)%12,x[1]+offset) for x in ogMel] 
-        #print("Melody + offset: " + str(melody))   
-        return melToLily(melody, scale, rests, rhythmVals, rhythmValsPicked, cad, ogMel)
+        return melToLily(melody, scaleDict, rests, rhythmVals, rhythmValsPicked, cad, ogMel)
+
+    # build the scale
+    def buildScale(scaleType):
+        print("Building scale...")
+        if scaleType == "major":
+            scale = {0,2,4,5,7,9,11}
+        elif scaleType == "minor":
+            scale = {0,2,3,5,7,8,10}
+        elif scaleType == "chromatic":
+            scale = {0,1,2,3,4,5,6,7,8,9,10,11}
+        else:
+            scale = {0}
+            curr = 0
+            while curr < 12:
+                i = random.randrange(1,4)
+                curr += i
+                if curr >= 12: 
+                    scale.add(curr-12) 
+                else: 
+                    scale.add(curr)
+        print(scale)
+        print("Built scale.")
+        return scale
+    
+    # find LEAPS in the scale that are no more than a tenth away from a starting note
+    def findLegalLeaps(note, scale, direction):
+        #print("Finding legal leaps...")
+        legalLeaps = []
+        leapStart = 5
+        leapEnd = 16
+        leapInc = 1
+        defOctLeap = 12
+        if direction == 1:
+            leapStart = -5
+            leapEnd = -16
+            leapInc = -1
+            defOctLeap = -12
+        dist = leapStart
+        while not dist == leapEnd:
+            possLeap = note + dist
+            if possLeap in scale or possLeap%12 in scale:
+                legalLeaps.append(possLeap)
+            dist += leapInc
+        if not legalLeaps:
+            #print("No legal leaps found. Returning an octave leap.")
+            return [note+defOctLeap]
+        #print("Legal leaps found.")
+        return legalLeaps
+
+    # find STEPS in the scale from a starting note
+    def findLegalSteps(note, scale, direction):
+        #print("Finding legal steps...")
+        legalSteps = []
+        stepStart = 1
+        stepEnd = 4
+        stepInc = 1
+        if direction == 1:
+            stepStart = -1
+            stepEnd = -4
+            stepInc = -1
+        dist = stepStart
+        while not dist == stepEnd:
+            possStep = note + dist
+            if possStep in scale or possStep%12 in scale:
+                legalSteps.append(possStep)
+            dist += stepInc
+        if not legalSteps:
+            #print("No legal steps found. Repeating note.")
+            return [note]
+        #print("Legal steps found.")
+        return legalSteps
 
     # generate the available rhythmic value choices for a melody
     def genRhythmVals():
-                
+        print("Generating rhythm value map...")        
         rhythmVals = []
-        vals = [0.5,1,1.5,2,3,4]
-        pips = [4,5,6,7,8,9]
+        vals = [0.5,1,1.5,2,3,4] #implement 0.25, 6, and 8
+        pips = [10,100,1000]
 
-        for i in range(6):
-            pipCount = pips[random.randrange(len(pips))]
+        # randomly boost the frequency of any of the first four vals 
+        for i in range(2):
+            pipCount = random.choice(pips)
             dieRoll = random.randrange(1, pipCount)
             for j in range(dieRoll):
                 rhythmVals.append(vals[i])
 
+        # tack on the last four (soon to be six) vals (we don't want to see too many of these)
+        rhythmVals.append(vals[2])
+        rhythmVals.append(vals[3])
+        rhythmVals.append(vals[4])
+        rhythmVals.append(vals[5])
+        #rhythmVals.append(vals[6])
+        #rhythmVals.append(vals[7])
+        print(rhythmVals)
+        print("Rhythm value map generated.")
         return rhythmVals
 
     # translate melNums to LilyPond code
@@ -590,8 +293,8 @@ def main():
         #print(r)
         #print(h)
         #print(p)
-        print(mel)
-        print("RHYTHMVALSPICKED: " + str(rhythmValsPicked))
+        #print(mel)
+        #print("RHYTHMVALSPICKED: " + str(rhythmValsPicked))
         lilyMelody = []
         i = 0
         while i < len(mel):
@@ -888,37 +591,13 @@ def main():
                 continue
             chordsChosen.append(chordLib[abstrMel[i]][random.randrange(0, len(chordLib[abstrMel[i]]))])
             i += 1
-        
-        # print(abstrMel)
-        # print(chordsChosen)
-        '''
-        for i in range(len(chordsChosen)):
-            try:
-                if chordsChosen[i][2]-12 > mel[1][i]:
-                    t = chordsChosen[i][2]
-                    chordsChosen[i][2] = mel[1][i]
-                    mel[1][i] = t
-                    if chordsChosen[i][1] > chordsChosen[i][2]:
-                        u = chordsChosen[i][1]
-                        chordsChosen[i][1] = chordsChosen[i][2]
-                        chordsChosen[i][2] = u
-                        if chordsChosen[i][0]-12 > chordsChosen[i][1]:
-                            v = chordsChosen[i][0]
-                            chordsChosen[i][0] = chordsChosen[i][1]
-                            chordsChosen[i][1] = v
-            except:
-                #print("'i' was too big for one of the lists.")
-                # random.shuffle(chordsChosen[i], left)
-        '''
-        # print(chordsChosen)
-        # print()
 
         return chordsChosen
 
         # return makeMel(offset-regOffset, scale, starter)
 
     # put the melody and harmony together
-    def makePhrase(scale, offset, length, newMel, cad="authentic", eat=2):
+    def makePhrase(scaleDict, scaleType, offset, length, newMel, cad="authentic", eat=2):
         global fullMel
         global bass
         global tenor
@@ -926,12 +605,9 @@ def main():
 
         # creating new melody
         if newMel:
-            
-            #PTORHOLD
-            #mel = makeMel(offset, scale[offset%12], [(0,0)], length, cad, [], [], [])
 
             rhythmVals = genRhythmVals()
-            mel = makeMel(offset, scale[offset%12], [(0,0)], length, cad, [], rhythmVals, [])
+            mel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], length, cad, [], rhythmVals, [], True)
        
             if cad == "end2":
                 # "Cad mel: " + str(mel))
@@ -954,66 +630,29 @@ def main():
         
         # creation variation on old melody
         else:
-            '''
-            newEat = 0
-            noteShave = 0
-            for i in mels[0][4]:
-                if newEat > 2:
-                    break
-                newEat += mels[0][4][0-i]
-                noteShave -= 1
-            '''
 
+            # Use rhythms of old melody but create new pitches!
+            #print("Old melody: " + str(mels))
+            #mel = makeMel(offset, scaleDict[offset%12], [(0,0)], length, cad, [], [999], [])
+            
+            # For restating the exact melody:
             c = sum(mels[0][4])
             if cad == "end1":
                 length = 13-c
             else:
                 length = 16-c
-            mel = makeMel(offset, scale[offset%12], mels[0][-1], length, cad, mels[0][2], mels[0][3], mels[0][4])
+            mel = makeMel(offset, scaleDict[offset%12], scaleType, mels[0][-1], length, cad, mels[0][2], mels[0][3], mels[0][4], False)
             if cad == "end1":
                 mels.append(mel)
 
-        #print("Made mel: " + str(mel))
-
-        
-        #harmonies = makeHarm(mel, offset, cad)
-
         fullMel += mel[0]
-        '''
-        var = [False, False, False, False, False]
-        restVar = []
-        holdVar = []
-        passVar = []
-        if cad != "end2":
-            for x in harmonies:
-                restVar.append(random.choice(var))
-                holdVar.append(random.choice(var))
-                passVar.append(random.choice(var))
-        else:
-            for x in harmonies:
-                restVar.append(False)
-                holdVar.append(True)
-                passVar.append(False)
-        #print(mel[1])
-        #print(harmonies)
-        #print()
-        #print(harmonies)
-        bassOff = 24
-        tenAltOff = 12
-        if cad == "retran":
-            bassOff += 12
-            tenAltOff += 12
-        bass += melToLily([((x[0]+offset-24)%12, x[0]+offset-bassOff) for x in harmonies], scale[offset%12], restVar, holdVar, passVar, cad)[0]
-        tenor += melToLily([((x[1]+offset-12)%12, x[1]+offset-tenAltOff) for x in harmonies], scale[offset%12], passVar, restVar, holdVar, cad)[0]
-        alto += melToLily([((x[2]+offset-12)%12, x[2]+offset-tenAltOff) for x in harmonies], scale[offset%12], holdVar, passVar, restVar, cad)[0]
-        '''
 
     # write the lilyPond code to output file
-    def printSong(scale, m, a, t, b):
+    def printSong(scaleDict, m, a, t, b):
         code = "\\header{\n  title = \"Computery's Masterpiece\"\n}\n\n"
         code += "\\score {\n"
         code += "\\new PianoStaff <<\n"
-        code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scale + " \\major " + m + "}\n"
+        code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleDict + " \\major " + m + "}\n"
         #code += "\\" + "new Staff { \set Staff.midiInstrument = \"viola\" \clef \"treble\" \\key " + scale + " \\major " + a + "}\n"
         #code += "\\" + "new Staff { \set Staff.midiInstrument = \"cello\" \clef \"bass\" \\key " + scale + " \\major " + t + "}\n"
         #code += "\\" + "new Staff { \set Staff.midiInstrument = \"contrabass\" \clef \"bass\" \\key " + scale + "\\major " + b + "}\n"
@@ -1021,30 +660,45 @@ def main():
         code += "\\midi{}\n"
         code += "}\n"
         code += "\\version \"2.22.2\""
-        f = open("test717.ly", "w")
+        f = open("ConvertMe.ly", "w")
         f.write(code)
         f.close()
     
     # composes an AABA tune
-    def AABA(key):
-        makePhrase(majScales, key, 16, True, "half")
-        #print()
-        makePhrase(majScales, key, 16, False, "authentic")
-        #print()
-        makePhrase(majScales, key+7, 16, True, "retran")
-        #print()
-        makePhrase(majScales, key, 16, False, "end1")
+    def AABA(key, scaleType):
+        print("Generating A section...")
+        makePhrase(majScales, scaleType, key, 16, True, "half")
+        print("\nRestating A section...")
+        makePhrase(majScales, scaleType, key, 16, False, "authentic")
+        print("\nGenerating B section...") #keep rhythmvals the same perhaps?
+        makePhrase(majScales, scaleType, key, 16, True, "retran")
+        print("\nRestating A section...")
+        makePhrase(majScales, scaleType, key, 16, False, "end1",6)
 
-    # EAT HAS TO REPRESENT BEATS, NOT NOTES
+    # composes a freeform tune
+    def freeform(key, beats):
+        makePhrase(majScales, key, beats, True, "authentic")
 
-    # for no holds or passes, 16->(3,3)->17->(3,6)
+    # composes a tune that writes and employs a rhythmic motif
+    def rhythmicMotif(key):
+        makePhrase(majScales, key, 8, True, "authentic")
+        makePhrase(majScales, key, 8, False, "authentic")
 
     # MAIN
     offset = random.randrange(0,12)
     #fileName = sys.argv[1]
     #offset = 11
-    AABA(offset)
-    print(offset)
+    scaleAsk = input("What kind of scale would you like to use for your melody?\n- major\n- minor\n- chromatic\n- random\n")
+    print()
+    if scaleAsk == 'major' or scaleAsk == 'minor' or scaleAsk == 'chromatic':
+        print("Writing melody using " + scaleAsk + " scale...")
+    else:
+        print("Writing melody using randomly built scale...")
+    print("Tonal center of " + majScales[0][offset] + " chosen.")
+    AABA(offset, scaleAsk)
+    #freeform(offset, 64)
+    #rhythmicMotif(offset)
+    #print(offset)
     #print()
     #makePhrase(majScales, offset, 1, True, "end2")
     printSong(majScales[0][offset], fullMel, alto, tenor, bass)

@@ -1081,7 +1081,7 @@ def main():
         code += "\\midi{}\n"
         code += "}\n"
         code += "\\version \"2.22.2\""
-        f = open("test717.ly", "w")
+        f = open("ConvertMe.ly", "w")
         f.write(code)
         f.close()
     
