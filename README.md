@@ -7,7 +7,7 @@ Current features:
 - 'melody.py' -> Generates a 16-bar melody from a randomly built scale.
 
 Features in development: 
-- Randomly set home register, dynamics, tempo, and meter
+- Random settings of home register, dynamics, tempo, and meter
 - 'counter.py' -> Writes a counter-melody to a given melody.
 - 'harmony.py -> Combines the power of 'counter.py' and the original harmonization logic to create natural sounding four-part harmonies.
 
