@@ -27,9 +27,7 @@ majScales = {0:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"aes",9:
 
 def main():
 
-    #PTORHOLD
-    #def makeMel(offset, scale, starter, length, cad, r, h, p):
-    # keep melodies within a set registral range
+    # make melody
     def makeMel(offset, scaleDict, scaleType, starter, length, cad, rests, rhythmVals, rhythmValsPicked, log):
 
         # create melody list and build scale
@@ -38,53 +36,55 @@ def main():
             scale = buildScale(scaleType)
         goLeap = False
         justLeaped = (False, 0)
-        lastDir = 2
-        consecDir = 1
-        #nonLeaps = [[[2,2,4],[-1,-1,-3]],[[1],[-3]],[[2,2,3],[-2,-2,-3]],[[1],[-3]],[[1,3],[-2,-2,-4]],[[2,4],[-1,-1,-3]],[[1],[-4]],[[2,4],[-2,-2,-3]],[[2],[-1]],[[2,3],[-2,-2,-4]],[[1,2],[-3]],[[1,3],[-2,-2,-4]]] # legal nonLeaps from every scale degree
-        #leaps = [[[5,7,9,11,12],[-5,-7,-8]],[[5,7,9,11,12],[-5,-7,-8]],[[5,7,9,10,12],[-5,-7,-9]],[[5,7,9,10,12],[-5,-7,-9]],[[5,7,8,10,12],[-5,-7,-9]],[[7,9,11,12],[-5,-6,-8]],[[6],[-6]],[[5,7,9,10,12],[-5,-7,-8]],[[5,7,9,10,12],[-5,-7,-8]],[[5,7,8,10,12],[-5,-7,-9]],[[5,7,8,10,12],[-5,-7,-9]],[[6,8,10,12],[-6,-7,-9]]] # legal leaps from every scale degree
-        # dom = [2,7,11]
-        # preDom = [0,2,5,9]
 
-        # starter = maj[random.randrange(0, len(maj)-1)]
+        # create instrumental range of notes
+        minBound = 7-offset
+        maxBound = 30-offset
+        legalNotes = []
+        for c in range(minBound, maxBound):
+            legalNotes.append(c)
+
+        # retransition is always new material, starts on the dominant pitch
+        if cad == "retran":
+            starter = [(7,7)]
+
+        # preload starter information 
         for x in starter:
             melody.append(x)
     
-        #print("Melody pre-offset: " + str(melody))
-        # melody.append((starter, starter))
+        # if no preloaded rests, preload non-rest for first beat
         if not rests:
             rests.append(False)
+        # if no rhythm value picked, choose one
         if not rhythmValsPicked:
             rhythmValsPicked.append(random.choice(rhythmVals))
 
-        # 50/50 up or down, never move by 0
-        # leaps occur 30% of the time and are always following by a non-leap in the opposite direction of the leap
+        # ACE COUNTERPOINT RULES:
+        # 50/50 up or down, never move by 0 (maybe should allow the latter, 46/46/8 splits?)
+        # rests are designated 1/6 of the time
+        # leaps occur 30% of the time and are always followed by a non-leap in the opposite direction of the leap
+        # leaps are no bigger than a 10th (15 semitones) and must not extend beyond legalNotes
+
+        # intialize note count and total beats used count
         i = 1
         spaceLeft = length - sum(rhythmValsPicked) 
 
         if not log:
-            print("Melodic motif repeated.")
+            print("Melodic motif repeated.\n")
         else:
             while spaceLeft > 0:
                 # placeholder
                 newNote = 0
 
-                # if 0, set restApp to True
+                # 0 is a rest, rests have a 1/6 chance of getting picked
                 rest = random.randrange(0,6)
                 # 0 is up, 1 is down
                 uOrD = random.randrange(0,2)
-                # if 0 or 1, leap!
-                l = random.randrange(0, 8)
-
-                # PRINT EXISTING MELODY 
-                print()
-                #print("Current melody:")
-                #print("Pitches: " + str([x[1] for x in melody]))
-                #print("Rhythms: " + str(rhythmValsPicked))
-                #print("Creating new note...")
-                #print("Note created.")
+                # 0 or 1 is a leap, leaps have a 1/4 chance of getting picked (this 0-1 mechanism could eliminate the need for uOrD)
+                l = random.randrange(0, 9)
 
                 # LOGIC FOR DECIDING THE RHYTHM
-                print("Choosing rhythm...")
+                #print("Choosing rhythm...")
                 rhythmVal = random.choice(rhythmVals)
                 #print("Rhythm Value Map: " + str(rhythmVals))
                 while rhythmVal not in rhythmVals or rhythmVal > spaceLeft:
@@ -94,9 +94,10 @@ def main():
                     #print("RHYTHM TOO LONG, SHORTENING BY AN EIGTH NOTE...")
                     rhythmVal -= 0.5
 
-                print("Rhythm of value " + str(rhythmVal) + " chosen.")
+                # REPORT RHYTHM CHOSEN
+                #print("Rhythm of value " + str(rhythmVal) + " chosen.")
 
-                # This logic is basically ignored.            
+                # Flags the second-to-last and last beats, logic is ignored here.            
                 #if spaceLeft < 2.5:
                     #penOrUlt = True
                 penOrUlt = False
@@ -105,69 +106,60 @@ def main():
                 # Used to land cadences on strong beats, not used here.
                 emerg8 = False
 
-                print("Deciding motion...")
+                # LOGIC FOR DECIDING MOTION
+                #print("Deciding motion...")
                 if not penOrUlt:
                     if rest == 0:
                         restApp = True
                     if not justLeaped[0] and l < 2: goLeap = True
                     # LEAP LOGIC
                     if goLeap:
+                        '''
                         if uOrD == 0:
                             print("Upward leap chosen.")
                         else:
                             print("Downward leap chosen.")
+                        '''
                         # find legal leaps
-                        legalLeaps = findLegalLeaps(melody[i-1][1], scale, uOrD)
-                        print("Legal Leaps: " + str(legalLeaps))
+                        legalLeaps = findLegalLeaps(melody[i-1][1], scale, uOrD, legalNotes)
+                        #print("Legal Leaps: " + str(legalLeaps))
                         # pick a random leap in legalLeaps
                         newNote = random.choice(legalLeaps)
-                        print(str(newNote) + " chosen.")
-
-                        #leap = leaps[maj.index(melody[i-1][0]%12)][uOrD][random.randrange(0,len(leaps[maj.index(melody[i-1][0]%12)][uOrD]))]
-                        #newNote = melody[i-1][1] + leap
+                        #print(str(newNote) + " chosen.")
+                        # set leap flags to true
                         justLeaped = (True, uOrD)
                         goLeap = False
                     # POST-LEAP BALANCE LOGIC
                     elif justLeaped[0]:
-                        print("Post-leap balance required.")
+                        #print("Post-leap balance required.")
                         # direction overrides to opposite of the previous leap
                         oppFromLeap = 1
                         if justLeaped[1] == 1:
                             oppFromLeap = 0
                         # find legal steps
                         legalSteps = findLegalSteps(melody[i-1][1], scale, oppFromLeap)
-                        print("Legal Steps: " + str(legalSteps))
-
+                        #print("Legal Steps: " + str(legalSteps))
                         # pick a random step in legalSteps
                         newNote = random.choice(legalSteps)
-                        print(str(newNote) + " chosen.")
-
-                        #fillIn = nonLeaps[maj.index(melody[i-1][0]%12)][oppFromLeap][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][oppFromLeap]))]
-                        #newNote = melody[i-1][1] + fillIn
+                        #print(str(newNote) + " chosen.")
+                        # set leap flags to false, leap has been officially balanced
                         justLeaped = (False, 0)
                     # STEP LOGIC
                     else:
+                        '''
                         if uOrD == 0:
                             print("Upward step chosen.")
                         else:
                             print("Downward step chosen.")
+                        '''
                         # find legal steps
                         legalSteps = findLegalSteps(melody[i-1][1], scale, uOrD)
-                        print("Legal Steps: " + str(legalSteps))
+                        #print("Legal Steps: " + str(legalSteps))
 
                         # pick a random step in legalSteps
                         newNote = random.choice(legalSteps)
-                        print(str(newNote) + " chosen.")
-                        #nonLeap = nonLeaps[maj.index(melody[i-1][0]%12)][uOrD][random.randrange(0, len(nonLeaps[maj.index(melody[i-1][0]%12)][uOrD]))]
-                        #newNote = melody[i-1][1] + nonLeap
+                        #print(str(newNote) + " chosen.")
 
-                # REGISTER CONTROL LOGIC (temporarily disabled)
-                # if note extends beyond lower bound, bring up an octave
-                #if melody[-1][1] - newNote > 6:
-                    #newNote += 12
-                # if note extends beyond upper bound, bring down an octave
-                #if newNote - melody[-1][1] > 6:
-                    #newNote -= 12
                 # emerg8 is always false, so this always executes.
                 if not emerg8:
                     melody.append((newNote%12, newNote))
@@ -179,11 +171,22 @@ def main():
                 
                 # update spaceLeft
                 spaceLeft = length - sum(rhythmValsPicked)
-                print("New melody: " + str([x[1] for x in melody]))
-                print("            " + str(rhythmValsPicked))
-                print("Total beats used: " + str(sum(rhythmValsPicked)))
-                print("Space left: " + str(spaceLeft))
-                #print()
+                if spaceLeft == 0:
+                    #print("Writing melody...")
+                    realMel = [x[1] for x in melody]
+                    #print("Finished melody: " + str([x[1] for x in melody]))
+                    print("Finished melody: ")
+                    for i in range(len(melody)):
+                        if i == len(melody)-1:
+                            print(str(realMel[i]),end="")
+                            print(" (" + str(rhythmValsPicked[i]) + ")",end="")
+                        else:
+                            print(str(realMel[i]),end="")
+                            print(" (" + str(rhythmValsPicked[i]) + "), ",end="")
+                    print(".\n")
+                    print("Length of section: " + str(sum(rhythmValsPicked)))
+                    #print("Space left: " + str(spaceLeft))
+                    print()
                 i += 1
         
         ogMel = [x for x in melody]
@@ -191,8 +194,9 @@ def main():
         return melToLily(melody, scaleDict, rests, rhythmVals, rhythmValsPicked, cad, ogMel)
 
     # build the scale
-    def buildScale(scaleType):
-        print("Building scale...")
+    def buildScale(scaleType, log=False):
+        if log:
+            print("Building scale...")
         if scaleType == "major":
             scale = {0,2,4,5,7,9,11}
         elif scaleType == "minor":
@@ -209,12 +213,13 @@ def main():
                     scale.add(curr-12) 
                 else: 
                     scale.add(curr)
-        print(scale)
-        print("Built scale.")
+        if log:
+            print(scale)
+            print("Built scale.")
         return scale
     
     # find LEAPS in the scale that are no more than a tenth away from a starting note
-    def findLegalLeaps(note, scale, direction):
+    def findLegalLeaps(note, scale, direction, legalNotes):
         #print("Finding legal leaps...")
         legalLeaps = []
         leapStart = 5
@@ -230,11 +235,13 @@ def main():
         while not dist == leapEnd:
             possLeap = note + dist
             if possLeap in scale or possLeap%12 in scale:
-                legalLeaps.append(possLeap)
+                if possLeap in legalNotes:
+                    #print("LEAP ADDED")
+                    legalLeaps.append(possLeap)
             dist += leapInc
         if not legalLeaps:
-            #print("No legal leaps found. Returning an octave leap.")
-            return [note+defOctLeap]
+            #print("No legal leaps found. Repeating note.")
+            return [note]
         #print("Legal leaps found.")
         return legalLeaps
 
@@ -262,8 +269,9 @@ def main():
         return legalSteps
 
     # generate the available rhythmic value choices for a melody
-    def genRhythmVals():
-        print("Generating rhythm value map...")        
+    def genRhythmVals(log=False):
+        if log:
+            print("Generating rhythm value map...")        
         rhythmVals = []
         vals = [0.5,1,1.5,2,3,4] #implement 0.25, 6, and 8
         pips = [10,100,1000]
@@ -282,8 +290,9 @@ def main():
         rhythmVals.append(vals[5])
         #rhythmVals.append(vals[6])
         #rhythmVals.append(vals[7])
-        print(rhythmVals)
-        print("Rhythm value map generated.")
+        if log:
+            print(rhythmVals)
+            print("Rhythm value map generated.\n")
         return rhythmVals
 
     # translate melNums to LilyPond code
@@ -597,7 +606,7 @@ def main():
         # return makeMel(offset-regOffset, scale, starter)
 
     # put the melody and harmony together
-    def makePhrase(scaleDict, scaleType, offset, length, newMel, cad="authentic", eat=2):
+    def makePhrase(scaleDict, scaleType, offset, length, newMel, cad, eat=2):
         global fullMel
         global bass
         global tenor
@@ -665,15 +674,16 @@ def main():
         f.close()
     
     # composes an AABA tune
-    def AABA(key, scaleType):
-        print("Generating A section...")
-        makePhrase(majScales, scaleType, key, 16, True, "half")
-        print("\nRestating A section...")
-        makePhrase(majScales, scaleType, key, 16, False, "authentic")
-        print("\nGenerating B section...") #keep rhythmvals the same perhaps?
-        makePhrase(majScales, scaleType, key, 16, True, "retran")
-        print("\nRestating A section...")
-        makePhrase(majScales, scaleType, key, 16, False, "end1",6)
+    def AABA(key, scaleType, aLength=16, bLength=16):
+        # generate random beat length x for rhythmic motif and store the first x beats as the motif
+        print("Writing melodic motif...")
+        makePhrase(majScales, scaleType, key, aLength, True, "half")
+        print("Repeating melodic motif...")
+        makePhrase(majScales, scaleType, key, aLength, False, "authentic")
+        print("Writing B section...")
+        makePhrase(majScales, scaleType, key, bLength, True, "retran")
+        print("Repeating melodic motif...")
+        makePhrase(majScales, scaleType, key, aLength, False, "end1",6)
 
     # composes a freeform tune
     def freeform(key, beats):
@@ -691,10 +701,13 @@ def main():
     scaleAsk = input("What kind of scale would you like to use for your melody?\n- major\n- minor\n- chromatic\n- random\n")
     print()
     if scaleAsk == 'major' or scaleAsk == 'minor' or scaleAsk == 'chromatic':
-        print("Writing melody using " + scaleAsk + " scale...")
+        print("Your melody will use the " + scaleAsk + " scale.")
     else:
-        print("Writing melody using randomly built scale...")
-    print("Tonal center of " + majScales[0][offset] + " chosen.")
+        print("Your melody will use a randomly built scale.")
+    print("Tonal center of " + majScales[0][offset] + " chosen.\n")
+    # random phrase length
+    #AABA(offset, scaleAsk, random.randrange(8,25), random.randrange(8,25))
+    # default phrase length (16 x 4)
     AABA(offset, scaleAsk)
     #freeform(offset, 64)
     #rhythmicMotif(offset)
