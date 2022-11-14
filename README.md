@@ -8,7 +8,7 @@ Current features:
 
 Features in development: 
 - Support for sixteenth notes.
-- Random variables to control dynamics, articulations, tempo, and meter.
+- Random variables to control appoggiaturas, dynamics, articulations, tempo, and meter.
 - 'Rhythmic Motif' feature that writes and develops rhythmic motifs.
 - Expanded choice of forms (need more variety than AABA).
 - 'counter.py' -> Writes a counter-melody to a given melody.
