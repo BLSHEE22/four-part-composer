@@ -14,6 +14,7 @@ Current supported features:
 
 'melody.py' TODO: 
 - Implement sixteenth notes.
+- Implement 'target note' feature to create countour and punctuate phrases.
 - Add 'rhythmic motif' feature that writes and employs rhythmic motifs.
 - Implement smarter rests that punctuate phrases and are not just random.
 - Create more random variables to control dynamics, articulations, ornaments, tempo, and meter.
@@ -23,7 +24,7 @@ Current supported features:
 - Add features to support serialism, talea and color, etc.
 
 Development Road Map: 
-- Dec 31, 2022 - 'makeFourParts.py' (being deprecated) -> Generates four-part music.
+- Dec 31, 2022 - 'makeFourParts.py' -> Generates four-part music.
 - Jan 31, 2023 - 'melody.py' -> Generates a melody.
 - Feb 28, 2023 - 'counter.py' -> Writes a counter-melody based off of a given melody.
 - March 31, 2023 - 'harmony.py -> Decides harmonies and writes individual supporting lines which form the chosen harmonies.
