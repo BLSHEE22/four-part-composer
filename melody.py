@@ -717,8 +717,6 @@ def main():
     # random rhythmic motif beat length
     #rhythmicMotif(offset, random.randrange(2,8))
 
-    
-
     printSong(majScales[0][offset], fullMel, alto, tenor, bass)
 
 if __name__ == "__main__":
