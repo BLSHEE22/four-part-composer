@@ -3,7 +3,7 @@
 ACE™ (Algorithmic Composition Engine).
 
 Current supported features:
-- 'makeFourParts.py' -> Writes a 16-bar, four-part harmonized tune.
+- 'makeFourParts.py' -> Writes an AABA, 16-bar, four-part harmonized tune.
 - 'melody.py' -> Generates a melody (AABA, 16 measure default) from either a major, minor, chromatic, or randomly built scale.
 
 'makeFourParts.py' TODO:
