@@ -128,7 +128,7 @@ def main():
             #print("melody: " + str([x[1] for x in melody]))
             #print(holds)
             #print(passTones)
-            print("i: {0:4s} length: {1:4s} {2:10s}> ".format(str(i),str(length),cad),end="")
+            #print("i: {0:4s} length: {1:4s} {2:10s}> ".format(str(i),str(length),cad),end="")
             if cad == "half":
                 if i == length-2:
                     # if rhythmVal == 2:
@@ -535,7 +535,7 @@ def main():
                     length -= 0.5
                 # print("Rests: " + str(rests))
                 #"AFTER")
-                print(" melody: "  + str([x[1] for x in melody]))
+                #print(" melody: "  + str([x[1] for x in melody]))
                 #print(holds)
                 #print(passTones)
                 #print()
@@ -942,6 +942,8 @@ def main():
         global bass
         global tenor
         global alto
+
+        # generating new melody
         if newMel:
             
             mel = makeMel(offset, scale[offset%12], [(0,0)], length, cad, [], [], [])
@@ -969,6 +971,7 @@ def main():
             mels.append(mel)
             #print(mels[-1])
         
+        # restating old melody
         else:
 
             #c = sum(mel[-1])
@@ -1036,12 +1039,18 @@ def main():
             #mel = mels[0]
             #print("MOTIF MEL: " + str(mel))
         #print("Made mel: " + str(mel))
+
+        #FORM HARMONIES
         harmonies = makeHarm(mel, offset, cad)
+        altoLine = [x[2] for x in harmonies]
+        tenorLine = [x[1] for x in harmonies]
+        bassLine = [x[0] for x in harmonies]
         fullMel += mel[0]
         var = [False, False, False, False, False]
         restVar = []
         holdVar = []
         passVar = []
+
         if cad != "end2":
             for x in harmonies:
                 restVar.append(random.choice(var))
@@ -1052,18 +1061,88 @@ def main():
                 restVar.append(False)
                 holdVar.append(True)
                 passVar.append(False)
-        #print(mel[1])
-        #print(harmonies)
-        #print()
-        #print(harmonies)
+        
+        # line up the notes for each part
+        def lineUp(ls, melMode=False):
+            length = min(len(mels[0][3]),len(ls))
+            for i in range(length):
+                buff = 4*" "
+                if melMode:
+                    if mels[0][3][i]:
+                        buff = 12*" "
+                    elif mels[0][4][i]:
+                        buff = ""
+                        length += 1
+                print("{0:3s} ".format(str(ls[i])),end=buff)
+            print()
+
+        print("\nStaff Representation:\n")
+        lineUp([x-offset for x in mel[1]], True)
+        lineUp(altoLine)
+        lineUp(tenorLine)
+        lineUp(bassLine)
+        print()
+        
+        # instrumental range setup
         bassOff = 24
         tenAltOff = 12
+
+        #not using this
+        '''
         if cad == "retran":
             bassOff += 12
             tenAltOff += 12
-        bass += melToLily([((x[0]+offset-24)%12, x[0]+offset-bassOff) for x in harmonies], scale[offset%12], restVar, holdVar, passVar, cad)[0]
-        tenor += melToLily([((x[1]+offset-12)%12, x[1]+offset-tenAltOff) for x in harmonies], scale[offset%12], passVar, restVar, holdVar, cad)[0]
-        alto += melToLily([((x[2]+offset-12)%12, x[2]+offset-tenAltOff) for x in harmonies], scale[offset%12], holdVar, passVar, restVar, cad)[0]
+        '''
+        # FORM THE INDIVIDUAL HARMONIC LINES BEFORE SHIPPING THEM OUT TO BE TRANSLATED
+        # Enforce four-part writing rules such as...
+        # - parallel fifths
+        # - leap to a fifth by similar motion
+        # - leap to an octave by similar motion
+
+        def findHolds(ls):
+            newMel = []
+            holds = []
+            i = 0
+            while i < len(ls):
+                if i == len(ls)-1:
+                    holds.append(False)
+                    newMel.append(ls[i])
+                    i += 1
+                    continue
+                if ls[i] == ls[i+1]:
+                    holds.append(True)
+                    newMel.append(ls[i])
+                    i += 1
+                else:
+                    holds.append(False)
+                    newMel.append(ls[i])
+                i += 1
+            return (newMel, holds)
+
+        def findPasses(ls):
+            newMel = []
+            passes = []
+            
+            return (ls, passes)
+
+        def finalizeLine(line, off):
+            holdInfo = findHolds(line)
+            passInfo = findPasses(holdInfo)
+            newLine = passInfo[0][0]        
+            holds = passInfo[0][1]
+            passes = passInfo[1]
+            if cad == "end2":
+                holds = [True]
+            finalLine = [(((x+offset-off)%12, x+offset-off)) for x in newLine]
+            return [finalLine, holds, passes]
+        
+        finalBassLine = finalizeLine(bassLine, bassOff)
+        finalTenorLine = finalizeLine(tenorLine, tenAltOff)
+        finalAltoLine = finalizeLine(altoLine, tenAltOff)
+
+        bass += melToLily(finalBassLine[0], scale[offset%12], restVar, finalBassLine[1], passVar, cad)[0]
+        tenor += melToLily(finalTenorLine[0], scale[offset%12], restVar, finalTenorLine[1], passVar, cad)[0]
+        alto += melToLily(finalAltoLine[0], scale[offset%12], restVar, finalAltoLine[1], passVar, cad)[0]
         #print("Bass: " + str(bass))
         #print("Tenor: " + str(tenor))
         #print("Alto: " + str(alto))
