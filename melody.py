@@ -705,15 +705,20 @@ def main():
     else:
         print("Your melody will use a randomly built scale.")
     print("Tonal center of " + majScales[0][offset] + " chosen.\n")
-    # random phrase length
-    #AABA(offset, scaleAsk, random.randrange(8,25), random.randrange(8,25))
-    # default phrase length (16 x 4)
-    AABA(offset, scaleAsk)
-    #freeform(offset, 64)
-    #rhythmicMotif(offset)
-    #print(offset)
-    #print()
-    #makePhrase(majScales, offset, 1, True, "end2")
+
+    # EXECUTE FORMS
+
+    # random aPhrase and bPhrase length (default is 16 and 16)
+    AABA(offset, scaleAsk, random.randrange(8,25), random.randrange(8,25))
+
+    # completely freeform melody
+    # freeform(offset)
+
+    # random rhythmic motif beat length
+    #rhythmicMotif(offset, random.randrange(2,8))
+
+    
+
     printSong(majScales[0][offset], fullMel, alto, tenor, bass)
 
 if __name__ == "__main__":

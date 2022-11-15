@@ -2,17 +2,31 @@
 
 ACE™ (Algorithmic Composition Engine).
 
-Current features:
+Current supported features:
 - 'makeFourParts.py' -> Writes a 16-bar, four-part harmonized tune.
-- 'melody.py' -> Generates a 16-bar melody from either a major, minor, chromatic, or randomly built scale.
+- 'melody.py' -> Generates a melody (AABA, 16 measure default) from either a major, minor, chromatic, or randomly built scale.
 
-Features in development: 
-- Support for sixteenth notes.
-- Random variables to control dynamics, articulations, tempo, and meter.
-- 'Rhythmic Motif' feature that writes and develops rhythmic motifs.
-- Expanded choice of forms (need more variety than AABA).
-- 'counter.py' -> Writes a counter-melody to a given melody.
-- 'harmony.py -> Combines the power of 'counter.py' and the original harmonization logic to create natural sounding four-part harmonies.
+'makeFourParts.py' TODO:
+- Implement sixteenth notes.
+- Increase rhythmic vocabulary of supporting lines. 
+- Implement ability to create 'rhythm profile' and have the parts stick to it.
+- Implement ability for all four lines to communicate in 'keeping the quaver.'
+
+'melody.py' TODO: 
+- Implement sixteenth notes.
+- Create more random variables to control dynamics, articulations, ornaments, tempo, and meter.
+- Implement the ability to use pickup notes.
+- Add 'rhythmic motif' feature that writes and employs rhythmic motifs.
+- Expand choice of forms (need more variety than AABA).
+- Create more user parameter support to decide form, phrase length, and tune length.
+
+Development Road Map:
+- Dec 31 2022 (being deprecated) - 'makeFourParts.py' -> Initial idea for writing four-part music.
+- Jan 31 2023 - 'melody.py' -> Generates a melody.
+- Feb 28 2023 - 'counter.py' -> Writes a counter-melody to a given melody.
+- March 31 2023 - 'harmony.py -> Decides harmonies and writes intelligent lines that form the decided harmonies.
+- April 30 2023 - 'form.py' -> Handles the composition and usage of main themes, motifs, and the tonal road map.
+- May 31 2023 - 'fugue.py' -> Combines all of the above scripts to create the ultimate composition script.
 
 Prerequisites:
 - Python3
