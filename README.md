@@ -21,7 +21,7 @@ Current supported features:
 - Create more user parameter support to decide form, phrase length, and tune length.
 
 Development Road Map: 
-- Dec 31, 2022 - 'makeFourParts.py' (being deprecated) -> Initial idea of generating four-part music.
+- Dec 31, 2022 - 'makeFourParts.py' (being deprecated) -> Generates four-part music.
 - Jan 31, 2023 - 'melody.py' -> Generates a melody.
 - Feb 28, 2023 - 'counter.py' -> Writes a counter-melody based off of a given melody.
 - March 31, 2023 - 'harmony.py -> Decides harmonies and writes individual supporting lines which form the chosen harmonies.
