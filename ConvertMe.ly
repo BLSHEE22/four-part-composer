@@ -4,10 +4,10 @@
 
 \score {
 \new PianoStaff <<
-\new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key b \major b'4 e'4 fis'8 gis'8 fis'4 ais'8 gis'8 dis''2 cis''4 e''8 dis''8 cis''4 dis''4 fis''8 gis''8 e''8 dis''8 b'4 cis''4 fis''4 b'4 e'4 fis'8 gis'8 fis'4 ais'8 gis'8 dis''2 cis''4 e''8 dis''8 cis''4 dis''4 fis''8 gis''8 e''8 dis''8 ais'4 b'4 fis''4 gis''2 dis''4 fis''8 gis''8 ais''8 fis''8 gis''8 fis''8 eis''4 dis''4 fis''2 cis''2 dis''8 eis''8 cis''2 fis''4 b'4 e'4 fis'8 gis'8 fis'4 ais'8 gis'8 dis''2 cis''4 e''8 ais'8 cis''4 cis''4 ais'4 b'1 }
-\new Staff { \set Staff.midiInstrument = "viola" \clef "treble" \key b \major dis'4 gis'2 e'4 fis'4 e'4 gis'4 fis'2 fis'4 dis'4 ais'4 e'4 gis'4 e'2 dis'4 gis'4 b'4 e'4 gis'4 fis'4 gis'4 fis'4 b'4 e'4 gis'4 e'4 fis'4 e'4 dis'4 ais'4 b'4 cis''4 gis''4 dis''4 b'4 dis''4 cis''4 fis''4 dis''4 cis''4 dis''4 ais'4 fis''4 eis''4 ais'2 dis'4 gis'4 b'4 e'4 fis'4 gis'4 b'2 fis'4 gis'4 e'2 dis'1 }
-\new Staff { \set Staff.midiInstrument = "cello" \clef "bass" \key b \major b4 cis'4 dis'4 b4 cis'4 b2 b4 ais2 ais4 cis'4 b4 dis'4 cis'2 b4 cis'4 dis'4 gis4 dis'4 ais4 dis'4 ais4 gis'4 cis'4 dis'4 b2 fis'4 b4 fis'4 gis'4 eis'4 b'4 gis'4 fis'4 b'2 ais'4 b'4 fis'2 fis'4 ais'4 gis'4 e'2 b2 dis'4 gis4 cis'4 dis'4 e'2 cis'2 gis'4 cis'4 b1 }
-\new Staff { \set Staff.midiInstrument = "contrabass" \clef "bass" \key b\major b,4 e4 b,4 cis4 dis4 cis4 e4 dis2 e4 fis4 e4 cis4 gis2 fis4 b,4 cis4 gis4 cis4 b,4 dis4 b,4 e4 gis2 b,4 cis4 fis4 fis,4 b,4 fis4 dis'4 ais4 eis'4 b4 dis'4 gis2 cis'4 gis4 ais4 b4 cis'2 b4 fis2 b,4 cis4 gis4 cis4 dis4 b,4 gis4 fis4 e2 cis4 fis,4 b,1 }
+\new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key ees \major ees'4 f'4 aes'4 c''4 d''4 c''4 d''2 c''4 d''8 c''8 bes'4 g'4 aes'8 g'8 ees'4 c'4 bes4 ees'4 f'4 aes'4 c''4 d''4 c''4 d''2 c''4 d''8 c''8 bes'4 g'4 aes'8 g'8 d'4 ees'4 bes'4 c''4 d''8 f''8 d''4 ees''4 c''4 a'2 f'4 a'8 g'8 a'4 bes'4 c''2 d''8 ees''8 bes'2 ees'4 f'4 aes'4 c''4 d''4 c''4 d''2 c''4 d''8 d'8 ees'4 d'4 ees'1 }
+\new Staff { \set Staff.midiInstrument = "viola" \clef "treble" \key ees \major g4 d'4 c'4 bes2 bes4 ees'4 bes2 f'4 d'4 ees'4 bes4 c'4 aes2 g4 aes4 f'4 ees'4 bes4 f'2 f'4 ees'4 aes4 ees'4 c'2 aes4 g4 d'4 f'2 g'4 bes'2 bes'4 ees'2 g'4 f'2 g'4 a'2 f'4 d'4 g4 c'2 ees'4 b4 aes4 ees'4 bes4 aes4 c'4 aes2 g1 }
+\new Staff { \set Staff.midiInstrument = "cello" \clef "bass" \key ees \major ees4 aes4 ees4 f2 f4 aes4 f2 bes4 f4 aes4 g4 aes4 ees4 f4 ees2 bes4 g4 f4 aes2 bes4 f4 ees4 aes2 aes4 bes4 ees4 bes4 a4 bes2 ees'2 ees'4 g4 bes4 d'4 c'4 bes4 c'4 ees'4 c'4 d'4 aes4 ees4 aes4 f2 f2 aes2 f2 c'4 f4 ees1 }
+\new Staff { \set Staff.midiInstrument = "contrabass" \clef "bass" \key ees\major ees,4 bes,4 aes,4 g,4 aes,4 g,4 c4 f,4 g,4 d4 bes,4 c4 d4 f,2 bes,4 ees,4 f,4 d4 g,4 aes,4 d4 bes,2 aes,4 f,4 c4 aes,2 bes,,4 ees,4 bes,4 d2 ees4 g4 f4 g4 c2 bes,4 c4 d4 ees4 f2 f4 bes,4 ees,4 f,2 aes,2 f,4 c4 f,2 aes,4 f,4 bes,,4 ees,1 }
 >>
 \midi{}
 }
