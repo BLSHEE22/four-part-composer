@@ -9,13 +9,13 @@ Current supported features:
 'makeFourParts.py' TODO:
 - Implement sixteenth notes.
 - Increase rhythmic vocabulary of supporting lines. 
-- Implement ability to create 'rhythm profile' and have the parts stick to it.
+- Implement ability to create and store 'rhythmic motif,' and have all the parts employ it.
 - Implement ability for all four lines to communicate in 'keeping the quaver.'
 
 'melody.py' TODO: 
 - Implement sixteenth notes.
-- Implement smarter rests that punctuate phrases and are not just random.
 - Add 'rhythmic motif' feature that writes and employs rhythmic motifs.
+- Implement smarter rests that punctuate phrases and are not just random.
 - Create more random variables to control dynamics, articulations, ornaments, tempo, and meter.
 - Implement the ability to use pickup notes.
 - Expand choice of forms (need more variety than AABA).
