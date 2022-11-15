@@ -1099,50 +1099,87 @@ def main():
         # - leap to a fifth by similar motion
         # - leap to an octave by similar motion
 
-        def findHolds(ls):
+        # add holds and passes where possible to spice up the line
+        def spiceUp(ls):
             newMel = []
             holds = []
+            passes = []
+            rests = []
+            # in the future, need the scale passed in to determine scalar passes!
+            passPairs = [{0,4}, {2,5}, {7,9}, {9,12}]
+            passInserts = [2,4,8,11]
+            neighbors = {0:[2,-1],2:[2,-2],4:[1,-2],5:[2,-1],7:[2,-2],9:[2,-2],11:[1,-2]}
             i = 0
             while i < len(ls):
+                passRoll = random.randrange(0,2)
+                # if on last note of melody, return quarter
                 if i == len(ls)-1:
+                    rests.append(False)
                     holds.append(False)
+                    passes.append(False)
                     newMel.append(ls[i])
                     i += 1
                     continue
+                # check equivalence to next note of melody, 80% hold, 20% neighbor
                 if ls[i] == ls[i+1]:
-                    holds.append(True)
-                    newMel.append(ls[i])
-                    i += 1
-                else:
+                    roll = random.randrange(0,9)
+                    # hold
+                    if roll > 1:
+                        rests.append(False)
+                        holds.append(True)
+                        passes.append(False)
+                        newMel.append(ls[i])
+                        i += 1
+                    # neighbor
+                    else:
+                        dirRoll = random.randrange(0,1)
+                        neighborMove = neighbors[ls[i]%12][dirRoll]
+                        rests.append(False)
+                        rests.append(False)
+                        holds.append(False)
+                        holds.append(False)
+                        passes.append(True)
+                        passes.append(True)
+                        newMel.append(ls[i])
+                        newMel.append(ls[i] + neighborMove)
+                # check if pairing in passPairs dict, accept 67% of time
+                elif {ls[i], ls[i+1]} in passPairs and passRoll > 0:
+                    rests.append(False)
+                    rests.append(False)
                     holds.append(False)
+                    holds.append(False)
+                    passes.append(True)
+                    passes.append(True)
+                    newMel.append(ls[i])
+                    newMel.append(passInserts[passPairs.index({ls[i], ls[i+1]})])
+                # return quarter   
+                else:
+                    rests.append(False)
+                    holds.append(False)
+                    passes.append(False)
                     newMel.append(ls[i])
                 i += 1
-            return (newMel, holds)
+            return [newMel, rests, holds, passes]
 
-        def findPasses(ls):
-            newMel = []
-            passes = []
-            
-            return (ls, passes)
-
+        # prepare line for lilyMel translator
         def finalizeLine(line, off):
-            holdInfo = findHolds(line)
-            passInfo = findPasses(holdInfo)
-            newLine = passInfo[0][0]        
-            holds = passInfo[0][1]
-            passes = passInfo[1]
+            lineInfo = spiceUp(line)
+            newLine = lineInfo[0]        
+            rests = lineInfo[1]
+            holds = lineInfo[2]
+            passes = lineInfo[3]
             if cad == "end2":
                 holds = [True]
             finalLine = [(((x+offset-off)%12, x+offset-off)) for x in newLine]
-            return [finalLine, holds, passes]
+            return [finalLine, rests, holds, passes]
         
         finalBassLine = finalizeLine(bassLine, bassOff)
         finalTenorLine = finalizeLine(tenorLine, tenAltOff)
         finalAltoLine = finalizeLine(altoLine, tenAltOff)
 
-        bass += melToLily(finalBassLine[0], scale[offset%12], restVar, finalBassLine[1], passVar, cad)[0]
-        tenor += melToLily(finalTenorLine[0], scale[offset%12], restVar, finalTenorLine[1], passVar, cad)[0]
-        alto += melToLily(finalAltoLine[0], scale[offset%12], restVar, finalAltoLine[1], passVar, cad)[0]
+        bass += melToLily(finalBassLine[0], scale[offset%12], finalBassLine[1], finalBassLine[2], finalBassLine[3], cad)[0]
+        tenor += melToLily(finalTenorLine[0], scale[offset%12], finalTenorLine[1], finalTenorLine[2], finalTenorLine[3], cad)[0]
+        alto += melToLily(finalAltoLine[0], scale[offset%12], finalAltoLine[1], finalAltoLine[2], finalAltoLine[3], cad)[0]
         #print("Bass: " + str(bass))
         #print("Tenor: " + str(tenor))
         #print("Alto: " + str(alto))
