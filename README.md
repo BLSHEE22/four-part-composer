@@ -14,9 +14,10 @@ Current supported features:
 
 'melody.py' TODO: 
 - Implement sixteenth notes.
+- Implement smarter rests that punctuate phrases and are not just random.
+- Add 'rhythmic motif' feature that writes and employs rhythmic motifs.
 - Create more random variables to control dynamics, articulations, ornaments, tempo, and meter.
 - Implement the ability to use pickup notes.
-- Add 'rhythmic motif' feature that writes and employs rhythmic motifs.
 - Expand choice of forms (need more variety than AABA).
 - Create more user parameter support to decide form, phrase length, and tune length.
 
