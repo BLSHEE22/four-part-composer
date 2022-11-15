@@ -686,13 +686,13 @@ def main():
         makePhrase(majScales, scaleType, key, aLength, False, "end1",6)
 
     # composes a freeform tune
-    def freeform(key, beats=64):
-        makePhrase(majScales, key, beats, True, "authentic")
+    def freeform(key, scaleType, beats=64):
+        makePhrase(majScales, scaleType, key, beats, True, "authentic")
 
     # composes a tune that writes and employs a rhythmic motif
-    def rhythmicMotif(key):
-        makePhrase(majScales, key, 8, True, "authentic")
-        makePhrase(majScales, key, 8, False, "authentic")
+    def rhythmicMotif(key, scaleType, beats=4):
+        makePhrase(majScales, scaleType, key, beats, True, "authentic")
+        makePhrase(majScales, scaleType, key, beats, False, "authentic")
 
     # MAIN
     offset = random.randrange(0,12)
@@ -714,10 +714,10 @@ def main():
         AABA(offset, scaleAsk)
     else:
         print("Your melody will be freeform.")
-        freeform(offset)
+        freeform(offset, scaleAsk)
 
     # random rhythmic motif beat length
-    #rhythmicMotif(offset, random.randrange(2,8))
+    #rhythmicMotif(offset, scaleAsk, random.randrange(2,8))
 
     printSong(majScales[0][offset], fullMel, alto, tenor, bass)
 
