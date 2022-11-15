@@ -20,6 +20,7 @@ Current supported features:
 - Implement the ability to use pickup notes.
 - Expand choice of forms (need more variety than AABA).
 - Create more user parameter support to decide form, phrase length, and tune length.
+- Add features to support serialism, talea and color, etc.
 
 Development Road Map: 
 - Dec 31, 2022 - 'makeFourParts.py' (being deprecated) -> Generates four-part music.
