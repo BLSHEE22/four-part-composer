@@ -686,7 +686,7 @@ def main():
         makePhrase(majScales, scaleType, key, aLength, False, "end1",6)
 
     # composes a freeform tune
-    def freeform(key, beats):
+    def freeform(key, beats=64):
         makePhrase(majScales, key, beats, True, "authentic")
 
     # composes a tune that writes and employs a rhythmic motif
@@ -706,13 +706,15 @@ def main():
         print("Your melody will use a randomly built scale.")
     print("Tonal center of " + majScales[0][offset] + " chosen.\n")
 
-    # EXECUTE FORMS
-
-    # random aPhrase and bPhrase length (default is 16 and 16)
-    AABA(offset, scaleAsk, random.randrange(8,25), random.randrange(8,25))
-
-    # completely freeform melody
-    # freeform(offset)
+    formChoice = input("What form would you like your melody to follow?\n- AABA\n- freeform\n")
+    print()
+    if formChoice == 'AABA':
+        print("Your melody will be " + formChoice + ".")
+        # random aPhrase and bPhrase length (default is 16 and 16)
+        AABA(offset, scaleAsk)
+    else:
+        print("Your melody will be freeform.")
+        freeform(offset)
 
     # random rhythmic motif beat length
     #rhythmicMotif(offset, random.randrange(2,8))
