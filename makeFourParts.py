@@ -1061,9 +1061,9 @@ def main():
         if cad == "retran":
             bassOff += 12
             tenAltOff += 12
-        bass += melToLily([((x[0]+offset-24)%12, x[0]+offset-bassOff) for x in harmonies], scale[offset%12], restVar, holdVar, passVar, cad)[0]
-        tenor += melToLily([((x[1]+offset-12)%12, x[1]+offset-tenAltOff) for x in harmonies], scale[offset%12], passVar, restVar, holdVar, cad)[0]
-        alto += melToLily([((x[2]+offset-12)%12, x[2]+offset-tenAltOff) for x in harmonies], scale[offset%12], holdVar, passVar, restVar, cad)[0]
+        #bass += melToLily([((x[0]+offset-24)%12, x[0]+offset-bassOff) for x in harmonies], scale[offset%12], restVar, holdVar, passVar, cad)[0]
+        #tenor += melToLily([((x[1]+offset-12)%12, x[1]+offset-tenAltOff) for x in harmonies], scale[offset%12], passVar, restVar, holdVar, cad)[0]
+        #alto += melToLily([((x[2]+offset-12)%12, x[2]+offset-tenAltOff) for x in harmonies], scale[offset%12], holdVar, passVar, restVar, cad)[0]
         #print("Bass: " + str(bass))
         #print("Tenor: " + str(tenor))
         #print("Alto: " + str(alto))

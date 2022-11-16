@@ -4,6 +4,7 @@ import sys
 
 # GLOBAL list of melodies
 mels = []
+bMels = []
 
 melRests = []
 melHolds = []
@@ -26,6 +27,11 @@ majScales = {0:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"aes",9:
                 11:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},} 
 
 def main():
+
+    # make counter-melody
+    def counter(mel):
+        print(mel[0])
+        return
 
     # make melody
     def makeMel(offset, scaleDict, scaleType, starter, length, cad, rests, rhythmVals, rhythmValsPicked, log):
@@ -61,38 +67,36 @@ def main():
 
         # ACE COUNTERPOINT RULES:
         # 50/50 up or down, never move by 0 (maybe should allow the latter, 46/46/8 splits?)
-        # rests are designated 1/6 of the time
-        # leaps occur 30% of the time and are always followed by a non-leap in the opposite direction of the leap
+        # rests are designated 1/30 of the time
+        # leaps occur 50% of the time and are always followed by a non-leap in the opposite direction of the leap
         # leaps are no bigger than a 10th (15 semitones) and must not extend beyond legalNotes
 
         # intialize note count and total beats used count
         i = 1
         spaceLeft = length - sum(rhythmValsPicked) 
 
-        if not log:
-            print("Melodic motif repeated.\n")
-        else:
+        if log:
             while spaceLeft > 0:
                 # placeholder
                 newNote = 0
 
-                # 0 is a rest, rests have a 1/6 chance of getting picked
-                rest = random.randrange(0,6)
+                # 0 is a rest, rests have a 1 in 30 chance of getting picked
+                rest = random.randrange(0,29)
                 # 0 is up, 1 is down
                 uOrD = random.randrange(0,2)
                 # 0 or 1 is a leap, leaps have a 1/4 chance of getting picked (this 0-1 mechanism could eliminate the need for uOrD)
-                l = random.randrange(0, 9)
+                l = random.randrange(0, 8)
 
                 # LOGIC FOR DECIDING THE RHYTHM
                 #print("Choosing rhythm...")
                 rhythmVal = random.choice(rhythmVals)
                 #print("Rhythm Value Map: " + str(rhythmVals))
                 while rhythmVal not in rhythmVals or rhythmVal > spaceLeft:
-                    if rhythmVal == 0.5:
+                    if rhythmVal == 0.25:
                         break
                     #print("Rhythm of value " + str(rhythmVal) + " chosen.")
                     #print("RHYTHM TOO LONG, SHORTENING BY AN EIGTH NOTE...")
-                    rhythmVal -= 0.5
+                    rhythmVal -= 0.25
 
                 # REPORT RHYTHM CHOSEN
                 #print("Rhythm of value " + str(rhythmVal) + " chosen.")
@@ -114,12 +118,6 @@ def main():
                     if not justLeaped[0] and l < 2: goLeap = True
                     # LEAP LOGIC
                     if goLeap:
-                        '''
-                        if uOrD == 0:
-                            print("Upward leap chosen.")
-                        else:
-                            print("Downward leap chosen.")
-                        '''
                         # find legal leaps
                         legalLeaps = findLegalLeaps(melody[i-1][1], scale, uOrD, legalNotes)
                         #print("Legal Leaps: " + str(legalLeaps))
@@ -146,12 +144,6 @@ def main():
                         justLeaped = (False, 0)
                     # STEP LOGIC
                     else:
-                        '''
-                        if uOrD == 0:
-                            print("Upward step chosen.")
-                        else:
-                            print("Downward step chosen.")
-                        '''
                         # find legal steps
                         legalSteps = findLegalSteps(melody[i-1][1], scale, uOrD)
                         #print("Legal Steps: " + str(legalSteps))
@@ -160,14 +152,9 @@ def main():
                         newNote = random.choice(legalSteps)
                         #print(str(newNote) + " chosen.")
 
-                # emerg8 is always false, so this always executes.
-                if not emerg8:
-                    melody.append((newNote%12, newNote))
-                    rhythmValsPicked.append(rhythmVal)
-                    rests.append(restApp)
-                else:
-                    i -= 1
-                    length -= 0.5
+                melody.append((newNote%12, newNote))
+                rhythmValsPicked.append(rhythmVal)
+                rests.append(restApp)
                 
                 # update spaceLeft
                 spaceLeft = length - sum(rhythmValsPicked)
@@ -175,7 +162,8 @@ def main():
                     #print("Writing melody...")
                     realMel = [x[1] for x in melody]
                     #print("Finished melody: " + str([x[1] for x in melody]))
-                    print("Finished melody: ")
+                    #print("Finished melody: ")
+                    '''
                     for i in range(len(melody)):
                         if i == len(melody)-1:
                             print(str(realMel[i]),end="")
@@ -185,8 +173,9 @@ def main():
                             print(" (" + str(rhythmValsPicked[i]) + "), ",end="")
                     print(".\n")
                     print("Length of section: " + str(sum(rhythmValsPicked)))
+                    '''
                     #print("Space left: " + str(spaceLeft))
-                    print()
+                    #print()
                 i += 1
         
         ogMel = [x for x in melody]
@@ -223,12 +212,12 @@ def main():
         #print("Finding legal leaps...")
         legalLeaps = []
         leapStart = 5
-        leapEnd = 16
+        leapEnd = 12
         leapInc = 1
         defOctLeap = 12
         if direction == 1:
             leapStart = -5
-            leapEnd = -16
+            leapEnd = -12
             leapInc = -1
             defOctLeap = -12
         dist = leapStart
@@ -272,19 +261,18 @@ def main():
     def genRhythmVals(log=False):
         if log:
             print("Generating rhythm value map...")        
-        rhythmVals = []
-        vals = [0.5,1,1.5,2,3,4] #implement 0.25, 6, and 8
+        rhythmVals = [0.25]
+        vals = [0.25,0.5,1,1.5,2,3,4] #implement 6 and 8
         pips = [10,100,1000]
 
-        # randomly boost the frequency of any of the first four vals 
-        for i in range(2):
+        # randomly boost the frequency of any of the first three vals 
+        for i in range(1,3):
             pipCount = random.choice(pips)
             dieRoll = random.randrange(1, pipCount)
             for j in range(dieRoll):
                 rhythmVals.append(vals[i])
 
         # tack on the last four (soon to be six) vals (we don't want to see too many of these)
-        rhythmVals.append(vals[2])
         rhythmVals.append(vals[3])
         rhythmVals.append(vals[4])
         rhythmVals.append(vals[5])
@@ -606,55 +594,98 @@ def main():
         # return makeMel(offset-regOffset, scale, starter)
 
     # put the melody and harmony together
-    def makePhrase(scaleDict, scaleType, offset, length, newMel, cad, eat=2):
+    def makePhrase(scaleDict, scaleType, offset, aLength, bLength, newMel, cad, eat=2):
         global fullMel
         global bass
         global tenor
         global alto
 
-        # creating new melody
+        # writing motif
         if newMel:
 
             rhythmVals = genRhythmVals()
-            mel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], length, cad, [], rhythmVals, [], True)
-       
-            if cad == "end2":
-                # "Cad mel: " + str(mel))
-                realNote = mels[-1][-1][-1][1]
-                #print("offset: " + str(offset))
-                
-                # SET REGISTER OF FINAL NOTE TO MATCH CONTEXT
-                while realNote > 10:
-                    mel[0] = mel[0][:mel[0].index("1")] + "'" + mel[0][mel[0].index("1"):]
-                    realNote -= 12
-                realNote = mels[-1][-1][-1][1]
-                #print("realNote: " + str(realNote))
-                while realNote < -10:
-                    mel[0] = mel[0][:mel[0].index("1")-mel[0].count("'")] + mel[0][mel[0].index("1"):]
-                    realNote += 12
-                # mels[0] += "1"
-                
-            mels.append(mel)
-            #print(mels[-1])
-        
-        # creation variation on old melody
-        else:
 
-            # Use rhythms of old melody but create new pitches!
-            #print("Old melody: " + str(mels))
-            #mel = makeMel(offset, scaleDict[offset%12], [(0,0)], length, cad, [], [999], [])
-            
-            # For restating the exact melody:
-            c = sum(mels[0][4])
-            if cad == "end1":
-                length = 13-c
-            else:
-                length = 16-c
-            mel = makeMel(offset, scaleDict[offset%12], scaleType, mels[0][-1], length, cad, mels[0][2], mels[0][3], mels[0][4], False)
-            if cad == "end1":
+            # IF REICH WAS A SPICE GIRLS FAN
+
+            if cad == "A":
+                mel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], aLength, cad, [], rhythmVals, [], True)
                 mels.append(mel)
+            if cad == "B":
+                b = makeMel(offset, scaleDict[offset%12], scaleType, [(-24,-24)], bLength, cad, [], rhythmVals, [], True)
+                bMels.append(b)
 
-        fullMel += mel[0]
+            # if final statement lineup
+            if cad == "end2":
+                endMel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], 1, cad, [False], [4], [], True)
+                endMelB = makeMel(offset, scaleDict[offset%12], scaleType, [(-24,-24)], 1, cad, [False], [4], [], True)
+                fullMel += endMel[0]
+                bass += endMelB[0]
+            
+            # create A theme for the round
+            if cad == "roundA":
+                mel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], aLength, cad, [], rhythmVals, [], True)
+                mels.append(mel)
+                a = makeMel(offset, scaleDict[offset%12], scaleType, mels[0][-1], aLength, cad, [True]*len(mels[0][2]), mels[0][3], mels[0][4], False)
+                t = makeMel(offset, scaleDict[offset%12], scaleType, mels[0][-1], aLength, cad, [True]*len(mels[0][2]), mels[0][3], mels[0][4], False)
+                b = makeMel(offset, scaleDict[offset%12], scaleType, mels[0][-1], aLength, cad, [True]*len(mels[0][2]), mels[0][3], mels[0][4], False)
+                fullMel += mel[0]
+                alto += a[0]
+                tenor += t[0]
+                bass += b[0]
+                a = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0),(0,0)], 2, cad, [True,True], [4], [4,4], True)
+                t = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0),(0,0),(0,0),(0,0)], 4, cad, [True,True,True,True], [4], [4,4,4,4], True)
+                b = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)], 6, cad, [True,True,True,True,True,True], [4], [4,4,4,4,4,4], True)
+                alto += a[0]
+                tenor += t[0]
+                bass += b[0]
+            # create B theme for the round
+            if cad == "roundB":
+                mel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], bLength, cad, [], rhythmVals, [], True)
+                mels.append(mel)
+                a = makeMel(offset-5, scaleDict[(offset-5)%12], scaleType, mels[-1][-1], aLength, cad, mels[-1][2], mels[-1][3], mels[-1][4], False)
+                t = makeMel(offset-12, scaleDict[(offset-12)%12], scaleType, mels[-1][-1], aLength, cad, mels[-1][2], mels[-1][3], mels[-1][4], False)
+                b = makeMel(offset-24, scaleDict[(offset-24)%12], scaleType, mels[-1][-1], aLength, cad, mels[-1][2], mels[-1][3], mels[-1][4], False)
+                fullMel += mel[0]
+                alto += a[0]
+                tenor += t[0]
+                bass += b[0]
+            # landing spot of canon
+            if cad == "roundEnd":
+                endMel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], 1, cad, [False], [4], [], True)
+                endMelA = makeMel(offset, scaleDict[offset%12], scaleType, [(-5,-5)], 1, cad, [False], [4], [], True)
+                endMelT = makeMel(offset, scaleDict[offset%12], scaleType, [(-12,-12)], 1, cad, [False], [4], [], True)
+                endMelB = makeMel(offset, scaleDict[offset%12], scaleType, [(-24,-24)], 1, cad, [False], [4], [], True)
+                fullMel += endMel[0]
+                alto += endMelA[0]
+                tenor += endMelT[0]
+                bass += endMelB[0]
+        
+        # repeating motif
+        else:
+            if cad == "A":
+                mel = makeMel(offset, scaleDict[offset%12], scaleType, mels[0][-1], aLength, cad, mels[0][2], mels[0][3], mels[0][4], False)
+                fullMel += mel[0]
+            if cad == "B":
+                b = makeMel(offset, scaleDict[offset%12], scaleType, bMels[0][-1], bLength, cad, bMels[0][2], bMels[0][3], bMels[0][4], False)
+                bass += b[0]
+            if cad == "roundA":
+                mel = makeMel(offset, scaleDict[offset%12], scaleType, mels[0][-1], aLength, cad, mels[0][2], mels[0][3], mels[0][4], False)
+                a = makeMel(offset-5, scaleDict[(offset-5)%12], scaleType, mels[0][-1], aLength, cad, mels[0][2], mels[0][3], mels[0][4], False)
+                t = makeMel(offset-12, scaleDict[(offset-12)%12], scaleType, mels[0][-1], aLength, cad, mels[0][2], mels[0][3], mels[0][4], False)
+                b = makeMel(offset-24, scaleDict[(offset-24)%12], scaleType, mels[0][-1], aLength, cad, mels[0][2], mels[0][3], mels[0][4], False)
+                fullMel += mel[0]
+                alto += a[0]
+                tenor += t[0]
+                bass += b[0]
+            if cad == "roundB":
+                mel = makeMel(offset, scaleDict[offset%12], scaleType, mels[-1][-1], aLength, cad, mels[-1][2], mels[-1][3], mels[-1][4], False)
+                a = makeMel(offset-5, scaleDict[(offset-5)%12], scaleType, mels[-1][-1], aLength, cad, mels[-1][2], mels[-1][3], mels[-1][4], False)
+                t = makeMel(offset-12, scaleDict[(offset-12)%12], scaleType, mels[-1][-1], aLength, cad, mels[-1][2], mels[-1][3], mels[-1][4], False)
+                b = makeMel(offset-24, scaleDict[(offset-24)%12], scaleType, mels[-1][-1], aLength, cad, mels[-1][2], mels[-1][3], mels[-1][4], False)
+                fullMel += mel[0]
+                alto += a[0]
+                tenor += t[0]
+                bass += b[0]
 
     # write the lilyPond code to output file
     def printSong(scaleDict, m, a, t, b):
@@ -662,9 +693,9 @@ def main():
         code += "\\score {\n"
         code += "\\new PianoStaff <<\n"
         code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleDict + " \\major " + m + "}\n"
-        #code += "\\" + "new Staff { \set Staff.midiInstrument = \"viola\" \clef \"treble\" \\key " + scale + " \\major " + a + "}\n"
-        #code += "\\" + "new Staff { \set Staff.midiInstrument = \"cello\" \clef \"bass\" \\key " + scale + " \\major " + t + "}\n"
-        #code += "\\" + "new Staff { \set Staff.midiInstrument = \"contrabass\" \clef \"bass\" \\key " + scale + "\\major " + b + "}\n"
+        code += "\\" + "new Staff { \set Staff.midiInstrument = \"viola\" \clef \"treble\" \\key " + scaleDict + " \\major " + a + "}\n"
+        code += "\\" + "new Staff { \set Staff.midiInstrument = \"cello\" \clef \"bass\" \\key " + scaleDict + " \\major " + t + "}\n"
+        code += "\\" + "new Staff { \set Staff.midiInstrument = \"contrabass\" \clef \"bass\" \\key " + scaleDict + "\\major " + b + "}\n"
         code += ">>\n"
         code += "\\midi{}\n"
         code += "}\n"
@@ -694,6 +725,44 @@ def main():
         makePhrase(majScales, scaleType, key, beats, True, "authentic")
         makePhrase(majScales, scaleType, key, beats, False, "authentic")
 
+    # composes a phasing tune
+    def reich(majScales, scaleAsk, offset):
+        aLength = 1
+        bLength = 1
+        while aLength == bLength:
+            aLength = random.choice([3,4,5,6,7,8,9])
+            bLength = random.choice([3,4,5,6,7,8,9])
+        print(aLength)
+        print(bLength)
+        makePhrase(majScales, scaleAsk, offset, aLength, bLength, True, "A")
+        makePhrase(majScales, scaleAsk, offset, aLength, bLength, True, "B")
+        aCt = 1
+        bCt = 1
+        for i in range(int(aLength*bLength)):
+            if aCt <= bLength:
+                makePhrase(majScales, scaleAsk, offset, aLength, bLength, False, "A")
+                aCt += 1
+            if bCt <= aLength:
+                makePhrase(majScales, scaleAsk, offset, aLength, bLength, False, "B")
+                bCt += 1
+        makePhrase(majScales, scaleAsk, offset, aLength, bLength, True, "end2")
+
+    # composes a canon
+    def canon(majScales, scaleAsk, offset):
+        aLength = random.choice([4,5,6,7,8,9,10,11,12,13,14,15,16])
+        bLength = random.choice([4,5,6,7,8,9,10,11,12,13,14,15,16])
+        print(aLength)
+        print(bLength)
+        makePhrase(majScales, scaleAsk, offset, aLength, aLength, True, "roundA")
+        for i in range(4):
+            makePhrase(majScales, scaleAsk, offset, aLength, aLength, False, "roundA")
+        makePhrase(majScales, scaleAsk, offset, bLength, bLength, True, "roundB")
+        for i in range(3):
+            makePhrase(majScales, scaleAsk, offset, bLength, bLength, False, "roundB")
+        for i in range(4):
+            makePhrase(majScales, scaleAsk, offset, aLength, aLength, False, "roundA")
+        makePhrase(majScales, scaleAsk, offset, 1, 1, True, "roundEnd")
+        
     # MAIN
     offset = random.randrange(0,12)
     #fileName = sys.argv[1]
@@ -706,6 +775,7 @@ def main():
         print("Your melody will use a randomly built scale.")
     print("Tonal center of " + majScales[0][offset] + " chosen.\n")
 
+    '''
     formChoice = input("What form would you like your melody to follow?\n- AABA\n- freeform\n")
     print()
     if formChoice == 'AABA':
@@ -715,9 +785,12 @@ def main():
     else:
         print("Your melody will be freeform.")
         freeform(offset, scaleAsk)
+    '''
+    #reich(majScales, scaleAsk, offset)
 
-    # random rhythmic motif beat length
-    #rhythmicMotif(offset, scaleAsk, random.randrange(2,8))
+    # REICH2: MAKE PARTS HAVE DIFFERENT BUT MATHEMATICALLY RELATED RHYTHM PROFILES
+
+    canon(majScales, scaleAsk, offset)
 
     printSong(majScales[0][offset], fullMel, alto, tenor, bass)
 

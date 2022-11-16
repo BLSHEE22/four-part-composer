@@ -6,12 +6,6 @@ Current supported features:
 - 'makeFourParts.py' -> Writes a 16-bar, four-part harmonized tune.
 - 'melody.py' -> Generates a melody (AABA, 16 measure default) from either a major, minor, chromatic, or randomly built scale.
 
-'makeFourParts.py' TODO:
-- Implement sixteenth notes.
-- Increase rhythmic vocabulary of supporting lines. 
-- Implement ability to create and store one or more 'rhythmic motifs,' and have all the parts employ them.
-- Implement ability for all four lines to communicate in 'keeping the quaver.'
-
 'melody.py' TODO: 
 - Implement sixteenth notes.
 - Implement 'target note' feature to create countour and punctuate phrases.
