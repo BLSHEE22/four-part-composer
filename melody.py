@@ -7,6 +7,7 @@ import sys
 # GLOBAL list of melodies and rhythms
 mels = []
 rhythms = []
+scales = []
 bMels = []
 melRests = []
 melHolds = []
@@ -50,14 +51,19 @@ def main():
 
     # make melody
     def makeMel(offset, scaleDict, scaleType, starter, length, cad, rests, rhythmVals, rhythmValsPicked, log):
-
-        # IMPLEMENT 'BUILD FROM BOTH SIDES!'
-
+        # this function is turning into make phrase, makePhrase is turning into makeSection!
+        # IMPLEMENT 'BUILD FROM BOTH SIDES'
+        # IMPEMENT 'HIGH POINT'
+        # IMPLEMENT 'END ON DOMINANT FUNCTIONING NOTE'
+        # IMPLEMENT 'SCALE FUNCTION ANALYZER'
 
         # create melody list and build scale
         melody = []
-        if log:
+        # if first time writing A, write scale
+        if log and not cad == "B":
             scale = buildScale(scaleType)
+        else:
+            scale = scales[0]
         goLeap = False
         justLeaped = (False, 0)
         choosingRhythms = True
@@ -70,10 +76,16 @@ def main():
         #for c in range(minBound, maxBound):
             #legalNotes.append(c)
 
-        # if making new B, start on the dominant pitch and use A's rhythms
+        # if cad == B and writing new melody
         if cad == "B" and log:
-            starter = [(7,7)]
-            choosingRhythms = False
+            # choose dominant functioning note to start on
+            dom = 7
+            if 7 not in scale:
+                dom == random.choice(list(scale))
+                while dom == 0:
+                    dom == random.choice(list(scale))   
+            starter = [(dom,dom)]
+            #choosingRhythms = False
 
         # preload starter information 
         for x in starter:
@@ -109,7 +121,7 @@ def main():
                 newNote = 0
 
                 # 0 is a rest, rests have a 1 in 30 chance of getting picked (rests are being deprecated here)
-                rest = random.randrange(0,19)
+                rest = random.randrange(0,999999)
                 # 0 or 1 is a leap, leaps have a 2/9 chance of getting picked
                 # mod2==0 is up, mod2==1 is down.
                 motionType = random.randrange(0, 9)
@@ -132,7 +144,7 @@ def main():
                     #print("Beats on Synco: " + str(syncoBeatCnt))
 
                     # if syncopating for longer than four beats, get back on downbeat
-                    if syncoBeatCnt > 2:
+                    if syncoBeatCnt > 0:
                         #print("We need to get onto a strong beat immediately!")
                         #print("Space left: " + str(spaceLeft))
                         def findUpperOdd(val):
@@ -140,7 +152,10 @@ def main():
                                 if math.ceil(val)%2 == 1:
                                     return math.ceil(val)
                                 val += 1
-                        rhythmVal = findUpperOdd(spaceLeft) - spaceLeft
+                        #rhythmVal = findUpperOdd(spaceLeft) - spaceLeft
+
+                        # don't worry about strong vs. weak, just get to the quarter
+                        rhythmVal = math.ceil(spaceLeft) - spaceLeft
                         #print(rhythmVal)
 
                     # find a shorter rhythm if chosen rhythm is too big
@@ -234,30 +249,36 @@ def main():
 
     # build the scale
     def buildScale(scaleType, log=False):
-        if log:
-            print("Building scale...")
+        print("Building scale...")
         if scaleType == "major":
-            #scale = {0,2,4,5,7,9,11}
-            # trying pentatonic scale as opposed to full diatonic scale (with no weights!)
+            scale = {0,2,4,5,7,9,11}
+        elif scaleType == "major pentatonic":
             scale = {0,2,4,7,9}
         elif scaleType == "minor":
-            #scale = {0,2,3,5,7,8,10}
+            scale = {0,2,3,5,7,8,10}
+        elif scaleType == "minor pentatonic":
             scale = {0,3,5,7,10}
+        elif scaleType == "harmonic minor":
+            scale = {0,2,3,5,7,8,11}
         elif scaleType == "chromatic":
             scale = {0,1,2,3,4,5,6,7,8,9,10,11}
         else:
             scale = {0}
+            ct = 0
             curr = 0
-            while curr < 12:
-                i = random.randrange(1,4)
+            while ct < 6:
+                i = random.randrange(1,5)
                 curr += i
                 if curr >= 12: 
                     scale.add(curr-12) 
                 else: 
                     scale.add(curr)
-        if log:
-            print(scale)
-            print("Built scale.")
+                ct += 1
+                if not ct == 6:
+                    print(scale)
+        print(scale)
+        print("Built scale.")
+        scales.append(scale)
         return scale
     
     # find LEAPS in the scale that are no more than a tenth away from a starting note
@@ -333,7 +354,9 @@ def main():
         if log:
             print(rhythmVals)
             print("Rhythm value map generated.\n")
-        return rhythmVals
+        # for debugging purposes
+        return [0.25,0.25,0.5,0.5,0.5,0.5,0.75,1,1,1,1,1,1,1,1,2,2,2,3,4]
+        #return rhythmVals
 
     # translate melNums to LilyPond code
     def melToLily(mel, sc, rests, rhythmVals, rhythmValsPicked, cad, ogMel=[]):
@@ -661,11 +684,13 @@ def main():
                 mel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], aLength, cad, [], rhythmVals, [], True)
                 mels.append(mel)
                 fullMel += mel[0]
-            if cad == "B":                                                                     # using A's rests and rhythms!
-                mel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], aLength, cad, mels[0][2], rhythmVals, mels[0][-2], True)
+            if cad == "B":                      
+                # using A's rests and rhythms!
+                mel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], aLength, cad, [], rhythmVals, [], True)
+                # new rhythms
+                #mel = makeMel(offset, scaleDict[offset%12], scaleType, [(7,7)], aLength, cad, [], rhythmVals, [], True)
                 bMels.append(mel)
                 fullMel += mel[0]
-            # for solo finish
             if cad == "endSolo":
                 endMel = makeMel(offset, scaleDict[offset%12], scaleType, [mels[0][-1][0]], 1, cad, [False], [4], [], True)
                 fullMel += endMel[0]   
@@ -676,13 +701,12 @@ def main():
             if cad == "phaseB":
                 b = makeMel(offset, scaleDict[offset%12], scaleType, [(-12,-12)], bLength, cad, [], rhythmVals, [], True)
                 bMels.append(b)
-            # for two-part phasing finish
             if cad == "endPhase":
                 endMel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], 1, cad, [False], [4], [], True)
                 endMelB = makeMel(offset, scaleDict[offset%12], scaleType, [(-12,-12)], 1, cad, [False], [4], [], True)
                 fullMel += endMel[0]
                 tenor += endMelB[0]  
-            # create A theme for the round
+            # for canon
             if cad == "roundA":
                 mel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], aLength, cad, [], rhythmVals, [], True)
                 mels.append(mel)
@@ -700,7 +724,6 @@ def main():
                 alto += a[0]
                 tenor += t[0]
                 bass += b[0]
-            # create B theme for the round
             if cad == "roundB":
                 mel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], bLength, cad, [], rhythmVals, [], True)
                 mels.append(mel)
@@ -711,7 +734,6 @@ def main():
                 alto += a[0]
                 tenor += t[0]
                 bass += b[0]
-            # landing spot of canon
             if cad == "roundEnd":
                 endMel = makeMel(offset, scaleDict[offset%12], scaleType, [(0,0)], 1, cad, [False], [4], [], True)
                 endMelA = makeMel(offset, scaleDict[offset%12], scaleType, [(-5,-5)], 1, cad, [False], [4], [], True)
@@ -729,7 +751,10 @@ def main():
                 mel = makeMel(offset, scaleDict[offset%12], scaleType, mels[0][-1], aLength, cad, mels[0][2], mels[0][3], mels[0][4], False)
                 fullMel += mel[0]
             if cad == "Aend":
-                mel = makeMel(offset, scaleDict[offset%12], scaleType, mels[0][-1][:-2], aLength-2, cad, mels[0][2][:-2], mels[0][3][:-2], mels[0][4][:-2], False)
+                # finalize with the exact melody
+                mel = makeMel(offset, scaleDict[offset%12], scaleType, mels[0][-1], aLength-2, cad, mels[0][2], mels[0][3], mels[0][4], False)
+                # eat some beats and rewrite a more finishing tail
+                #mel = makeMel(offset, scaleDict[offset%12], scaleType, mels[0][-1][:-2], aLength-2, cad, mels[0][2][:-2], mels[0][3][:-2], mels[0][4][:-2], False)
                 fullMel += mel[0]
             if cad == "B":
                 mel = makeMel(offset, scaleDict[offset%12], scaleType, bMels[0][-1], bLength, cad, bMels[0][2], bMels[0][3], bMels[0][4], False)
@@ -760,38 +785,6 @@ def main():
                 alto += a[0]
                 tenor += t[0]
                 bass += b[0]
-
-    # write the lilyPond code to output file
-    def printSolo(scaleStart, scaleQual, time, tempo, m, a, t, b):
-        code = "\\header {\n  title = \"" + scaleStart + "\"\n}\n\n"
-        code += "\\score {\n"
-        code += "\\" + "new Staff { \set Staff.midiInstrument = \"flute\" \clef \"treble\" \\key " + scaleStart + " \\" + scaleQual + " "
-        code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + m + "}\n"
-        code += "\\midi{}\n"
-        code += "}\n"
-        code += "\\version \"2.22.2\""
-        f = open("ConvertMe.ly", "w")
-        f.write(code)
-        f.close()
-
-    # write the lilyPond code to output file
-    def printSong(scaleStart, scaleQual, time, tempo, m, a, t, b):
-        code = "\\header{\n  title = \"Computery's Masterpiece\"\n}\n\n"
-        code += "\\score {\n"
-        code += "\\new PianoStaff <<\n"
-        code += "\\time " + time[0] + "\n"
-        code += "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + "\n"
-        code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleStart + " \\" + scaleQual + " " + m + "}\n"
-        code += "\\" + "new Staff { \set Staff.midiInstrument = \"viola\" \clef \"treble\" \\key " + scaleStart + " \\" + scaleQual + " " + a + "}\n"
-        code += "\\" + "new Staff { \set Staff.midiInstrument = \"cello\" \clef \"bass\" \\key " + scaleStart + " \\" + scaleQual + " " + t + "}\n"
-        code += "\\" + "new Staff { \set Staff.midiInstrument = \"contrabass\" \clef \"bass\" \\key " + scaleStart + "\\" + scaleQual + " " + b + "}\n"
-        code += ">>\n"
-        code += "\\midi{}\n"
-        code += "}\n"
-        code += "\\version \"2.22.2\""
-        f = open("ConvertMe.ly", "w")
-        f.write(code)
-        f.close()
     
     # composes an AABA tune
     def solo(key, scaleDict, scaleType, meter):
@@ -882,14 +875,55 @@ def main():
         
     # ask the user what scale they want to use
     def scaleAsk():
-        ans = input("What kind of scale would you like to use for your piece?\n- major\n- minor\n- chromatic\n- random\n")
+        sc = ""
+        viableScales = {"major":0,"major pentatonic":1,"minor":2,"minor pentatonic":3,"harmonic minor":4,"chromatic":5}
+        inpStr = "What kind of scale would you like to use for your piece? Enter the corresponding number.\n"
+        for x in viableScales.keys():
+            inpStr += "\n- " + x + " (" + str(viableScales[x]) + ")" 
+        inpStr += "\n- random (6)\n\n"
+        ans = input(inpStr)
         print()
-        if ans == 'major' or ans == 'minor' or ans == 'chromatic':
-            print("Your melody will use the " + ans + " scale.")
-        else:
+        if ans not in [str(x) for x in viableScales.values()]:
             print("Your melody will use a randomly built scale.")
+        else:
+            for y in viableScales.keys():
+                if str(viableScales[y]) == ans:
+                    sc = y
+                    break
+            print("Your melody will use the " + sc + " scale.")            
         print("Tonal center of " + majScales[0][offset] + " chosen.")
-        return ans
+        return sc
+
+    # write the lilyPond code to output file
+    def printFile(scaleStart, scaleQual, mode, time, tempo, m, a, t, b):
+        if mode == "solo" or mode == "freeform":
+            code = "\\header {\n  title = \"" + scaleStart + "\"\n}\n\n"
+            code += "\\score {\n"
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"flute\" \clef \"treble\" \\key " + scaleStart + " \\" + scaleQual + " "
+            code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + m + "}\n"
+            code += "\\midi{}\n"
+            code += "}\n"
+            code += "\\version \"2.22.2\""
+            f = open("ConvertMe.ly", "w")
+            f.write(code)
+            f.close()
+        else:
+            code = "\\header{\n  title = \"Computery's Masterpiece\"\n}\n\n"
+            code += "\\score {\n"
+            code += "\\new PianoStaff <<\n"
+            code += "\\time " + time[0] + "\n"
+            code += "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + "\n"
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleStart + " \\" + scaleQual + " " + m + "}\n"
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"viola\" \clef \"treble\" \\key " + scaleStart + " \\" + scaleQual + " " + a + "}\n"
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"cello\" \clef \"bass\" \\key " + scaleStart + " \\" + scaleQual + " " + t + "}\n"
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"contrabass\" \clef \"bass\" \\key " + scaleStart + "\\" + scaleQual + " " + b + "}\n"
+            code += ">>\n"
+            code += "\\midi{}\n"
+            code += "}\n"
+            code += "\\version \"2.22.2\""
+            f = open("ConvertMe.ly", "w")
+            f.write(code)
+            f.close()
 
     # MAIN
     print("\nWelcome to ACE.\n")
@@ -905,42 +939,48 @@ def main():
     bpm = str(random.randrange(tempos[tempoMark][0],tempos[tempoMark][1]))
     #fileName = sys.argv[1]
 
+    # MODE LOGIC
     # possibly setup 'serial' as scale choice rather than mode choice?
     # make 'raga' mode -> need drone
     # make 'mirror' mode -> part of build from both ends
-    # REICH2: MAKE PARTS HAVE DIFFERENT BUT MATHEMATICALLY RELATED RHYTHM PROFILES
-    modeChoice = input("Choose your mode by entering its keyword.\n- Solo (solo)\n- Two-Part Phasing (reich)\n- Four-Part Canon (canon)\n- Freeform (freeform)\n")
+    # REICH: MAKE PARTS HAVE DIFFERENT BUT MATHEMATICALLY RELATED RHYTHM PROFILES
+    viableModes = ["solo","reich","freeform"]
+    modeChoice = input("Choose your mode by entering its keyword.\n\n- Solo (solo)\n- Multi-Part Phasing (reich)\n- Freeform (freeform)\n\n")
+    if modeChoice not in viableModes:
+        modeChoice = "freeform"
+    print("\nYou have chosen " + modeChoice + " mode.\n")
+    # ask what scale the user wants to use
     scaleType = scaleAsk()
     scaleChart = majScales
-    if scaleType == "minor":
+    if scaleType == "minor" or scaleType == "minor pentatonic" or scaleType == "harmonic minor":
         scaleChart = minScales
     print()
     if modeChoice == 'solo':
         print("A solo melody will be generated.\n")
         solo(offset, scaleChart, scaleType, meter)
     elif modeChoice == "reich":
-        print("Reich fan huh? Well - hopefully you will be a fan of this feature.\nA two-part phasing piece will be generated.\n")
-        reich(majScales, scaleType, offset)
-    elif modeChoice == "canon":
-        print("A four-part canon will be generated. Just a warning, it will be horrible.\n")
-        canon(majScales, scaleType, offset)
-    # elif modeChoice == "serial":
-    else:
+        print("Reich fan huh? Well - hopefully this will change your mind.\nA two-part phasing piece will be generated.\n")
+        reich(majScales, scaleType, offset, meter)
+    elif modeChoice == "serial":
+        print("You brave soul. Prepare to cover your ears.")
+        serial(majScales, scaleAsk, offset, meter)
+    elif modeChoice == "freeform":
         print("A freeform melody will be generated.\n")
         freeform(offset, scaleType, random.randrange(32,256))
 
-    # serial(majScales, scaleAsk, offset)
-
+    # EXPORT LOGIC
     print("Exporting song to .ly...")
-    # write the corresponding major key sig
-    if scaleType == "major":
-        printSolo(majScales[0][offset], scaleType, (meter, bpmFormat), (tempoMark, bpm), fullMel, alto, tenor, bass)
-    # write the corresponding minor key sig
-    elif scaleType == "minor":
-        printSolo(minScales[0][offset], scaleType, (meter, bpmFormat), (tempoMark, bpm), fullMel, alto, tenor, bass)
-    # don't write a key sig for chromatic or random scales (c major)
+    # set scale values back to their abstract value
+    scaleStart = majScales[0][0]
+    if scaleType == "minor" or scaleType == "minor pentatonic" or scaleType == "harmonic minor":
+        scaleStart = minScales[0][offset]
+        scaleType = "minor"
+    elif scaleType == "major" or scaleType == "major pentatonic":
+        scaleStart = majScales[0][offset]
+        scaleType = "major"
     else:
-        printSolo(majScales[0][0], "major", (meter, bpmFormat), (tempoMark, bpm), fullMel, alto, tenor, bass)
+        scaleType = "major"
+    printFile(scaleStart, scaleType, modeChoice, (meter, bpmFormat), (tempoMark, bpm), fullMel, alto, tenor, bass)
     print("Done.\n")
 
 if __name__ == "__main__":
