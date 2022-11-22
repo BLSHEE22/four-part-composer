@@ -4,7 +4,7 @@
 
 \score {
 \new PianoStaff <<
-\new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key c \major c'4 des'4 ees'4 c'2. b2 a2. b2 des'8 a'4 r2 ees'2. des'2. des'4 e'1 ees'4 d'4 d'4 e'4 ees'8 r2 ees'4 r4 fis'4 e'2. g'1 e'4 des'4 c''1 b'4 des''4 des'''4 b''4 r4 b'4 bes'2 r4 aes'4 r1 }
+\new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key aes \major aes'8 r8 des''4 ees''8 des'''4 bes''8 aes''8 des'''8 c'''8 ees'''8 f'''4 r4 c'''8 g''4 bes''8 aes''8 r4 f''8 ees''8 ees'''4 des'''8 ees'''8 ees''8 f''8 ees''8 aes'8 r8 des''4 ees''8 des'''4 bes''8 aes''8 des'''8 c'''8 ees'''8 f'''4 r4 c'''8 g''4 bes''8 aes''8 r4 f''8 ees''8 ees'''4 des'''8 ees'''8 ees''8 f''8 ees''8 ees''4 r4 des''4 c''4 bes'4 des''4 aes'4 bes'4 bes'4 des''4 ees''4 des''8 c''4 des''4 ees''4 r4 aes''8 aes'8 r8 des''4 ees''8 des'''4 bes''8 aes''8 des'''8 c'''8 ees'''8 f'''4 r4 c'''8 g''4 bes''8 aes''8 r4 f''8 ees''8 ees'''4 des'''8 ees'''8 ees''8 f''8 ees''8 }
 >>
 \midi{}
 }
