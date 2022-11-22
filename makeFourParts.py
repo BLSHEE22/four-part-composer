@@ -1070,11 +1070,11 @@ def main():
         #print()
 
     # write the lilyPond code to output file
-    def printSong(scale, m, a, t, b):
+    def printSong(scale, bpm, m, a, t, b):
         code = "\\header{\n  title = \"Computery's Masterpiece\"\n}\n\n"
         code += "\\score {\n"
         code += "\\new PianoStaff <<\n"
-        code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scale + " \\major " + m + "}\n"
+        code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scale + " \\major " + "\\tempo 4 = " + bpm + " " + m + "}\n"
         code += "\\" + "new Staff { \set Staff.midiInstrument = \"viola\" \clef \"treble\" \\key " + scale + " \\major " + a + "}\n"
         code += "\\" + "new Staff { \set Staff.midiInstrument = \"cello\" \clef \"bass\" \\key " + scale + " \\major " + t + "}\n"
         code += "\\" + "new Staff { \set Staff.midiInstrument = \"contrabass\" \clef \"bass\" \\key " + scale + "\\major " + b + "}\n"
@@ -1092,6 +1092,7 @@ def main():
 
     # MAIN
     offset = random.randrange(0,12)
+    bpm = str(random.randrange(55,161))
     #fileName = sys.argv[1]
     #offset = 11
     #print(offset)
@@ -1105,7 +1106,7 @@ def main():
     makePhrase(majScales, offset, 3, False, "end1", 6)
     print("FINALIZING CADENCE:")
     makePhrase(majScales, offset, 1, True, "end2")
-    printSong(majScales[0][offset], fullMel, alto, tenor, bass)
+    printSong(majScales[0][offset], bpm, fullMel, alto, tenor, bass)
 
 if __name__ == "__main__":
     main()
