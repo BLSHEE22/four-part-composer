@@ -88,12 +88,17 @@ def main():
         justLeaped = (0, 0)
         choosingRhythms = True
         syncoBeatCnt = 0
-        articChoices = [a for a in range(20)]
+        inSlur = 0
+        inNonVib = 0
+        inPizz = 0
+        articChoices = [a for a in range(9)]
         dynamChoices = [d for d in range(5)]
         dynamTrans = [t for t in range(3)]
+        # boost accents
         for j in range(random.randrange(1,5)):
             articChoices.append(1)
-        for k in range(random.randrange(50,100)):
+        # load in lots of the default option
+        for k in range(random.randrange(10,13)):
             articChoices.append(0)
 
         # create instrumental range of notes
@@ -195,7 +200,59 @@ def main():
                 melody.append((newNote%12, newNote))    
 
                 # choose artics for next note
-                artics.append(random.choice(articChoices))
+
+                availPool = [a for a in articChoices]
+                if len(rhythmValsPicked) > 1:
+                    if rhythmValsPicked[-2] > 1:
+                        for i in range(9,18):
+                            availPool.append(i)
+                articChoice = random.choice(availPool)
+                if inSlur > 0:
+                    # 3 for now, move up to 6
+                    if inSlur < 3:
+                        articChoice = random.choice([0,0,18,19])
+                        if articChoice == 19:
+                            inSlur = 0
+                        else:
+                            inSlur += 1
+                    else:
+                        articChoice = 19
+                        inSlur = 0
+                elif inNonVib > 0:
+                    if inNonVib < 3:
+                        if 10 in availPool:
+                            availPool.remove(10)
+                        availPool.append(20)
+                        articChoice = random.choice(availPool)
+                        if articChoice == 20:
+                            inNonVib = 0
+                        else:
+                            inNonVib += 1
+                    else:
+                        articChoice = 20
+                        inNonVib = 0
+                elif inPizz > 0:
+                    if inPizz < 3:
+                        if 11 in availPool:
+                            availPool.remove(11)
+                        availPool.append(21)
+                        availPool.append(22)
+                        availPool.append(23)
+                        articChoice = random.choice(availPool)
+                        if articChoice == 23:
+                            inPizz = 0
+                        else:
+                            inPizz += 1
+                    else:
+                        articChoice = 23
+                        inPizz = 0
+                elif inSlur == 0 and articChoice == 9:
+                    inSlur += 1
+                elif inNonVib == 0 and articChoice == 10:
+                    inNonVib += 1
+                elif inPizz == 0 and articChoice == 11:
+                    inPizz += 1
+                artics.append(articChoice)
                 
                 # update spaceLeft
                 if choosingRhythms:
@@ -336,11 +393,16 @@ def main():
         i = 0
         while i < len(mel):
             semis = mel[i][1]
-            articLily = {0:"",1:"\\accent ",2:"\\espressivo ",3:"\\marcato ",4:"\\portato ",
-                         5:"\\staccatissimo ",6:"\\staccato ",7:"\\tenuto ",8:"\\fermata ",
-                         9:"\\upbow ", 10:"\\downbow ",11:"\\lheel ",12:"\\rheel ",13:"\\ltoe ",
-                         14:"\\rtoe ",15:"\\snappizzicato ",16:"\\stopped ",17:"\\thumb ",
-                         18:"\\prall ",19:"\\trill "}
+            # 0-8 artics, (9 openSlur, 18 port, 19 closeSlur), (10 non-vib, 20 vib), 
+            # (11 pizz, 21 snap, 22 stopped, 23 arco)
+            articLily = {0:"",1:"\\accent ",2:"\\espressivo ",3:"\\marcato ",4:"\\fermata ",
+                         5:"\\staccatissimo ",6:"\\staccato ",7:"\\tenuto ", 8:"\\trill ",
+                         9:"\\( ", 10:"^\\markup non-vib. ", 11:"^\\markup pizz. ", 
+                         12:"^\\markup \"sul ponticello\" ", 13:"^\\markup \"sul tasto\" ", 
+                         14:"\\staccato ^\\markup \"col legno\" ", 
+                         15:"\\staccato ^\\markup \"au talon\" ", 16:"^\\markup \"sotto voce\" ",  
+                         17:"^\\markup flautando ", 18:"\\portato ", 19:"\\) ", 20:"^\\markup vib. ",
+                         21:"\\snappizzicato ", 22:"\\stopped ", 23:"^\\markup arco "}
             rhythmToLily = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1",6:"1.",8:"\\breve"}
             s = ""
             if semis > 700:
@@ -856,7 +918,7 @@ def main():
             code = "\\header {\n  title = \"" + scaleStartTrans[scaleStart] + " " + scaleQual.capitalize() + " " + mode.capitalize() + " \"\n}\n\n"
             code += "\\score {\n"
             code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleStart + " \\" + scaleQual + " "
-            code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + m + "}\n"
+            code += "\\time " + time[0] + " \\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + m + "}\n"
             #code += "\\midi{}\n"
             code += "}\n"
             code += "\\version \"2.22.2\""

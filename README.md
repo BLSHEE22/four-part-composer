@@ -7,7 +7,10 @@ Current supported features:
 - 'melody.py' -> Equipped with many modes of generating a melody.
 
 'melody.py' TODO: 
+- Implement slurs
 - Implement logic for dynamics
+- Implement 'tie over bar' logic for PDFs in melToLily
+- Implement 'weighted scale degrees' when choosing leaps and steps
 - Implement pickup notes
 - Implement 'raga' feature (drone, long meter, etc.)
 - Implement 'mirror' melody feature
