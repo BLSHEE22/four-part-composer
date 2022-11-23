@@ -916,7 +916,6 @@ def main():
     # possibly setup 'serial' as scale choice rather than mode choice?
     # make 'raga' mode -> need drone
     # make 'mirror' mode -> part of build from both ends
-    # REICH: MAKE PARTS HAVE DIFFERENT BUT MATHEMATICALLY RELATED RHYTHM PROFILES
     viableModes = ["solo","freeform","reich","fugue"]
     modeChoice = input("Choose your mode by entering its keyword.\n\n- AABA Solo (solo)\n- Freeform Solo (freeform)\n- Phasing Piece (reich)\n- Fugue (fugue)\n\n")
     if modeChoice not in viableModes:
