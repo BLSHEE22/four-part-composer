@@ -200,25 +200,30 @@ def main():
                 melody.append((newNote%12, newNote))    
 
                 # choose artics for next note
-
+                doneWithTech = False
                 availPool = [a for a in articChoices]
                 if len(rhythmValsPicked) > 1:
                     if rhythmValsPicked[-2] > 1:
-                        for i in range(9,18):
-                            availPool.append(i)
+                        for j in range(2):
+                            for i in range(9,18):
+                                #availPool.append(i)
+                                availPool.append(9)
                 articChoice = random.choice(availPool)
                 if inSlur > 0:
                     # 3 for now, move up to 6
                     if inSlur < 3:
                         articChoice = random.choice([0,0,18,19])
                         if articChoice == 19:
+                            print("STOPPING SLUR")
                             inSlur = 0
                         else:
                             inSlur += 1
                     else:
+                        print("AUTO STOP SLUR")
                         articChoice = 19
                         inSlur = 0
-                elif inNonVib > 0:
+                    doneWithTech = True
+                elif not doneWithTech and inNonVib > 0:
                     if inNonVib < 3:
                         if 10 in availPool:
                             availPool.remove(10)
@@ -229,9 +234,11 @@ def main():
                         else:
                             inNonVib += 1
                     else:
+                        print("AUTO STOP NONVIB")
                         articChoice = 20
                         inNonVib = 0
-                elif inPizz > 0:
+                    doneWithTech = True
+                elif not doneWithTech and inPizz > 0:
                     if inPizz < 3:
                         if 11 in availPool:
                             availPool.remove(11)
@@ -244,14 +251,21 @@ def main():
                         else:
                             inPizz += 1
                     else:
+                        print("AUTO STOP PIZZ")
                         articChoice = 23
                         inPizz = 0
+                    doneWithTech = True
                 elif inSlur == 0 and articChoice == 9:
+                    print("Enetering SLUR mode.")
                     inSlur += 1
                 elif inNonVib == 0 and articChoice == 10:
+                    print("Entering NOVIB mode.")
                     inNonVib += 1
                 elif inPizz == 0 and articChoice == 11:
+                    print("Entering PIZZ mode.")
                     inPizz += 1
+                print(str(inSlur) + " " + str(inNonVib) + " " + str(inPizz))
+                print()
                 artics.append(articChoice)
                 
                 # update spaceLeft
@@ -439,270 +453,6 @@ def main():
         # print('\n')
 
         return [retStr, [x[1] for x in mel], dynams, artics, rhythmVals, rhythmValsPicked, ogMel]
-
-
-
-
-
-    # build chords based on mel and common harmonic progression fundamentals
-    def makeHarm(mel, offset, cad):
-
-        # mel[0] = retStr
-        # mel[1] = nums
-        # mel[2] = rests
-        # mel[3] = holds
-        # mel[4] = passTones
-
-        # create option to HOLD TONE or ADD PASSING TONES
-
-        def left():
-            return 0.1
-        
-        #print("Mel to be made into harm: " + str(mel))
-
-        abstrMel = [(x-offset)%12 for x in mel[1]]
-        # print("*****************************************")
-        # print(mel)
-        #print(abstrMel)
-        # print(offset)
-        
-        # build all diatonic chords (1, 3, 6, 8, and 10 are non-diatonic)
-        chordLib = {0:[[2,5,9],[4,0,7],[4,4,9],[5,2,9],[5,5,9],[7,2,5],[7,5,9],[9,0,5],[9,4,9]],
-                    1:[[3,9,6],[3,10,6],[4,1,8],[4,9,7],[5,1,8],[5,11,8],[7,4,10],[7,3,10],[9,6,3],[10,4,7]],
-                    2:[[2,0,5],[2,5,9],[4,0,7],[4,-1,7],[5,2,9],[5,-1,7],[7,5,11],[7,5,12],[9,2,5]],
-                    3:[[0,8,10],[0,9,6],[3,8,12],[5,0,8],[7,7,0],[7,10,1],[8,7,0],[8,8,11],[9,6,12],[9,5,12]],
-                    4:[[0,4,9],[2,0,5],[4,-1,7],[5,0,9],[5,5,9],[7,0,7],[7,-1,4],[9,9,12],[9,5,12],[11,4,7]],
-                    5:[[0,0,9],[2,0,9],[2,2,9],[5,0,9],[5,2,9],[5,5,9],[7,2,11],[9,5,12],[11,7,14]],
-                    6:[[0,2,9],[0,9,3],[2,9,12],[3,9,0],[9,2,12],[9,3,0]],
-                    7:[[2,-3,5],[2,0,5],[4,0,7],[5,0,9],[5,2,9],[7,0,4],[7,2,11],[7,5,11],[9,4,12],[9,5,12],[11,5,14],[11,7,14]],
-                    8:[[0,3,8],[0,5,12],[0,12,5],[2,5,11],[3,0,8],[4,1,10],[5,2,11],[5,2,10],[10,2,4]],
-                    9:[[0,0,5],[0,4,9],[2,0,5],[2,2,5],[4,2,7],[4,4,12],[5,2,11],[5,2,12],[5,5,12],[7,4,12],[7,5,11],[9,4,12],[11,5,14],[11,7,14]],
-                    10:[[0,0,3],[0,4,7],[2,2,7],[2,10,5],[3,3,7],[3,3,6],[4,2,7],[5,2,7],[7,2,5],[7,2,7]],
-                    11:[[2,-3,5],[2,2,7],[2,5,7],[4,2,7],[5,2,7],[5,2,8],[7,4,12],[7,5,14],[7,7,14],[9,4,12],[9,5,12],[9,5,14]]}
-        
-        # all legal predominant harmonies based on each melody note
-        preDomLib = {0:[[2,2,5],[2,9,5],[5,2,9],[9,2,5]],
-                     2:[[2,2,5],[2,9,5],[5,2,9],[9,2,5]],
-                     4:[[7,7,12]],
-                     5:[[2,0,9],[2,2,9],[9,2,9]],
-                     7:[[4,0,7]],
-                     9:[[2,0,5],[2,2,5],[5,2,9]],
-                     10:[[7,2,7]],
-                     11:[[5,2,9]]}
-
-        # all legal dominant harmonies based on each melody note
-        domLib = {0:[[7,4,7]],
-                  2:[[7,5,11],[11,5,7],[5,11,7]],
-                  4:[[7,5,11]],
-                  5:[[7,2,11]],
-                  7:[[7,5,11],[2,11,5],[11,5,14],[5,2,11]],
-                  9:[[7,5,11]],
-                  11:[[-5,7,5],[2,5,7],[7,5,14],[5,2,7]]}
-        
-        # root position tonic chord
-        rootTon = [0,0,4]
-
-        # root position I7 chord
-        rootDom = [0,-2,4]
-
-        # root position V7 chord for HC
-        rootDom7HC = [7,2,5]
-
-        # root position V7 chord
-        rootDom7 = [-5,2,5]
-
-        chordsChosen = [rootTon]
-        
-        i = 1
-        melLength = len(abstrMel)
-        while i < melLength:
-            if cad == "half":
-                if i == len(abstrMel)-2:
-                    # if pass tone
-                    if mel[4][i]:
-                        chordsChosen.append(preDomLib[abstrMel[i+1]][random.randrange(0, len(preDomLib[abstrMel[i+1]]))])
-                        i += 2
-                        continue
-                    # if hold tone
-                    if mel[3][i]:
-                        chordsChosen.append(preDomLib[abstrMel[i]][random.randrange(0, len(preDomLib[abstrMel[i]]))])
-                        chordsChosen.append(rootDom7HC)
-                        i += 1
-                        continue
-                    chordsChosen.append(preDomLib[abstrMel[i]][random.randrange(0, len(preDomLib[abstrMel[i]]))])
-                    i += 1
-                    continue
-                elif i == len(abstrMel)-1:
-                    # if pass tone
-                    if mel[4][i]:
-                        chordsChosen.append(domLib[abstrMel[i+1]][random.randrange(0, len(domLib[abstrMel[i+1]]))])
-                        i += 2
-                        continue
-                    # if hold tone
-                    if mel[3][i]:
-                        chordsChosen.append(domLib[abstrMel[i]][random.randrange(0, len(domLib[abstrMel[i]]))])
-                        chordsChosen.append(domLib[abstrMel[i]][random.randrange(0, len(domLib[abstrMel[i]]))])
-                        i += 1
-                        continue
-                    chordsChosen.append(rootDom7HC)
-                    i += 1
-                    continue
-            elif cad == "authentic":
-                if i == len(abstrMel)-2:
-                    # if pass tone
-                    if mel[4][i]:
-                        chordsChosen.append(domLib[abstrMel[i+1]][random.randrange(0, len(domLib[abstrMel[i+1]]))])
-                        i += 2
-                        continue
-                    # if hold tone
-                    if mel[3][i]:
-                        chordsChosen.append(rootDom)
-                        chordsChosen.append(rootTon)
-                        i += 1
-                        continue
-                    chordsChosen.append(domLib[abstrMel[i]][0])
-                    i += 1
-                    continue
-                elif i == len(abstrMel)-1:
-                    # if pass tone
-                    if mel[4][i]:
-                        chordsChosen.append(chordLib[abstrMel[i+1]][0])
-                        i += 2
-                        continue
-                    # if hold tone
-                    if mel[3][i]:
-                        chordsChosen.append(domLib[abstrMel[i]][random.randrange(0, len(domLib[abstrMel[i]]))])
-                        chordsChosen.append(rootTon)
-                        i += 1
-                        continue
-                    chordsChosen.append(rootTon)
-                    i += 1
-                    continue
-            elif cad == "retran":
-                if i == len(abstrMel)-3:
-                    # if pass tone
-                    if mel[4][i]:
-                        chordsChosen.append(domLib[abstrMel[i+1]][random.randrange(0, len(domLib[abstrMel[i+1]]))])
-                        i += 2
-                        continue
-                    # if hold tone
-                    if mel[3][i]:
-                        chordsChosen.append(domLib[abstrMel[i]][random.randrange(0, len(domLib[abstrMel[i]]))])
-                        chordsChosen.append(domLib[abstrMel[i]][random.randrange(0, len(domLib[abstrMel[i]]))])
-                        i += 1
-                        continue
-                    chordsChosen.append(domLib[abstrMel[i]][random.randrange(0, len(domLib[abstrMel[i]]))])
-                    i += 1
-                    continue
-                elif i == len(abstrMel)-2:
-                    # if pass tone
-                    if mel[4][i]:
-                        chordsChosen.append(domLib[abstrMel[i+1]][random.randrange(0, len(domLib[abstrMel[i+1]]))])
-                        i += 2
-                        continue
-                    # if hold tone
-                    if mel[3][i]:
-                        chordsChosen.append(domLib[abstrMel[i]][random.randrange(0, len(domLib[abstrMel[i]]))])
-                        chordsChosen.append(rootDom)
-                        i += 1
-                        continue
-                    chordsChosen.append(domLib[abstrMel[i]][random.randrange(0, len(domLib[abstrMel[i]]))])
-                    i += 1
-                    continue
-                elif i == len(abstrMel)-1:
-                    # if pass tone
-                    if mel[4][i]:
-                        chordsChosen.append(rootDom)
-                        i += 2
-                        continue
-                    # if hold tone
-                    if mel[3][i]:
-                        chordsChosen.append(domLib[abstrMel[i]][random.randrange(0, len(domLib[abstrMel[i]]))])
-                        chordsChosen.append(rootDom)
-                        i += 1
-                        continue
-                    chordsChosen.append(rootDom)
-                    i += 1
-                    continue
-            elif cad == "end1":
-                if i == len(abstrMel)-4:
-                    # if pass tone
-                    if mel[4][i]:
-                        chordsChosen.append(preDomLib[abstrMel[i+1]][random.randrange(0, len(preDomLib[abstrMel[i+1]]))])
-                        i += 2
-                        continue
-                    # if hold tone
-                    if mel[3][i]:
-                        chordsChosen.append(preDomLib[abstrMel[i]][random.randrange(0, len(preDomLib[abstrMel[i]]))])
-                        chordsChosen.append(preDomLib[abstrMel[i]][random.randrange(0, len(preDomLib[abstrMel[i]]))])
-                        i += 1
-                        continue
-                    chordsChosen.append(preDomLib[abstrMel[i]][random.randrange(0, len(preDomLib[abstrMel[i]]))])
-                    i += 1
-                    continue
-                elif i == len(abstrMel)-3:
-                    # if pass tone
-                    if mel[4][i]:
-                        chordsChosen.append(preDomLib[abstrMel[i+1]][random.randrange(0, len(preDomLib[abstrMel[i+1]]))])
-                        i += 2
-                        continue
-                    # if hold tone
-                    if mel[3][i]:
-                        chordsChosen.append(preDomLib[abstrMel[i]][random.randrange(0, len(preDomLib[abstrMel[i]]))])
-                        chordsChosen.append(preDomLib[abstrMel[i]][random.randrange(0, len(preDomLib[abstrMel[i]]))])
-                        i += 1
-                        continue
-                    chordsChosen.append(preDomLib[abstrMel[i]][random.randrange(0, len(preDomLib[abstrMel[i]]))])
-                    i += 1
-                    continue
-                elif i == len(abstrMel)-2:
-                    # if pass tone
-                    if mel[4][i]:
-                        chordsChosen.append(preDomLib[abstrMel[i+1]][random.randrange(0, len(preDomLib[abstrMel[i+1]]))])
-                        i += 2
-                        continue
-                    # if hold tone
-                    if mel[3][i]:
-                        chordsChosen.append(preDomLib[abstrMel[i]][random.randrange(0, len(preDomLib[abstrMel[i]]))])
-                        chordsChosen.append(rootDom7)
-                        i += 1
-                        continue
-                    chordsChosen.append(preDomLib[abstrMel[i]][random.randrange(0, len(preDomLib[abstrMel[i]]))])
-                    i += 1
-                    continue
-                elif i == len(abstrMel)-1:
-                    # if pass tone
-                    if mel[4][i]:
-                        chordsChosen.append(domLib[abstrMel[i]][random.randrange(0, len(domLib[abstrMel[i]]))])
-                        i += 2
-                        continue
-                    # if hold tone
-                    if mel[3][i]:
-                        chordsChosen.append(domLib[abstrMel[i]][random.randrange(0, len(domLib[abstrMel[i]]))])
-                        chordsChosen.append(rootDom7)
-                        i += 1
-                        continue
-                    chordsChosen.append(rootDom7)
-                    i += 1
-                    continue
-            
-            # if passTone in mel
-            if mel[4][i]:
-                chordsChosen.append(chordLib[abstrMel[i+1]][random.randrange(0, len(chordLib[abstrMel[i+1]]))])
-                i += 2
-                continue
-            # if hold in mel
-            if mel[3][i]:
-                chordsChosen.append(chordLib[abstrMel[i]][random.randrange(0, len(chordLib[abstrMel[i]]))])
-                chordsChosen.append(chordLib[abstrMel[i]][random.randrange(0, len(chordLib[abstrMel[i]]))])
-                i += 1
-                continue
-            chordsChosen.append(chordLib[abstrMel[i]][random.randrange(0, len(chordLib[abstrMel[i]]))])
-            i += 1
-
-        return chordsChosen
-
-        # return makeMel(offset-regOffset, scale, starter)
 
     # use makeMel to write a melodic phrase
     def makeSection(scaleDict, scaleType, offset, aLength, bLength, newMel, cad, eat=2):
