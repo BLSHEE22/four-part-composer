@@ -7,7 +7,7 @@ Current supported features:
 - 'melody.py' -> Equipped with many modes of generating a melody.
 
 'melody.py' TODO: 
-- Implement slurs
+- Slur, Vib, and Pizz Testing
 - Implement logic for dynamics
 - Implement 'tie over bar' logic for PDFs in melToLily
 - Implement 'weighted scale degrees' when choosing leaps and steps
