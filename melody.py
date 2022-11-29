@@ -63,7 +63,8 @@ def main():
         # motion is 50/50 up or down, never move by 0 (maybe should allow stationary move, 46/46/8 splits?)
         # rests are picked 1/16 of the time, marked by pitch '800-offset'
         # articulations are assigned 1/4 of the time, there are 7 possible choices
-        # leaps occur 20% of the time and are always followed by TWO OR MORE non-leaps in the opposite direction of the leap
+        # performance techniques are given a chance to be notated after every quarter note or longer
+        # leaps occur 40% of the time and are always followed by TWO OR MORE non-leaps in the opposite direction of the leap
         # leaps are no bigger than an octave
 
         # create melody list and build scale
@@ -91,6 +92,7 @@ def main():
         inSlur = 0
         inNonVib = 0
         inPizz = 0
+        inTech = 0
         articChoices = [a for a in range(9)]
         dynamChoices = [d for d in range(5)]
         dynamTrans = [t for t in range(3)]
@@ -109,6 +111,9 @@ def main():
             for x in starter:
                 melody.append(x)
             prev = melody[0][1]
+        # if prev is a rest, rescale the pitch
+        if prev > 700:
+            prev -= 800
         # if no preloaded artics, preload non-artic for first beat
         if not artics:
             artics.append(random.choice(articChoices))
@@ -130,10 +135,11 @@ def main():
                 if choosingRhythms:
                     rhythmVal = random.choice(rhythmVals)
                     if not spaceLeft%1 == 0:
-                        syncoBeatCnt += 1
+                        syncoBeatCnt += rhythmVal
                     else:
                         syncoBeatCnt = 0
-                    if syncoBeatCnt > 0:
+                    # allowed synco beats
+                    if syncoBeatCnt > 3:
                         def findUpperOdd(val):
                             while True:
                                 if math.ceil(val)%2 == 0:
@@ -160,7 +166,7 @@ def main():
                 # 0 is a rest, rests have a 1/16 chance of getting picked
                 rest = random.randrange(0,16)
                 add800 = False
-                # 0 or 1 is a leap, leaps have a 1/5 chance of getting picked
+                # 0 or 1 is a leap, leaps have a 4/10 chance of getting picked
                 # mod2==0 is up, mod2==1 is down.
                 motionType = random.randrange(0, 10)
                 # if rest picked, move on
@@ -172,13 +178,13 @@ def main():
                     restOffset = 0
                     if prevRest:
                         restOffset = 800
-                    if justLeaped[0] == 0 and motionType < 2: goLeap = True
+                    if justLeaped[0] == 0 and motionType < 4: goLeap = True
                     # LEAP LOGIC
                     if goLeap:
                         # find legal leaps
-                        legalLeaps = findLegalLeaps(prev-restOffset, scale, motionType, phraseRange)
+                        legalLeaps = findLegalLeaps(prev-restOffset, scale, motionType%2, phraseRange)
                         newNote = random.choice(legalLeaps)
-                        justLeaped = (2, motionType) # legalLeaps[1] instead of motionType
+                        justLeaped = (2, motionType%2) # legalLeaps[1] instead of motionType
                         goLeap = False
                     # POST-LEAP BALANCE LOGIC
                     elif justLeaped[0] > 0:
@@ -201,28 +207,39 @@ def main():
 
                 # choose artics for next note
                 doneWithTech = False
+                techs = [12,13,14,15,16,17]
                 availPool = [a for a in articChoices]
                 if len(rhythmValsPicked) > 1:
                     if rhythmValsPicked[-2] > 1:
-                        for j in range(2):
+                        for j in range(3):
                             for i in range(9,18):
-                                #availPool.append(i)
-                                availPool.append(9)
-                articChoice = random.choice(availPool)
+                                availPool.append(i)
+                # don't choose any artics for rests
+                if not rest == 0:
+                    articChoice = random.choice(availPool)
+                else:
+                    articChoice = 0
+                # while in slur mode
                 if inSlur > 0:
-                    # 3 for now, move up to 6
-                    if inSlur < 3:
-                        articChoice = random.choice([0,0,18,19])
-                        if articChoice == 19:
-                            print("STOPPING SLUR")
+                    if inSlur < 4:
+                        if rest == 0:
+                            artics[-1] = 19
+                            articChoice = 0
+                            inSlur = 0
+                        elif spaceLeft < 4:
+                            articChoice = 19
                             inSlur = 0
                         else:
-                            inSlur += 1
+                            articChoice = random.choice([0,0,18,19])
+                            if articChoice == 19:
+                                inSlur = 0
+                            else:
+                                inSlur += 1
                     else:
-                        print("AUTO STOP SLUR")
                         articChoice = 19
                         inSlur = 0
                     doneWithTech = True
+                # while in non-vib mode
                 elif not doneWithTech and inNonVib > 0:
                     if inNonVib < 3:
                         if 10 in availPool:
@@ -234,10 +251,11 @@ def main():
                         else:
                             inNonVib += 1
                     else:
-                        print("AUTO STOP NONVIB")
+                        #print("AUTO STOP NONVIB")
                         articChoice = 20
                         inNonVib = 0
                     doneWithTech = True
+                # while in pizz mode
                 elif not doneWithTech and inPizz > 0:
                     if inPizz < 3:
                         if 11 in availPool:
@@ -251,21 +269,40 @@ def main():
                         else:
                             inPizz += 1
                     else:
-                        print("AUTO STOP PIZZ")
+                        #print("AUTO STOP PIZZ")
                         articChoice = 23
                         inPizz = 0
                     doneWithTech = True
-                elif inSlur == 0 and articChoice == 9:
-                    print("Enetering SLUR mode.")
+                # while in tech mode
+                elif not doneWithTech and inTech > 0:
+                    if inTech < 8:
+                        availPool = [a for a in articChoices]
+                        for _ in range(2):
+                            availPool.append(24)
+                        articChoice = random.choice(availPool)
+                        if articChoice == 24:
+                            inTech = 0
+                        else:
+                            inTech += 1
+                    else:
+                        #print("AUTO STOP TECH")
+                        articChoice = 24
+                        inTech = 0
+                    doneWithTech = True
+                # entering slur mode
+                elif inSlur == 0 and articChoice == 9 and not rest == 0:
                     inSlur += 1
-                elif inNonVib == 0 and articChoice == 10:
-                    print("Entering NOVIB mode.")
+                # entering non-vib mode
+                elif inNonVib == 0 and articChoice == 10 and not rest == 0:
                     inNonVib += 1
-                elif inPizz == 0 and articChoice == 11:
-                    print("Entering PIZZ mode.")
+                # entering pizz. mode
+                elif inPizz == 0 and articChoice == 11 and not rest == 0:
                     inPizz += 1
-                print(str(inSlur) + " " + str(inNonVib) + " " + str(inPizz))
-                print()
+                # entering tech mode
+                elif inTech == 0 and articChoice in techs and not rest == 0:
+                    inTech += 1
+                #print(str(inSlur) + " " + str(inNonVib) + " " + str(inPizz) + " " + str(inTech))
+                #print()
                 artics.append(articChoice)
                 
                 # update spaceLeft
@@ -276,6 +313,12 @@ def main():
                 prev = newNote
                 i += 1
         
+        # if we tried a slur on the last note, remove it
+        if artics[-1] == 9:
+            artics[-1] = 0
+        # if we ended in slur mode, end the slur
+        if not inSlur == 0:
+            artics[-1] = 19
         ogMel = [x for x in melody]
         melody = [((x[0]+offset)%12,x[1]+offset) for x in ogMel] 
         return melToLily(melody, scaleDict, dynams, artics, rhythmVals, rhythmValsPicked, cad, ogMel)
@@ -298,10 +341,8 @@ def main():
             scale = {0,2,3,5,7,8,11}
         elif scaleType == "chromatic":
             scale = {0,1,2,3,4,5,6,7,8,9,10,11}
-        elif scaleType == "wt-0":
+        elif scaleType == "wt-0" or scaleType == "wt-1":
             scale = {0,2,4,6,8,10}
-        elif scaleType == "wt-1":
-            scale = {1,3,5,7,9,11}
         else:
             scale = {0}
             ct = 0
@@ -386,19 +427,22 @@ def main():
         vals = [0.25,0.5,0.75,1,1.5,2,3,4]
         pips = [10,100,1000]
 
-        # randomly boost the frequency of any of the first three vals 
+        # randomly boost the frequency of all the vals 
         for i in range(0,len(vals)):
             pipCount = random.choice(pips)
             dieRoll = random.randrange(1, pipCount)
             for j in range(dieRoll):
                 rhythmVals.append(vals[i])
 
-        if log:
-            print(rhythmVals)
-            print("Rhythm value map generated.\n")
         # for debugging purposes
-        return [0.25,0.25,0.5,0.5,0.5,0.5,0.75,1,1,1,1,1,1,1,1,1.5,2,2,2,3,4]
-        #return rhythmVals
+        rhythmVals =  [0.25,0.25,0.5,0.5,0.5,0.5,0.75,1,1,1,1,1,1,1,1,1.5,2,2,2,3,4]
+        if log:
+            print()
+            for x in vals:
+                print("{0:5s}: ".format(str(x)) + str(rhythmVals.count(x)))
+            print()
+            print("Rhythm value map generated.\n")
+        return rhythmVals
 
     # translate melNums to LilyPond code
     def melToLily(mel, sc, dynams, artics, rhythmVals, rhythmValsPicked, cad, ogMel=[]):
@@ -416,7 +460,7 @@ def main():
                          14:"\\staccato ^\\markup \"col legno\" ", 
                          15:"\\staccato ^\\markup \"au talon\" ", 16:"^\\markup \"sotto voce\" ",  
                          17:"^\\markup flautando ", 18:"\\portato ", 19:"\\) ", 20:"^\\markup vib. ",
-                         21:"\\snappizzicato ", 22:"\\stopped ", 23:"^\\markup arco "}
+                         21:"\\snappizzicato ", 22:"\\stopped ", 23:"^\\markup arco ", 24:"^\\markup naturale "}
             rhythmToLily = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1",6:"1.",8:"\\breve"}
             s = ""
             if semis > 700:
@@ -593,6 +637,7 @@ def main():
 
     # composes a two-part phasing piece
     def reich(majScales, scaleAsk, offset, meter):
+        # NO FERMATAS FOR REICH!!!
         aLength = random.choice([4,5,6,7,8,9,11,13,15,17])
         makeSection(majScales, scaleAsk, offset, aLength, 0, True, "phaseA")
         lengthDiff = mels[0][5][-1]
@@ -604,10 +649,8 @@ def main():
             aAdj *= 2
         aLength = aAdj*aLength
         bLength = int(bLength)
-        print("Phase A Length: " + str(aLength))
-        print("Phase B Length: " + str(bLength))
-        print(mels[0][5])
-        print(mels[0][5][:-1])
+        print("Phase A Length: " + "{0:3s}".format(str(aLength))  + str(mels[0][5]))
+        print("Phase B Length: " + "{0:3s}".format(str(bLength))  + str(mels[0][5][:-1]))
         makeSection(majScales, scaleAsk, offset, aLength, bLength, True, "phaseB")
         for _ in range(bLength):
             makeSection(majScales, scaleAsk, offset, aLength, bLength, False, "phaseA")
@@ -640,9 +683,9 @@ def main():
         viableScales = {"major":0,"major pentatonic":1,"minor":2,"minor pentatonic":3,"harmonic minor":4,"chromatic":5,"wt-0":6,"wt-1":7}
         inpStr = "What kind of scale would you like to use for your piece? Enter the corresponding number.\n"
         for x in viableScales.keys():
-            inpStr += "\n- " + x + " (" + str(viableScales[x]) + ")" 
-        inpStr += "\n- random choice (8)"
-        inpStr += "\n- random build (9)\n\n"
+            inpStr += "\n- " + "{0:18s}".format(x) + " (" + str(viableScales[x]) + ")" 
+        inpStr += "\n- random choice      (8)"
+        inpStr += "\n- random build       (9)\n\n"
         ans = input(inpStr)
         print()
         if ans == "8":
@@ -655,19 +698,22 @@ def main():
                     sc = y
                     break
             print("Your melody will use the " + sc + " scale.")            
-        print("Tonal center of " + majScales[0][offset] + " chosen.")
+        # print("Tonal center of " + majScales[0][offset] + " chosen.")
         return sc
 
     # write the lilyPond code to output file
-    def printFile(scaleStart, scaleQual, mode, time, tempo, m, a, t, b):
+    def printFile(scaleStart, scaleName, scaleSigStart, scaleSigQual, mode, time, tempo, m, a, t, b):
         scaleStartTrans = {"c":"C","cis":"C#","des":"D-Flat","d":"D","dis":"D#","ees":"E-Flat","e":"E",
                            "fes":"F-Flat","f":"F","fis":"F#","ges":"G-Flat","g":"G","gis":"G#",
                            "aes":"A-Flat","a":"A","ais":"A#","bes":"B-Flat","b":"B","ces":"C-Flat"}
+        scaleNameTrans = {"major":"Major","major pentatonic":"Major Pentatonic","minor":"Minor","minor pentatonic":"Minor Pentatonic",
+                          "harmonic minor":"Harmonic Minor","chromatic":"Chromatic","wt-0":"Whole-Tone","wt-1":"Whole-Tone","":"Custom Scale"}
         if mode == "solo" or mode == "freeform":
             # instead of using scaleStart as title, use moodAnalyzer!
-            code = "\\header {\n  title = \"" + scaleStartTrans[scaleStart] + " " + scaleQual.capitalize() + " " + mode.capitalize() + " \"\n}\n\n"
+            #code = "\\header {\n  title = \"" + scaleStartTrans[scaleStart] + " " + scaleQual.capitalize() + " " + mode.capitalize() + " \"\n}\n\n"
+            code = "\\header {\n  title = \"" + scaleStartTrans[scaleStart] + " " + scaleNameTrans[scaleName] + " " + mode.capitalize() + " \"\n}\n\n"
             code += "\\score {\n"
-            code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleStart + " \\" + scaleQual + " "
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + " \\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + m + "}\n"
             #code += "\\midi{}\n"
             code += "}\n"
@@ -676,12 +722,12 @@ def main():
             f.write(code)
             f.close()
         elif mode == "reich":
-            code = "\\header {\n  title = \"" + scaleStartTrans[scaleStart] + " " + scaleQual.capitalize() + " " + mode.capitalize() + " \"\n}\n\n"
+            code = "\\header {\n  title = \"" + scaleStartTrans[scaleStart] + " " + scaleNameTrans[scaleName] + " " + mode.capitalize() + " \"\n}\n\n"
             code += "\\score {\n"
             code += "\\new PianoStaff <<"
-            code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleStart + " \\" + scaleQual + " "
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + m + "}\n"
-            code += "\\" + "new Staff { \set Staff.midiInstrument = \"cello\" \clef \"bass\" \\key " + scaleStart + " \\" + scaleQual + " "
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"cello\" \clef \"bass\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + t + "}\n"
             code += ">>\n"
             #code += "\\midi{}\n"
@@ -691,16 +737,16 @@ def main():
             f.write(code)
             f.close()
         else:
-            code = "\\header {\n  title = \"" + scaleStartTrans[scaleStart] + " " + scaleQual.capitalize() + " " + mode.capitalize() + " \"\n}\n\n"
+            code = "\\header {\n  title = \"" + scaleStartTrans[scaleStart] + " " + scaleNameTrans[scaleName] + " " + mode.capitalize() + " \"\n}\n\n"
             code += "\\score {\n"
             code += "\\new PianoStaff <<"
-            code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleStart + " \\" + scaleQual + " "
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + m + "}\n"
-            code += "\\" + "new Staff { \set Staff.midiInstrument = \"viola\" \clef \"treble\" \\key " + scaleStart + " \\" + scaleQual + " "
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"viola\" \clef \"treble\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + a + "}\n"
-            code += "\\" + "new Staff { \set Staff.midiInstrument = \"cello\" \clef \"bass\" \\key " + scaleStart + " \\" + scaleQual + " "
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"cello\" \clef \"bass\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + t + "}\n"
-            code += "\\" + "new Staff { \set Staff.midiInstrument = \"contrabass\" \clef \"bass\" \\key " + scaleStart + " \\" + scaleQual + " "
+            code += "\\" + "new Staff { \set Staff.midiInstrument = \"contrabass\" \clef \"bass\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + b + "}\n"
             code += ">>\n"
             code += "\\midi{}\n"
@@ -738,6 +784,13 @@ def main():
     scaleChart = majScales
     if scaleType == "minor" or scaleType == "minor pentatonic" or scaleType == "harmonic minor":
         scaleChart = minScales
+    elif scaleType == "wt-0":
+        while offset not in [0,2,4,6,8,10]:
+            offset = random.choice([0,2,4,6,8,10])
+    elif scaleType == "wt-1":
+        while offset not in [1,3,5,7,9,11]:
+            offset = random.choice([1,3,5,7,9,11])
+    print("Tonal center of " + majScales[0][offset] + " chosen.")
     print()
     if modeChoice == 'solo':
         print("A solo melody will be generated.\n")
@@ -755,16 +808,16 @@ def main():
     # EXPORT LOGIC
     print("Exporting song to .ly...")
     # set scale values back to their abstract value
-    scaleStart = majScales[0][0]
+    scaleStart = majScales[0][offset]
+    scaleSigStart = majScales[0][0]
+    scaleSigQual = "major"
     if scaleType == "minor" or scaleType == "minor pentatonic" or scaleType == "harmonic minor":
         scaleStart = minScales[0][offset]
-        scaleType = "minor"
+        scaleSigStart = minScales[0][offset]
+        scaleSigQual = "minor"
     elif scaleType == "major" or scaleType == "major pentatonic":
-        scaleStart = majScales[0][offset]
-        scaleType = "major"
-    else:
-        scaleType = "major"
-    printFile(scaleStart, scaleType, modeChoice, (meter, bpmFormat), (tempoMark, bpm), fullMel, alto, tenor, bass)
+        scaleSigStart = majScales[0][offset]
+    printFile(scaleStart, scaleType, scaleSigStart, scaleSigQual, modeChoice, (meter, bpmFormat), (tempoMark, bpm), fullMel, alto, tenor, bass)
     print("Done.\n")
 
 if __name__ == "__main__":
