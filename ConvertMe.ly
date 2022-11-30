@@ -1,8 +1,8 @@
 \header {
-  title = "B Custom Scale Solo "
+  title = "A-Flat Whole-Tone Solo "
 }
 
 \score {
-\new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key c \major \time 4/4 \tempo Allegro 4 = 128 b'8\fermata  d''8 gis''4\espressivo  f''4\trill  d''2\accent  b''16\fermata  ais''16\staccatissimo  gis''8.\espressivo  ais''2 b''8.\espressivo  f'''4\tenuto  d'''4 b''1\accent  r4 b''8\fermata  d''8 gis''4\espressivo  f''4\trill  d''2\accent  b''16\fermata  ais''16\staccatissimo  gis''8.\espressivo  ais''2 b''8.\espressivo  f'''4\tenuto  d'''4 b''1\accent  r4 r16 f''4 r2 gis''8. ais''2 b''16 gis''8\marcato  f''8. f'''4\fermata  d'''8\espressivo  b''2 gis''4\staccato  f'''4^\markup "sul ponticello"  r4 d'''2 b''8\fermata  d''8 gis''4\espressivo  f''4\trill  d''2\accent  b''16\fermata  ais''16\staccatissimo  gis''8.\espressivo  ais''2 b''8.\espressivo  f'''4\tenuto  d'''4 b''1\accent  r4 gis''1 }
+\new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key c \major \time 4/4 \tempo Moderato 4 = 105 aes'4\staccatissimo  ges''4 e''16 d''8.~ d''16 c''8.~ c''16 d''8\staccatissimo  e''16\accent  ges''8 aes''8~\accent  aes''4~ aes''4~ aes''8 aes'8\staccato ^\markup "col legno"  r4 bes'4~\marcato  bes'4 c''4\tenuto  d'8\staccatissimo  e'8\staccato  ges'4~ ges'4 aes'4\staccatissimo  ges''4 e''16 d''8.~ d''16 c''8.~ c''16 d''8\staccatissimo  e''16\accent  ges''8 aes''8~\accent  aes''4~ aes''4~ aes''8 aes'8\staccato ^\markup "col legno"  r4 bes'4~\marcato  bes'4 c''4\tenuto  d'8\staccatissimo  e'8\staccato  ges'4~ ges'4 e'4\trill  c''4 bes'4\accent  aes'8 ges'8~\staccato  ges'4~ ges'8 e'8~\trill  e'8 bes8\accent  c'4~ c'4 d'8. aes16~ aes16 bes8.\tenuto  c'4\staccato  bes2. aes4 aes'4\staccatissimo  ges''4 e''16 d''8.~ d''16 c''8.~ c''16 d''8\staccatissimo  e''16\accent  ges''8 aes''8~\accent  aes''4~ aes''4~ aes''8 aes'8\staccato ^\markup "col legno"  r4 bes'4~\marcato  bes'4 c''4\tenuto  d'8\staccatissimo  e'8\staccato  ges'4~ ges'4 aes'1 }
 }
 \version "2.22.2"

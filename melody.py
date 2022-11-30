@@ -17,6 +17,11 @@ fullMel = ""
 bass = ""
 tenor = ""
 alto = ""
+# add to meters once supported: {"3/8":"4.","6/8":"4.","9/8":"4.","12/8":"4."}
+# meters = {"2/4":"4","3/4":"4","4/4":"4","5/4":"4","6/4":"4"}
+meters = {"4/4":"4"}
+#tempos = {"Adagio":(55,71),"Andante":(71,87),"Moderato":(87,110),"Allegro":(110,132),"Vivace":(132,168),"Presto":(168,200)}
+tempos = {"Adagio":(55,71),"Andante":(71,87),"Moderato":(87,110),"Allegro":(110,132)}
 majScales = {0:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
                 1:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
                 2:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
@@ -29,7 +34,8 @@ majScales = {0:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"aes",9:
                 9:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
                 10:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
                 11:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},} 
-minScales = {0:{0:"c",1:"cis",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"bes",11:"b"},
+minScales = {-1:{0:"c",1:"cis",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"bes",11:"b"},
+                0:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
                 1:{0:"bis",1:"cis",2:"d",3:"dis",4:"e",5:"eis",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
                 2:{0:"c",1:"cis",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
                 3:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
@@ -77,10 +83,12 @@ def main():
             scale = scales[0]
             temp = starter[0]
             connDist = temp[1]-prev
+            '''
             if connDist < -6:
                 starter[0] = (temp[0]+12,temp[1]+12)
             elif connDist > 6:
                 starter[0] = (temp[0]-12,temp[1]-12)
+            '''
         else:
             scale = scales[0]
 
@@ -131,7 +139,7 @@ def main():
         # if writing new melody
         if new:
             while spaceLeft > 0:
-                # choose rhythm of next note
+                # choose ###RHYTHM### of next note
                 if choosingRhythms:
                     rhythmVal = random.choice(rhythmVals)
                     if not spaceLeft%1 == 0:
@@ -148,7 +156,6 @@ def main():
                         # get to the nearest strong beat
                         #print("Space used: " + str(length-spaceLeft))
                         #rhythmVal = findUpperOdd(length-spaceLeft) - (length-spaceLeft)
-                        #rhythmVal = math.ceil(spaceLeft) - spaceLeft
                         # get to the nearest quarter
                         rhythmVal = math.ceil(length-spaceLeft) - (length-spaceLeft)
                         #print("Decided rhythm value: " + str(rhythmVal))
@@ -161,7 +168,7 @@ def main():
                         rhythmVal -= min(rhythmVals) 
                     rhythmValsPicked.append(rhythmVal)
 
-                # choose pitch of next note
+                # choose ###PITCH### of next note
                 newNote = 0
                 # 0 is a rest, rests have a 1/16 chance of getting picked
                 rest = random.randrange(0,16)
@@ -205,7 +212,7 @@ def main():
                     prevRest = False
                 melody.append((newNote%12, newNote))    
 
-                # choose artics for next note
+                # choose ###ARTICULATIONS### for next note
                 doneWithTech = False
                 techs = [12,13,14,15,16,17]
                 availPool = [a for a in articChoices]
@@ -277,8 +284,9 @@ def main():
                 elif not doneWithTech and inTech > 0:
                     if inTech < 8:
                         availPool = [a for a in articChoices]
-                        for _ in range(2):
-                            availPool.append(24)
+                        if inTech > 5:
+                            for _ in range(2):
+                                availPool.append(24)
                         articChoice = random.choice(availPool)
                         if articChoice == 24:
                             inTech = 0
@@ -304,6 +312,8 @@ def main():
                 #print(str(inSlur) + " " + str(inNonVib) + " " + str(inPizz) + " " + str(inTech))
                 #print()
                 artics.append(articChoice)
+
+                # choose ###DYNAMICS### for next note
                 
                 # update spaceLeft
                 if choosingRhythms:
@@ -312,7 +322,16 @@ def main():
                     spaceLeft -= 1
                 prev = newNote
                 i += 1
-        
+        # if ending B too far away from the start of A, bridge the gap
+        if cad == "B":
+            endB = melody[-1][1]
+            startA = mels[0][-1][0][1]
+            connDist = endB - startA
+            if not connDist == 12 and not connDist == -12:
+                if connDist < -6:
+                    melody[-1] = (melody[-1][0]+12,melody[-1][1]+12)
+                elif connDist > 6:
+                    melody[-1] = (melody[-1][0]-12,melody[-1][1]-12)
         # if we tried a slur on the last note, remove it
         if artics[-1] == 9:
             artics[-1] = 0
@@ -446,14 +465,20 @@ def main():
 
     # translate melNums to LilyPond code
     def melToLily(mel, sc, dynams, artics, rhythmVals, rhythmValsPicked, cad, ogMel=[]):
-        global meter
         lilyMelody = []
         i = 0
+        qsUsed = 0
+        totalUsed = 0
+        qsBeforeTie = float(meter[:meter.index("/")])/float(int(meter[meter.index("/")+1:])/4)
+        qsBeforeTie = 1
         while i < len(mel):
             semis = mel[i][1]
             # 0-8 artics, (9 openSlur, 18 port, 19 closeSlur), (10 non-vib, 20 vib), 
             # (11 pizz, 21 snap, 22 stopped, 23 arco)
-            articLily = {0:"",1:"\\accent ",2:"\\espressivo ",3:"\\marcato ",4:"\\fermata ",
+            # think of something for 2, then boost staccato and tenuto along with accent
+            # think of something for 4, write a different implementation for fermata
+            # don't let staccato go onto long notes (2 or greater)
+            articToLily = {0:"",1:"\\accent ",2:"\\tenuto ",3:"\\marcato ",4:"\\staccato ",
                          5:"\\staccatissimo ",6:"\\staccato ",7:"\\tenuto ", 8:"\\trill ",
                          9:"\\( ", 10:"^\\markup non-vib. ", 11:"^\\markup pizz. ", 
                          12:"^\\markup \"sul ponticello\" ", 13:"^\\markup \"sul tasto\" ", 
@@ -463,8 +488,51 @@ def main():
                          21:"\\snappizzicato ", 22:"\\stopped ", 23:"^\\markup arco ", 24:"^\\markup naturale "}
             rhythmToLily = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1",6:"1.",8:"\\breve"}
             s = ""
+            qsUsed += rhythmValsPicked[i]
+            totalUsed += rhythmValsPicked[i]
+            def tieUp(s, val, firstPiece, artic, meterSize,noteLength,barPlace,barSize):
+                #print("Writing tie piece of length " + str(val) + "...")
+                # if starting a measure and not exceeding it, don't tie up
+                okStarts = [2,4]
+                if (int(noteLength) == 2 and int(barPlace) == 2 and int(barSize) == 2) or (int(noteLength) == 3 and int(barPlace) == 3 and int(barSize) == 3) or (int(noteLength) == 4 and int(barPlace) == 4 and int(barSize) == 4):
+                    #print("Cancelling tie due to measure-starting/measure non-exceeding note.")
+                    lilyMelody.append(s + rhythmToLily[noteLength] + artic)
+                    return
+                #elif val not in rhythmToLily:
+                elif val > meterSize:
+                    fillLength = val
+                    pieceLength = fillLength
+                    pieceDone = 0
+                    while not pieceLength == 0:
+                        end = ""
+                        #while pieceLength not in rhythmToLily:
+                        while pieceLength > meterSize:
+                            pieceLength -= 0.25      
+                            end = "~"
+                        lilyMelody.append(s + rhythmToLily[pieceLength] + end + artic)
+                        pieceDone += pieceLength
+                        pieceLength = fillLength - pieceDone
+                else:
+                    lilyMelody.append(s + rhythmToLily[val] + firstPiece + artic)
+                if firstPiece == "~":
+                    tieUp(s, rhythmValsPicked[i]-val, "", "",meterSize,noteLength,barPlace,barSize)
+                else:
+                    return
+            #print(str(i) + ": " + str(rhythmValsPicked[i]) + " | qsUsed: " + str(qsUsed) + " | totalUsed: " + str(totalUsed))
             if semis > 700:
-                lilyMelody.append("r" + rhythmToLily[rhythmValsPicked[i]])
+                if qsUsed > qsBeforeTie:
+                    #print("REST OVER THE BAR!!!")
+                    qsUsed -= rhythmValsPicked[i]
+                    qsLeft = qsBeforeTie-qsUsed
+                    #print("qsLeft: " + str(qsLeft))
+                    #print("qsExtra: " + str(rhythmValsPicked[i]-qsLeft))
+                    tieUp("r",qsLeft,"~","",qsBeforeTie,rhythmValsPicked[i],qsUsed+rhythmValsPicked[i],totalUsed)
+                    qsUsed += rhythmValsPicked[i]
+                else:
+                    lilyMelody.append("r" + rhythmToLily[rhythmValsPicked[i]])
+                if qsUsed > qsBeforeTie or qsUsed == qsBeforeTie:
+                    qsUsed = qsUsed%qsBeforeTie
+                    totalUsed = totalUsed%4
                 i += 1
                 continue
             if semis < -12:
@@ -481,11 +549,24 @@ def main():
                 lilyMelody.append(sc[mel[i][0]%12] + s)
                 i += 1
                 continue
-            s += rhythmToLily[rhythmValsPicked[i]]
-            s += articLily[artics[i]]
-            lilyMelody.append(sc[mel[i][0]%12] + s)
+            if qsUsed > qsBeforeTie: # and not ((totalUsed-rhythmValsPicked[i])%meterSub == 0):
+                #print("NOTE OVER THE BAR!!!")
+                qsUsed -= rhythmValsPicked[i]
+                qsLeft = qsBeforeTie-qsUsed
+                #print("qsLeft: " + str(qsLeft))
+                #print("qExtra: " + str(rhythmValsPicked[i]-qsLeft))
+                # as long as this note ends on a downbeat and doesn't cross a barline, don't tie
+                tieUp(sc[mel[i][0]%12] + s, qsLeft, "~", articToLily[artics[i]],qsBeforeTie,rhythmValsPicked[i],qsUsed+rhythmValsPicked[i],totalUsed)
+                qsUsed += rhythmValsPicked[i]
+            else:
+                s += rhythmToLily[rhythmValsPicked[i]]
+                s += articToLily[artics[i]]
+                lilyMelody.append(sc[mel[i][0]%12] + s)
+            if qsUsed > qsBeforeTie or qsUsed == qsBeforeTie:
+                qsUsed = qsUsed%qsBeforeTie
+                totalUsed = totalUsed%4
             i += 1
-            # print("LilyMelody: " + str(lilyMelody))
+            #print(lilyMelody)
 
         #print(mel)
         mel = [(sc[x[0]%12], x[1]) for x in mel]
@@ -759,11 +840,6 @@ def main():
     # MAIN
     print("\nWelcome to ACE.\n")
     offset = random.randrange(0,12)
-    # add to meters once supported: {"3/8":"4.","6/8":"4.","9/8":"4.","12/8":"4."}
-    # meters = {"2/4":"4","3/4":"4","4/4":"4","5/4":"4","6/4":"4"}
-    meters = {"4/4":"4"}
-    #tempos = {"Adagio":(55,71),"Andante":(71,87),"Moderato":(87,110),"Allegro":(110,132),"Vivace":(132,168),"Presto":(168,200)}
-    tempos = {"Adagio":(55,71),"Andante":(71,87),"Moderato":(87,110),"Allegro":(110,132)}
     meter = random.choice(list(meters.keys()))
     bpmFormat = meters[meter]
     tempoMark = random.choice(list(tempos.keys()))
@@ -812,8 +888,8 @@ def main():
     scaleSigStart = majScales[0][0]
     scaleSigQual = "major"
     if scaleType == "minor" or scaleType == "minor pentatonic" or scaleType == "harmonic minor":
-        scaleStart = minScales[0][offset]
-        scaleSigStart = minScales[0][offset]
+        scaleStart = minScales[-1][offset]
+        scaleSigStart = minScales[-1][offset]
         scaleSigQual = "minor"
     elif scaleType == "major" or scaleType == "major pentatonic":
         scaleSigStart = majScales[0][offset]
