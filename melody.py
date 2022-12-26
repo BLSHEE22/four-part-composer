@@ -147,20 +147,18 @@ def main():
                     else:
                         syncoBeatCnt = 0
                     # allowed synco beats
-                    if syncoBeatCnt > 3:
+                    if syncoBeatCnt > 2:
                         def findUpperOdd(val):
                             while True:
                                 if math.ceil(val)%2 == 0:
                                     return math.ceil(val)
                                 val += 1
                         # get to the nearest strong beat
-                        #print("Space used: " + str(length-spaceLeft))
                         #rhythmVal = findUpperOdd(length-spaceLeft) - (length-spaceLeft)
                         # get to the nearest quarter
                         rhythmVal = math.ceil(length-spaceLeft) - (length-spaceLeft)
                         #print("Decided rhythm value: " + str(rhythmVal))
                     # find a shorter rhythm if chosen rhythm is too big
-                    #print(rhythmVals)
                     while rhythmVal not in rhythmVals or rhythmVal > spaceLeft:
                         if rhythmVal == min(rhythmVals):
                             break
@@ -344,7 +342,7 @@ def main():
 
     # build the scale
     def buildScale(scaleType, log=False):
-        print("Building scale...")
+        #print("Building scale...")
         # add WT-0, WT-1, OT-0, OT-1, OT-2
         # make random actually choose a random scale
         # change current random form to 'build' form
@@ -376,8 +374,8 @@ def main():
                 ct += 1
                 if not ct == 5:
                     print(scale)
-        print(scale)
-        print("Built scale.")
+        #print(scale)
+        #print("Built scale.")
         scales.append(scale)
         return scale
     
@@ -490,30 +488,105 @@ def main():
             s = ""
             qsUsed += rhythmValsPicked[i]
             totalUsed += rhythmValsPicked[i]
-            def tieUp(s, val, firstPiece, artic, meterSize,noteLength,barPlace,barSize):
+            def tieUp(s, val, firstPiece, artic, meterSize, noteLength, barPlace, barSize):
                 #print("Writing tie piece of length " + str(val) + "...")
-                # if starting a measure and not exceeding it, don't tie up
-                okStarts = [2,4]
-                if (int(noteLength) == 2 and int(barPlace) == 2 and int(barSize) == 2) or (int(noteLength) == 3 and int(barPlace) == 3 and int(barSize) == 3) or (int(noteLength) == 4 and int(barPlace) == 4 and int(barSize) == 4):
-                    #print("Cancelling tie due to measure-starting/measure non-exceeding note.")
+                #print(artic)
+                m = 4.0
+                persistArtics = ["\\)","\\(","\\portato"]
+                lastArtic = artic
+                if artic not in persistArtics:
+                    lastArtic = ""
+                # print(str(float(noteLength)) + " " + str(float(barPlace)) + " " + str(float(barSize)) + " " + str(float(meterSize)))
+                # noteLength = 0.5, barSize = 4.25
+                # startPiece = 0.25, middlePiece = 0, endPiece = 0.25
+                startPiece = 0
+                middlePiece = 0
+                endPiece = 0
+                # Find illegal rhythms and take the biggest bite we can off to the left leg. 
+                # Also remove zeros.
+                def split(p):
+                    for x in p:
+                        if x not in rhythmToLily and not x == 0:
+                            temp = x
+                            tempList = []
+                            while temp not in rhythmToLily:
+                                temp -= 0.25
+                            tempList.append(temp)
+                            tempList.append(x-temp)
+                            p.remove(x)
+                            for y in tempList:
+                                p.append(y)
+                    p = [x for x in p if not x == 0]
+                    return p
+                # See if we can merge any two consecutive rhythms to form one legal rhythm. 
+                # Beware of crossing the barline with the merge attempt.
+                def merge(p):
+                    initLen = len(p)
+                    tempList = []
+                    for j in range(initLen-1):
+                        if p[j] + p[j+1] in rhythmToLily:
+                            preLeg = sum(p[:j-1])
+                            if j == 0:
+                                preLeg = 0
+                            if j == 1:
+                                preLeg = p[0]
+                            if ((barSize - noteLength + preLeg) < m) and not ((barSize - noteLength + preLeg + p[j] + p[j+1]) > m):
+                                temp = p[j] + p[j+1]
+                                tempList.append((j, temp))
+                    if tempList:
+                        #print("MERGE COMPLETED")
+                        p.insert(tempList[0][0], tempList[0][1])
+                        del(p[tempList[0][0]+1])
+                        del(p[tempList[0][0]+1])
+                    return p
+
+                # if trying to tie over bar
+                if barSize > m:
+                    if barSize % 1 == 0:
+                        endPiece = barSize - m
+                        startPiece = noteLength - endPiece
+                        lilyMelody.append(s + rhythmToLily[startPiece] + "~" + artic)
+                        lilyMelody.append(s + rhythmToLily[endPiece] + lastArtic)
+                    else:
+                        endPiece = barSize - m
+                        startPiece = min(1 - (barSize % 1), noteLength - endPiece)
+                        middlePiece = noteLength - (startPiece + endPiece)
+                        pieces = [startPiece, middlePiece, endPiece]
+                        # print("After chop: " + str(pieces))
+                        pieces = split(pieces)
+                        # print("After split: " + str(pieces))
+                        pieces = merge(pieces)
+                        # print("After merge: " + str(pieces))
+                        lilyMelody.append(s + rhythmToLily[pieces[0]] + "~" + artic)
+                        for k in range(1, len(pieces)-1):
+                            lilyMelody.append(s + rhythmToLily[pieces[k]] + "~" + lastArtic)
+                        lilyMelody.append(s + rhythmToLily[pieces[-1]] + lastArtic)
+                    return
+                # if we can cancel the tie, do it
+                elif (float(noteLength) == 2.0 and not float(barPlace) > 4.0 and float(barPlace) % 1 == 0.0 and 
+                    not float(barSize) > 4.0) or (float(noteLength) == 3.0 and not float(barPlace) > 4.0 and 
+                    float(barPlace) % 1 == 0.0 and not float(barSize) > 4.0) or (float(noteLength) == 4.0 and 
+                    not float(barPlace) > 4.0 and float(barPlace) % 1 == 0.0 and not float(barSize) > 4.0):
+                    # print("Cancelling tie due to measure-starting/measure-non-exceeding note.")
                     lilyMelody.append(s + rhythmToLily[noteLength] + artic)
                     return
-                #elif val not in rhythmToLily:
+                # if piece is bigger than our chop limit
                 elif val > meterSize:
                     fillLength = val
                     pieceLength = fillLength
                     pieceDone = 0
                     while not pieceLength == 0:
                         end = ""
-                        #while pieceLength not in rhythmToLily:
                         while pieceLength > meterSize:
                             pieceLength -= 0.25      
                             end = "~"
                         lilyMelody.append(s + rhythmToLily[pieceLength] + end + artic)
                         pieceDone += pieceLength
                         pieceLength = fillLength - pieceDone
+                # if piece is a valid rhythm
                 else:
                     lilyMelody.append(s + rhythmToLily[val] + firstPiece + artic)
+                # if a non-final piece
                 if firstPiece == "~":
                     tieUp(s, rhythmValsPicked[i]-val, "", "",meterSize,noteLength,barPlace,barSize)
                 else:
@@ -526,6 +599,8 @@ def main():
                     qsLeft = qsBeforeTie-qsUsed
                     #print("qsLeft: " + str(qsLeft))
                     #print("qsExtra: " + str(rhythmValsPicked[i]-qsLeft))
+                    #if rhythmValsPicked[i] == 3.0:
+                        #qsLeft = totalUsed - rhythmValsPicked[i]
                     tieUp("r",qsLeft,"~","",qsBeforeTie,rhythmValsPicked[i],qsUsed+rhythmValsPicked[i],totalUsed)
                     qsUsed += rhythmValsPicked[i]
                 else:
@@ -556,6 +631,8 @@ def main():
                 #print("qsLeft: " + str(qsLeft))
                 #print("qExtra: " + str(rhythmValsPicked[i]-qsLeft))
                 # as long as this note ends on a downbeat and doesn't cross a barline, don't tie
+                #if rhythmValsPicked[i] == 3.0:
+                   #qsLeft = totalUsed - rhythmValsPicked[i]
                 tieUp(sc[mel[i][0]%12] + s, qsLeft, "~", articToLily[artics[i]],qsBeforeTie,rhythmValsPicked[i],qsUsed+rhythmValsPicked[i],totalUsed)
                 qsUsed += rhythmValsPicked[i]
             else:
@@ -799,7 +876,7 @@ def main():
             #code += "\\midi{}\n"
             code += "}\n"
             code += "\\version \"2.22.2\""
-            f = open("ConvertMe.ly", "w")
+            f = open("melody.ly", "w")
             f.write(code)
             f.close()
         elif mode == "reich":
@@ -814,7 +891,7 @@ def main():
             #code += "\\midi{}\n"
             code += "}\n"
             code += "\\version \"2.22.2\""
-            f = open("ConvertMe.ly", "w")
+            f = open("melody.ly", "w")
             f.write(code)
             f.close()
         else:
@@ -833,7 +910,7 @@ def main():
             code += "\\midi{}\n"
             code += "}\n"
             code += "\\version \"2.22.2\""
-            f = open("ConvertMe.ly", "w")
+            f = open("melody.ly", "w")
             f.write(code)
             f.close()
 
@@ -875,11 +952,29 @@ def main():
         print("A freeform melody will be generated.\n")
         freeform(offset, scaleType, random.randrange(32,256), meter)
     elif modeChoice == "reich":
-        print("Reich fan huh? Well - hopefully this will change your mind.\nA two-part phasing piece will be generated.\n")
+        print("Reich fan huh? Hopefully this will change your mind.\nA two-part phasing piece will be generated.\n")
         reich(majScales, scaleType, offset, meter)
     elif modeChoice == "fugue":
         print("THIS FEATURE IS A WORK IN PROGRESS. BE READY TO COVER YOUR EARS.")
         fugue(majScales, scaleType, offset, meter)
+
+    # ANALYSIS
+    # Give points for: variety of pitches, pitches stressing intended center, arcing contour, wide dynamics, good voice leading
+    # Take away points for: lack of variety of pitches, pitches stressing NON-intended center, flat contour, narrow dynamics, 
+    # --------------------: too large distances between consecutive notes
+    pitchAnalysis = sorted([x[0] for x in mels[-1][-1] if not int(x[1]) > 700])
+    def count_elements(seq) -> dict:
+        hist = {}
+        for i in seq:
+            hist[i] = hist.get(i, 0) + 1
+        return hist
+    def ascii_histogram(seq) -> None:
+        counted = count_elements(seq)
+        for k in sorted(counted):
+            print('{0:5d} {1}'.format(k, '+' * counted[k]))
+    print("Analyzing solo...")
+    ascii_histogram(pitchAnalysis)
+    print("Solo passed tests. Proceeding to export stage.")
 
     # EXPORT LOGIC
     print("Exporting song to .ly...")

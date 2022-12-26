@@ -7,15 +7,18 @@ Current supported features:
 - 'melody.py' -> Equipped with many modes of generating a melody.
 
 'melody.py' TODO: 
-- Slur, Vib, and Pizz Testing
-- Implement logic for dynamics
-- Implement 'tie over bar' logic for PDFs in melToLily
+- Bring 'tie over bar' logic for PDFs over to serial.py
+- Test Slur, Vib, and Pizz
+- Implement dynamics!
+- Implement logic for melody analysis
+- Let the melody dictate its own length and meter
+- Implement 'metric change' ability
 - Implement 'weighted scale degrees' when choosing leaps and steps
 - Implement pickup notes
 - Implement 'raga' feature (drone, long meter, etc.)
 - Implement 'mirror' melody feature
 - Release control of hardcoded values (phraseLength, genRhythmVals, articChoices, etc.)
-- Add features to support serialism, talea and color, etc.
+- Implement feature which supports talea and color
 
 Development Road Map for 'Fugue' Feature: 
 - Jan 31, 2023 - 'bassline.py' -> Writes a bassline which harmonizes a given melody
@@ -36,11 +39,11 @@ Setup Instructions:
 
 Generating Music:
 - Run the script of your choice by entering the command 'python3 _filename_'.
-- This will create a 'ConvertMe.ly' file in that same repository.
-- Open 'ConvertMe.ly' using LilyPond.
-- Press cmd-R to convert the LilyPond file to MIDI. You should then see the MIDI file 'ConvertMe.midi' appear in the repository. If a PDF is made instead, you will need to add "\midi{}" to the .ly file directly after the second-to-last closed curly brace. Save and redo the cmd-R, and you should now see that the MIDI file has been generated within the repository.
-- Open 'ConvertMe.midi' with your notation software of choice.
-- Playback the score.
+- This will create a '.ly' file in that same repository.
+- Open the '.ly' file using LilyPond.
+- Press cmd-R to convert the LilyPond file to MIDI. You should then see a similarly named MIDI file '.midi' appear in the repository. If a PDF is made instead, you will need to add "\midi{}" to the .ly file directly after the second-to-last closed curly brace. Save and redo the cmd-R, and you should now see that the MIDI file has been generated within the repository.
+- Open the '.midi' with your notation software of choice.
+- Play back the score.
 - Want to generate another tune/melody? Simply repeat the 'Generating Music' steps!
 
 Enjoy!

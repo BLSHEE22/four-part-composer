@@ -1,0 +1,2 @@
+\header { title = "Serial Piece"}\score { \new Staff { \set Staff.midiInstrument = "oboe" \clef "treble" \key c \major \time 2/4 \tempo Andante 4 = 80 b'8 ais'4. d'16 gis'8. g'1 dis'4 e'8 r1 c'16 a'16 f'4 fis'4. cis'8 b'8 ais'4. d'16 gis'8. g'1 dis'4 e'8 r1 c'16 a'16 f'4 fis'4. cis'8 b'8 c'4. gis'16 d'8. dis'1 g'4 fis'8 r1 ais'16 cis'16 f'4 e'4. a'8 b'8 ais'4. d'16 gis'8. g'1 dis'4 e'8 r1 c'16 a'16 f'4 fis'4. cis'8 }
+}\version "2.22.2"
