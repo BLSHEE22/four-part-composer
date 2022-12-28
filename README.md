@@ -7,7 +7,8 @@ Current supported features:
 - 'melody.py' -> Equipped with many modes of generating a melody.
 
 'melody.py' TODO: 
-- Cancel excessive beaming
+- Fix beaming over multiple bars (temporary fix is keeping meter to 4/4)
+- Fix 'col legno' articulations
 - Test 'Slur, Vib, Pizz, Tech' Logic
 - Implement dynamics!
 - Implement logic for melody analysis

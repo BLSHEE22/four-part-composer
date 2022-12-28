@@ -2,24 +2,51 @@ import datetime
 import random
 
 # GLOBALS
+HEADER = '\033[95m'
+OKBLUE = '\033[94m'
+OKCYAN = '\033[96m'
+OKGREEN = '\033[92m'
+WARNING = '\033[93m'
+FAIL = '\033[91m'
+ENDC = '\033[0m'
+BOLD = '\033[1m'
+UNDERLINE = '\033[4m'
 pitches = []
-rhythms = [0.25,0.5,0.75,1,1.5,2,3,4]
+rhythmKey = [0.25,0.5,0.75,1,1.5,2,3,4]
+rhythms = [0.5,0.75,1,1.5,2,3,4]
+"""
 pitchTrans = {None:"r",0:"c''",1:"cis''",2:"d''",3:"dis''",
               4:"e''",5:"f''",6:"fis''",7:"g''",8:"gis''",
               9:"a''",10:"ais''",11:"b''",12:"c'''"}
+"""
+pitchTrans = {None:"r",0:"c'",1:"cis'",2:"d'",3:"ees'",
+              4:"e'",5:"f'",6:"fis'",7:"g'",8:"aes'",
+              9:"a'",10:"bes'",11:"b'"}
 rhythmTrans = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1"}
-notes = list(range(12))
-#notes = []
-#notes = [0,0,0,0,0,2,2,2,3,3,3,3,5,5,5,7,7,7,7,7,9,9,9,11,11,11,11,11,11,11,12,12,12,12,12]
+meters = ["4/4"]
 
+# print ACE header
+def printHeader():
+    print(OKGREEN,end="")
+    print("#"*218,end="")
+    print(FAIL,end="")
+    print("ALGORITHMIC COMPOSITION ENGINE",end="")
+    print(OKGREEN,end="")
+    print("#"*220,end="")
+    print(ENDC)
 # generates a list of rhythm values
 def genRhythms():
-    c = 0
+    c = -1000000
     rhythmSplat = []
-    for r in rhythms:
-        lottery = random.randrange(random.randrange(10,1000))
+    #luckyRhythm = random.choice(rhythms)
+    #luckyRhythm = 0
+    for r in range(len(rhythms)):
+        lottery = random.randrange(1, random.randrange(2,10))
+        # LUCKY RHYTHM
+        #if rhythms[r] == luckyRhythm:
+            #lottery *= 100
         for _ in range(lottery):
-            rhythmSplat.append(r)    
+            rhythmSplat.append(rhythms[r])    
     rhythmChoices = [random.choice(rhythmSplat)]
     row_length_good = False
     row_choice_good = False
@@ -77,14 +104,14 @@ def articulate(mel):
                     [0,(24,defMode)], [0,(24,defMode)], [0,(24,defMode)]]
         flautMode = [[0,(24,defMode)], [0,(24,defMode)], [0,(24,defMode)], [0,(24,defMode)], [0,(24,defMode)],
                     [0,(24,defMode)], [0,(24,defMode)], [0,(24,defMode)]]
-        defMode = [[0,1,2,3,4,5,(9,slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(14,colLegMode),(15,auTalMode),(16, sotVocMode),(17,flautMode)],
-                   [0,1,2,3,4,5,(9, slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(14,colLegMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)],
-                   [0,1,2,3,4,5,7,(9, slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(14,colLegMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)], 
-                   [0,1,2,3,4,5,7,(9, slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(14,colLegMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)],
-                   [0,1,3,7,(9, slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)], 
-                   [0,1,2,3,7,8,(9, slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)], 
-                   [0,1,2,3,7,8,(9, slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)], 
-                   [0,1,2,3,7,8,(9, slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)]]
+        defMode = [[0,1,2,3,4,5,(9,slurMode),(9,slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(14,colLegMode),(15,auTalMode),(16, sotVocMode),(17,flautMode)],
+                   [0,1,2,3,4,5,(9, slurMode),(9,slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(14,colLegMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)],
+                   [0,1,2,3,4,5,7,(9, slurMode),(9,slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(14,colLegMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)], 
+                   [0,1,2,3,4,5,7,(9, slurMode),(9,slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(14,colLegMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)],
+                   [0,1,3,7,(9, slurMode),(9,slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)], 
+                   [0,1,2,3,7,8,(9, slurMode),(9,slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)], 
+                   [0,1,2,3,7,8,(9, slurMode),(9,slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)], 
+                   [0,1,2,3,7,8,(9, slurMode),(9,slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)]]
 
     # LOOP
     currOpts = defMode
@@ -95,19 +122,29 @@ def articulate(mel):
         #print("Option Index: " + str(rhythms.index(mel[i][1])))
         #print("Length of currOpts: " + str(len(currOpts)))
         #print("Length of defMode: " + str(len(defMode)))
+        #print("ModeCt: " + str(modeCt))
         if len(currOpts) == 0:
             currOpts = defMode
             #print("Fixing empty list....")
             #print("Length of currOpts: " + str(len(currOpts)))
-        if mel[i][0] == None:
+        # automatically end modes that go on too long
+        if mel[i][0] == None or (currOpts == slurMode and modeCt > 3):
             if currOpts == slurMode:
                 artics[-1] = 19
                 artic = 0
                 currOpts = defMode
+                modeCt = 0
+            elif currOpts == nonvibMode:
+                artic = random.choice((0, (20, defMode)))
+            elif currOpts == pizzMode:
+                artic = random.choice((0, (23, defMode)))
+            elif not currOpts == defMode:
+                artic = random.choice((0,(24, defMode)))
             else:
                 artic = 0
         else:
             artic = random.choice(currOpts[rhythms.index(mel[i][1])])
+            modeCt += mel[i][1]
         if type(artic) is tuple:
             # only change mode if following a REST OR RHYTHM LONGER THAN 2
             if mel[i-1][0] == None or mel[i-1][1] > 2:
@@ -142,7 +179,7 @@ def beam(mel):
         # tie logic
         def tieUp(pitch, val, firstPiece, artic, meterSize, noteLength, barPlace, barSize):
             #print("Writing tie piece of length " + str(val) + "...")
-            persistArtics = ["\\)","\\(","\\portato",":32","\\tenuto"]
+            persistArtics = ["\\) ","\\( ","\\portato ",":32 ","\\tenuto ","\\glissando "]
             lastArtic = artic
             if artic not in persistArtics:
                 lastArtic = ""
@@ -223,6 +260,7 @@ def beam(mel):
                     endPiece = barSize - m
                     startPiece = noteLength - endPiece
                     beamedMel.append((mel[i][0], startPiece, "~", artic))
+                    # if staccato, replace second half of tie with rest
                     if (artic == "\\staccato" or artic == "\\staccatissimo") and not artic in persistArtics:
                         beamedMel.append((None, endPiece, "", lastArtic))
                     else:
@@ -240,7 +278,11 @@ def beam(mel):
                     if len(pieces) == 1:
                         beamedMel.append((mel[i][0], pieces[0], "", artic))
                     else:
-                        beamedMel.append((mel[i][0], pieces[0], "~", artic))
+                        # if staccato, replace second half of tie with rest
+                        if (artic == "\\staccato" or artic == "\\staccatissimo") and not artic in persistArtics:
+                            beamedMel.append(mel[i][0], pieces[0], "", artic)
+                        else:
+                            beamedMel.append((mel[i][0], pieces[0], "~", artic))
                         for k in range(1, len(pieces)-1):
                             if (artic == "\\staccato" or artic == "\\staccatissimo") and not artic in persistArtics:
                                 beamedMel.append((None, pieces[k], "", lastArtic))
@@ -323,45 +365,56 @@ def makeInversion(ls):
     inv = [x%12 if not x == None else None for x in inv]
     return inv
 
-# CHOOSE PITCHES FOR MELODY
-restFreq = random.randrange(5, 15)
-while len(notes) > 0:
+# CHOOSE TEMPO, METER, and NOTE MAP
+tempo = 80
+meter = random.choice(meters)
+noteMap = []
+noteMap = list(range(12))
+"""
+for x in list(range(12)):
+    roll = random.randint(1,5)
+    for _ in range(roll):
+        noteMap.append(x)
+"""
+printHeader()
+print("Tempo chosen: " + str(tempo))
+print("Meter chosen: " + meter)
+print("Note Map: " + str(noteMap) + "\n")
+
+# CHOOSE PITCHES
+restFreq = random.randrange(50, 5000)
+while len(noteMap) > 0:
     dieRoll = random.randint(0, restFreq)
     if dieRoll < 2:
         pitches.append(None)
     else:
-        choice = random.choice(notes)
+        choice = random.choice(noteMap)
         pitches.append(choice)
-        notes.remove(choice)
+        noteMap.remove(choice)
+print("Pitches: " + str(pitches) + "\n")
+
+# DETERMINE SCALE AND KEY SIG BASED ON PITCH SELECTION
 
 # CHOOSE RHYTHMS FOR MELODY
 row_length_ok = False
 while not row_length_ok:
     rhythmList = genRhythms()
     sumRhythms = sum(rhythmList)
-    if sumRhythms % 1 == 0 and (sumRhythms % 2 == 0 or sumRhythms % 3 == 0):
+    if sumRhythms % int(meter[0]) == 0:
         row_length_ok = True
+print("Rhythms: " + str(rhythmList) + "\n")
+
+# REGISTERIZE THE MELODY
 
 # CREATE TONE ROW AND CALCULATE LENGTH
 tone_row = [(pitches[i], rhythmList[i]) for i in range(len(pitches))]
 row_length = sum([x[1] for x in tone_row])
-bottom_meter = 4
-if row_length % 8 == 0:
-    top_meter = row_length / 8
-elif row_length % 4 == 0:
-    top_meter = row_length / 4
-elif row_length % 3 == 0:
-    top_meter = row_length / 3
-elif row_length % 2 == 0:
-    top_meter = row_length / 2
-meter = str(int(top_meter)) + "/" + str(bottom_meter)
 
-# ADD PERFORMANCE MARKINGS AND EDIT NOTATION
+# ADD ARTICULATIONS, DYNAMICS, AND BEAM
 row_a_artic = articulate(tone_row)
 row_a_beam = beam(row_a_artic)
 row_a = lilyIze(row_a_beam)
-print("Row (Meter: " + str(meter) + "):")
-print(row_a)
+print("Row: " + str(row_a))
 
 # FORMAT LILYPOND CODE
 s = "\\header { title = \"" + "Analyze This" + "\"}"
