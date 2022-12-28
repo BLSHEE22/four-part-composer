@@ -13,7 +13,7 @@ BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
 pitches = []
 rhythmKey = [0.25,0.5,0.75,1,1.5,2,3,4]
-rhythms = [0.5,0.75,1,1.5,2,3,4]
+rhythms = [0.25,0.5,0.75,1,1.5,2,3,4]
 """
 pitchTrans = {None:"r",0:"c''",1:"cis''",2:"d''",3:"dis''",
               4:"e''",5:"f''",6:"fis''",7:"g''",8:"gis''",
@@ -23,7 +23,7 @@ pitchTrans = {None:"r",0:"c'",1:"cis'",2:"d'",3:"ees'",
               4:"e'",5:"f'",6:"fis'",7:"g'",8:"aes'",
               9:"a'",10:"bes'",11:"b'"}
 rhythmTrans = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1"}
-meters = ["4/4"]
+meters = ["3/4","4/4","5/4"]
 
 # print ACE header
 def printHeader():
@@ -37,6 +37,7 @@ def printHeader():
 # generates a list of rhythm values
 def genRhythms():
     c = -1000000
+    c = 0
     rhythmSplat = []
     #luckyRhythm = random.choice(rhythms)
     #luckyRhythm = 0
@@ -53,9 +54,9 @@ def genRhythms():
     while not row_length_good:
         while not row_choice_good:
             choice = random.choice(rhythmSplat)
-            if c == 4:
+            if c == 1:
                 row_length = sum(rhythmChoices) + choice
-                if row_length % 1 == 0:
+                if row_length % 1 == 0 or row_length % 1 == 0.5:
                     row_choice_good = True
                     c = 0
             else:
@@ -89,9 +90,9 @@ def articulate(mel):
         nonvibMode = [[0,0,0,(20,defMode)], [0,0,0,(20,defMode)], [0,0,0,(20,defMode)],
                     [0,0,0,(20,defMode)], [0,0,0,(20,defMode)], [0,0,0,(20,defMode)],
                     [0,0,0,(20,defMode)], [0,0,0,(20,defMode)]]
-        pizzMode = [[0,0,1,4,21,22,(23, defMode)], [0,0,1,4,21,22,(23, defMode)], [0,0,1,4,21,22,(23, defMode)],
-                    [0,0,1,4,21,22,(23, defMode)], [0,0,1,4,21,22,(23, defMode)], [0,0,1,4,21,22,(23, defMode)],
-                    [0,0,1,4,21,22,(23, defMode)], [0,0,1,4,21,22,(23, defMode)]]
+        pizzMode = [[0,4,21,22,(23, defMode)], [0,4,21,22,(23, defMode)], [0,4,21,22,(23, defMode)],
+                    [0,4,21,22,(23, defMode)], [0,4,21,22,(23, defMode)], [0,4,21,22,(23, defMode)],
+                    [0,4,21,22,(23, defMode)], [0,4,21,22,(23, defMode)]]
         sulPMode = [[0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)],
                     [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,13,(24,defMode)]]
         sulTMode = [[0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)],
@@ -114,47 +115,53 @@ def articulate(mel):
                    [0,1,2,3,7,8,(9, slurMode),(9,slurMode),(10,nonvibMode),(11,pizzMode),(12,sulPMode),(13,sulTMode),(15,auTalMode),(16,sotVocMode),(17,flautMode)]]
 
     # LOOP
-    currOpts = defMode
+    currMode = defMode
     modeCt = 0
     for i in range(len(mel)):
         #print("Pitch Val: " + str(mel[i][0]))
         #print("Rhythm Val: " + str(mel[i][1]))
         #print("Option Index: " + str(rhythms.index(mel[i][1])))
-        #print("Length of currOpts: " + str(len(currOpts)))
+        #print("Length of currMode: " + str(len(currMode)) + ", ColLegMode: " + str(currMode == colLegMode))
         #print("Length of defMode: " + str(len(defMode)))
         #print("ModeCt: " + str(modeCt))
-        if len(currOpts) == 0:
-            currOpts = defMode
+        if len(currMode) == 0:
+            currMode = defMode
             #print("Fixing empty list....")
-            #print("Length of currOpts: " + str(len(currOpts)))
+            #print("Length of currMode: " + str(len(currMode)))
         # automatically end modes that go on too long
-        if mel[i][0] == None or (currOpts == slurMode and modeCt > 3):
-            if currOpts == slurMode:
+        if mel[i][0] == None or (currMode == slurMode and modeCt > 3):
+            #print("Rest recognized.")
+            if currMode == slurMode:
                 artics[-1] = 19
                 artic = 0
-                currOpts = defMode
+                currMode = defMode
                 modeCt = 0
-            elif currOpts == nonvibMode:
+            elif currMode == nonvibMode:
                 artic = random.choice((0, (20, defMode)))
-            elif currOpts == pizzMode:
+            elif currMode == pizzMode:
                 artic = random.choice((0, (23, defMode)))
-            elif not currOpts == defMode:
+            elif not currMode == defMode:
                 artic = random.choice((0,(24, defMode)))
             else:
                 artic = 0
         else:
-            artic = random.choice(currOpts[rhythms.index(mel[i][1])])
-            modeCt += mel[i][1]
+            #print("Note recognized.")
+            if currMode == colLegMode:
+                #print("ColLegMode recognized.")
+                artic = random.choice([4,(24,defMode)])
+            else:
+                artic = random.choice(currMode[rhythms.index(mel[i][1])])
+                modeCt += mel[i][1]
         if type(artic) is tuple:
             # only change mode if following a REST OR RHYTHM LONGER THAN 2
             if mel[i-1][0] == None or mel[i-1][1] > 2:
                 artics.append(artic[0])
-                currOpts = artic[1]
+                currMode = artic[1]
             else:
-                artics.append(0)
-            #else:
-                #artics.append(artic[0])
-                #currOpts = artic[1]  
+                if currMode == colLegMode:
+                    artics.append(4)
+                else:
+                    artics.append(0)
         else:
             artics.append(artic)
         #print("Artic chosen: " + articToLily[artics[-1]])
@@ -179,6 +186,7 @@ def beam(mel):
         # tie logic
         def tieUp(pitch, val, firstPiece, artic, meterSize, noteLength, barPlace, barSize):
             #print("Writing tie piece of length " + str(val) + "...")
+            colLegArtics = ["\\staccatissimo ","\\staccato ","\\staccato ^\\markup \"col legno\" "]
             persistArtics = ["\\) ","\\( ","\\portato ",":32 ","\\tenuto ","\\glissando "]
             lastArtic = artic
             if artic not in persistArtics:
@@ -227,7 +235,7 @@ def beam(mel):
             # DEBUG
             #print("TieUp: " + str(mel[i]))
             #print("Note/Place/Bar: " + str(float(noteLength)) + " " + str(float(barPlace)) + " " + str(float(barSize)) + " " + str(float(meterSize)))
-            # if need to tie inside bar
+            # if need to tie inside bar and noteLength is whole and landing spot isn't on the quarter
             if noteLength % 1 == 0 and not barSize % 1 == 0 and barSize < m:
                 #print("Tying inside bar...")
                 startPiece = 1 - (barSize % 1)
@@ -241,14 +249,17 @@ def beam(mel):
                 if len(pieces) == 1:
                     beamedMel.append((mel[i][0], pieces[0], "", artic))
                 else:
-                    beamedMel.append((mel[i][0],pieces[0],"~",artic))
+                    # if staccato, replace second half of tie with rest
+                    if artic in colLegArtics and not artic in persistArtics:
+                        beamedMel.append((mel[i][0], pieces[0], "", artic))
+                    else:
+                        beamedMel.append((mel[i][0],pieces[0],"~",artic))
                     for k in range(1, len(pieces)-1):
-                        # if staccato, replace second half of tie with rest
-                        if (artic == "\\staccato" or artic == "\\staccatissimo") and not artic in persistArtics:
+                        if artic in colLegArtics and not artic in persistArtics:
                             beamedMel.append((None, pieces[k], "", lastArtic))
                         else:
                             beamedMel.append((mel[i][0], pieces[k], "~", lastArtic))
-                    if (artic == "\\staccato" or artic == "\\staccatissimo") and not artic in persistArtics:
+                    if artic in colLegArtics and not artic in persistArtics:
                         beamedMel.append((None, pieces[-1], "", lastArtic))
                     else:
                         beamedMel.append((mel[i][0], pieces[-1], "", lastArtic))
@@ -259,9 +270,12 @@ def beam(mel):
                 if barSize % 1 == 0:
                     endPiece = barSize - m
                     startPiece = noteLength - endPiece
-                    beamedMel.append((mel[i][0], startPiece, "~", artic))
+                    if artic in colLegArtics and not artic in persistArtics:
+                        beamedMel.append((mel[i][0], startPiece, "", artic))
+                    else:
+                        beamedMel.append((mel[i][0], startPiece, "~", artic))
                     # if staccato, replace second half of tie with rest
-                    if (artic == "\\staccato" or artic == "\\staccatissimo") and not artic in persistArtics:
+                    if artic in colLegArtics and not artic in persistArtics:
                         beamedMel.append((None, endPiece, "", lastArtic))
                     else:
                         beamedMel.append((mel[i][0], endPiece, "", lastArtic))
@@ -279,16 +293,16 @@ def beam(mel):
                         beamedMel.append((mel[i][0], pieces[0], "", artic))
                     else:
                         # if staccato, replace second half of tie with rest
-                        if (artic == "\\staccato" or artic == "\\staccatissimo") and not artic in persistArtics:
-                            beamedMel.append(mel[i][0], pieces[0], "", artic)
+                        if artic in colLegArtics and not artic in persistArtics:
+                            beamedMel.append((mel[i][0], pieces[0], "", artic))
                         else:
                             beamedMel.append((mel[i][0], pieces[0], "~", artic))
                         for k in range(1, len(pieces)-1):
-                            if (artic == "\\staccato" or artic == "\\staccatissimo") and not artic in persistArtics:
+                            if artic in colLegArtics and not artic in persistArtics:
                                 beamedMel.append((None, pieces[k], "", lastArtic))
                             else:
                                 beamedMel.append((mel[i][0], pieces[k], "~", lastArtic))
-                        if (artic == "\\staccato" or artic == "\\staccatissimo") and not artic in persistArtics:
+                        if artic in colLegArtics and not artic in persistArtics:
                             beamedMel.append((None, pieces[-1], "", lastArtic))
                         else:
                             beamedMel.append((mel[i][0], pieces[-1], "", lastArtic))
@@ -312,17 +326,33 @@ def beam(mel):
                     while pieceLength > meterSize:
                         pieceLength -= 0.25      
                         end = "~"
-                    beamedMel.append((mel[i][0], pieceLength, end, artic))
+                    if pieceDone == 0:
+                        if artic in colLegArtics and not artic in persistArtics:
+                            beamedMel.append((mel[i][0], pieceLength, "", artic))
+                        else:
+                            beamedMel.append((mel[i][0], pieceLength, end, artic))
+                    else:
+                        if artic in colLegArtics and not artic in persistArtics:
+                            beamedMel.append((None, pieceLength, "", artic))
+                        else:
+                            beamedMel.append((mel[i][0], pieceLength, end, artic))
                     pieceDone += pieceLength
                     pieceLength = fillLength - pieceDone
             # if piece is a valid rhythm
             else:
                 #print("Piece is valid, use it...")
-                beamedMel.append((mel[i][0], val, firstPiece, artic))
+                # if staccato, replace second half of tie with rest
+                if artic in colLegArtics and not artic in persistArtics:
+                    beamedMel.append((pitch, val, "", artic))
+                else:
+                    beamedMel.append((pitch, val, firstPiece, artic))
             # if a non-final piece
             if firstPiece == "~":
                 #print("More pieces to tie, work on them...")
-                tieUp(mel[i][0], mel[i][1]-val, "", "",meterSize,noteLength,barPlace,barSize)
+                if artic in colLegArtics:
+                    tieUp(None, mel[i][1]-val, "", "",meterSize,noteLength,barPlace,barSize)
+                else:
+                    tieUp(mel[i][0], mel[i][1]-val, "", "",meterSize,noteLength,barPlace,barSize)
             # if a final piece
             else:
                 #print("Final piece, finish.")
@@ -382,7 +412,7 @@ print("Meter chosen: " + meter)
 print("Note Map: " + str(noteMap) + "\n")
 
 # CHOOSE PITCHES
-restFreq = random.randrange(50, 5000)
+restFreq = random.randrange(10, 100)
 while len(noteMap) > 0:
     dieRoll = random.randint(0, restFreq)
     if dieRoll < 2:

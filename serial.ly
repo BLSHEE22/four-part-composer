@@ -1,2 +1,2 @@
-\header { title = "Analyze This"}\score { \new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key c \major \time 4/4 \tempo Andante 4 = 80 f'4 e'2\accent  d'4 c'2\marcato  fis'2~ fis'4 ees'8\marcato  a'8~ a'8 cis'4.~ cis'2~ cis'8 b'8^\markup "sul ponticello"  bes'4 g'2. aes'4^\markup naturale  \fermata}
+\header { title = "Analyze This"}\score { \new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key c \major \time 3/4 \tempo Andante 4 = 80 a'8. g'16~\marcato  g'8 b'4.~ b'4. aes'8 c'8 f'8\staccatissimo  r8 d'8 ees'2~ ees'4 fis'8 bes'4.~ bes'8 cis'8~ cis'8 e'8~ e'4 \fermata}
 }\version "2.22.2"
