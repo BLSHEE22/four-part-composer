@@ -7,8 +7,8 @@ Current supported features:
 - 'melody.py' -> Equipped with many modes of generating a melody.
 
 'melody.py' TODO: 
-- Bring 'tie over bar' logic for PDFs over to serial.py
-- Test Slur, Vib, and Pizz
+- Cancel excessive beaming
+- Test 'Slur, Vib, Pizz, Tech' Logic
 - Implement dynamics!
 - Implement logic for melody analysis
 - Let the melody dictate its own length and meter

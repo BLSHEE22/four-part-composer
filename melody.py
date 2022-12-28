@@ -463,8 +463,10 @@ def main():
 
     # translate melNums to LilyPond code
     def melToLily(mel, sc, dynams, artics, rhythmVals, rhythmValsPicked, cad, ogMel=[]):
+        print(mel)
         lilyMelody = []
         i = 0
+        m = 4.0
         qsUsed = 0
         totalUsed = 0
         qsBeforeTie = float(meter[:meter.index("/")])/float(int(meter[meter.index("/")+1:])/4)
@@ -491,7 +493,6 @@ def main():
             def tieUp(s, val, firstPiece, artic, meterSize, noteLength, barPlace, barSize):
                 #print("Writing tie piece of length " + str(val) + "...")
                 #print(artic)
-                m = 4.0
                 persistArtics = ["\\)","\\(","\\portato"]
                 lastArtic = artic
                 if artic not in persistArtics:
@@ -641,7 +642,7 @@ def main():
                 lilyMelody.append(sc[mel[i][0]%12] + s)
             if qsUsed > qsBeforeTie or qsUsed == qsBeforeTie:
                 qsUsed = qsUsed%qsBeforeTie
-                totalUsed = totalUsed%4
+                totalUsed = totalUsed%m
             i += 1
             #print(lilyMelody)
 
@@ -959,7 +960,7 @@ def main():
         fugue(majScales, scaleType, offset, meter)
 
     # ANALYSIS
-    # Give points for: variety of pitches, pitches stressing intended center, arcing contour, wide dynamics, good voice leading
+    # Give points for: variety of pitches, pitches stressing intended center (key-defining pitches), arcing contour, wide dynamics, good voice leading
     # Take away points for: lack of variety of pitches, pitches stressing NON-intended center, flat contour, narrow dynamics, 
     # --------------------: too large distances between consecutive notes
     pitchAnalysis = sorted([x[0] for x in mels[-1][-1] if not int(x[1]) > 700])
