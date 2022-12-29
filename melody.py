@@ -5,6 +5,15 @@ import math
 import sys
 
 # GLOBAL list of melodies and rhythms
+HEADER = '\033[95m'
+OKBLUE = '\033[94m'
+OKCYAN = '\033[96m'
+OKGREEN = '\033[92m'
+WARNING = '\033[93m'
+FAIL = '\033[91m'
+ENDC = '\033[0m'
+BOLD = '\033[1m'
+UNDERLINE = '\033[4m'
 mels = []
 rhythms = []
 scales = []
@@ -50,6 +59,16 @@ minScales = {-1:{0:"c",1:"cis",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"gis",9
 
 
 def main():
+
+    # print ACE header
+    def printHeader():
+        print(OKGREEN,end="")
+        print("#"*218,end="")
+        print(FAIL,end="")
+        print("ALGORITHMIC COMPOSITION ENGINE",end="")
+        print(OKGREEN,end="")
+        print("#"*220,end="")
+        print(ENDC)
 
     # write a counterpoint line
     def counterpoint(mel):
@@ -463,7 +482,7 @@ def main():
 
     # translate melNums to LilyPond code
     def melToLily(mel, sc, dynams, artics, rhythmVals, rhythmValsPicked, cad, ogMel=[]):
-        print(mel)
+        #print(mel)
         lilyMelody = []
         i = 0
         m = 4.0
@@ -916,6 +935,7 @@ def main():
             f.close()
 
     # MAIN
+    printHeader()
     print("\nWelcome to ACE.\n")
     offset = random.randrange(0,12)
     meter = random.choice(list(meters.keys()))
@@ -975,7 +995,7 @@ def main():
             print('{0:5d} {1}'.format(k, '+' * counted[k]))
     print("Analyzing solo...")
     ascii_histogram(pitchAnalysis)
-    print("Solo passed tests. Proceeding to export stage.")
+    print("Solo passed tests. Proceeding to export stage.\n")
 
     # EXPORT LOGIC
     print("Exporting song to .ly...")

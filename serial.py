@@ -1,5 +1,12 @@
 import datetime
 import random
+import math
+
+# CONFIGURATION
+# Python Note:
+# Tuple -> (pitch, rhythm, tie, articulation, dynamic)
+# Lily Pond Formatted Note:
+# String -> pitchToLily[pitch] + rhythmToLily[rhythm] + tie + articulation + dynamic
 
 # GLOBALS
 HEADER = '\033[95m'
@@ -14,11 +21,13 @@ UNDERLINE = '\033[4m'
 pitches = []
 rhythmKey = [0.25,0.5,0.75,1,1.5,2,3,4]
 rhythms = [0.25,0.5,0.75,1,1.5,2,3,4]
-pitchTrans = {None:"r",0:"c'",1:"cis'",2:"d'",3:"ees'",
+pitchToLily = {None:"r",0:"c'",1:"cis'",2:"d'",3:"ees'",
               4:"e'",5:"f'",6:"fis'",7:"g'",8:"aes'",
-              9:"a'",10:"bes'",11:"b'"}
+              9:"a'",10:"bes'",11:"b'",12:"c''",13:"cis''",
+              14:"d''",15:"ees''",16:"e''",17:"f''",18:"fis''",
+              19:"g''",20:"aes''",21:"a''",22:"bes''",23:"b''",}
 rhythmTrans = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1"}
-meters = ["3/4","4/4","5/4"]
+meters = ["3/4","3/4","4/4","4/4","4/4","4/4","4/4","5/4","6/4","7/4"]
 
 # print ACE header
 def printHeader():
@@ -71,12 +80,12 @@ def articulate(mel):
     # don't let staccato go onto long notes (2 or greater)
     articToLily = {0:"",1:"\\accent ",2:"\\tenuto ",3:"\\marcato ",4:"\\staccato ",
                    5:"\\staccatissimo ",6:":32 ",7:"\\glissando ", 8:":32 ",
-                   9:"\\( ", 10:"^\\markup non-vib. ", 11:"^\\markup pizz. ", 
+                   9:"\\( ", 10:"^\\markup non-vib. ", 11:"^\\markup pizz. \\staccato ", 
                   12:"^\\markup \"sul ponticello\" ", 13:"^\\markup \"sul tasto\" ", 
                   14:"\\staccato ^\\markup \"col legno\" ", 
                   15:"\\marcato ^\\markup \"au talon\" ", 16:"^\\markup \"sotto voce\" ",  
                   17:"^\\markup flautando ", 18:"\\portato ", 19:"\\) ", 20:"^\\markup vib. ",
-                  21:"\\snappizzicato ", 22:"\\stopped ", 23:"^\\markup arco ", 24:"^\\markup naturale "}
+                  21:"\\snappizzicato \\accent ", 22:"\\stopped ", 23:"^\\markup arco ", 24:"^\\markup naturale "}
     defMode = []
     for h in range(2):
         slurMode = [[0,0,0,0,18,(19,defMode)], [0,0,0,0,18,(19,defMode)], [0,0,0,0,18,(19,defMode)],
@@ -85,13 +94,13 @@ def articulate(mel):
         nonvibMode = [[0,0,0,(20,defMode)], [0,0,0,(20,defMode)], [0,0,0,(20,defMode)],
                     [0,0,0,(20,defMode)], [0,0,0,(20,defMode)], [0,0,0,(20,defMode)],
                     [0,0,0,(20,defMode)], [0,0,0,(20,defMode)]]
-        pizzMode = [[0,4,21,22,(23, defMode)], [0,4,21,22,(23, defMode)], [0,4,21,22,(23, defMode)],
-                    [0,4,21,22,(23, defMode)], [0,4,21,22,(23, defMode)], [0,4,21,22,(23, defMode)],
+        pizzMode = [[4,22,(23, defMode)], [4,22,(23, defMode)], [4,22,(23, defMode)],
+                    [4,22,(23, defMode)], [4,21,22,(23, defMode)], [4,21,22,(23, defMode)],
                     [0,4,21,22,(23, defMode)], [0,4,21,22,(23, defMode)]]
         sulPMode = [[0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)],
-                    [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,13,(24,defMode)]]
+                    [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)]]
         sulTMode = [[0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)],
-                    [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,12,(24,defMode)], [0,0,6,12,(24,defMode)]]
+                    [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)], [0,0,6,(24,defMode)]]
         colLegMode = [[4,(24,defMode)], [4,(24,defMode)], [4,(24,defMode)], [4,(24,defMode)], [4,(24,defMode)],
                     [4,(24,defMode)], [4,(24,defMode)], [4,(24,defMode)]]
         auTalMode = [[3,(24,defMode)], [3,(24,defMode)], [3,(24,defMode)], [3,(24,defMode)], [3,(24,defMode)],
@@ -153,7 +162,7 @@ def articulate(mel):
                 artics.append(artic[0])
                 currMode = artic[1]
             else:
-                if currMode == colLegMode:
+                if currMode == colLegMode or currMode == pizzMode:
                     artics.append(4)
                 else:
                     artics.append(0)
@@ -161,39 +170,84 @@ def articulate(mel):
             artics.append(artic)
         #print("Artic chosen: " + articToLily[artics[-1]])
         #print("Artics So Far: " + str(artics) + "\n")
-    
+    #print("Articulations: " + str([articToLily[a] for a in artics]) + "\n")
     return [(mel[i][0], mel[i][1], articToLily[artics[i]]) for i in range(len(mel))]
 # writes dynamics for the melody
 def dynamicize(mel):
     dynList = ["\\ppp","\\pp","\\p","\\mp","\\mf","\\f","\\ff","\\fff","\\<","\\>","\\!"]
     dyns = []
     delayStart = 0
-    while not all([x == "" for x in dyns]):
-        print(delayStart)
-        if not mel[delayStart][0] == None:
-            break
-        else:
-            dyns.append("")
+    swelling = (False, "\\!")
+    # place dynamic on first sounding note
+    if mel[delayStart][0] == None:
+        dyns.append("")
         delayStart += 1
+        while not all([x == "" for x in dyns]):
+            if not mel[delayStart][0] == None:
+                break
+            else:
+                dyns.append("")
+            delayStart += 1
     dyns.append(random.choice(dynList[:-3]))
-    prevDyn = dyns[delayStart-1]
-    # randomly choose dynamics
-    for i in range(1, len(mel)-2-delayStart):
-        # don't dynamicize if rest or if preceded by tie
+    prevDyn = dyns[-1]
+    ghostDyn = dynList.index(prevDyn)
+    # choose dynamics
+    for i in range(1, len(mel)-1-delayStart):
+        # don't dynamicize rests or notes preceded by a tie
         #print(mel[i-1])
         #print(mel[i])
+        #print(prevDyn)
+        #print(ghostDyn)
         if not mel[i][0] == None:
-            if not mel[i-1][2] == "~":
-                #print("Good to dynamicize!")
-                dyns.append(random.choice([x for x in dynList if not x == prevDyn] + [""]*20))
+            # if not mel[i-1][2] == "~":
+            #print("Good to dynamicize!")
+            if swelling == (True, "\\<"):
+                dyns.append(random.choice([x for x in dynList[dynList.index(prevDyn):] if not x == prevDyn and not x == swelling[1]] + [""]*20))
+            elif swelling == (True, "\\>"):
+                dyns.append(random.choice([x for x in dynList[:dynList.index(prevDyn)] if not x == prevDyn and not x == swelling[1]] + [""]*20))
             else:
-                dyns.append(random.choice([x for x in dynList if not x == prevDyn] + ["\\<","\\>","\\!"] + [""]*20))
-            if not dyns[-1] == "":
+                dyns.append(random.choice([x for x in dynList if not x == prevDyn] + [""]*20))
+            # only store dynamics as prevDyn
+            if dyns[-1] in dynList[:-3]:
+                #print("Storing dynamic " + dyns[-1] + " as prevDyn.")
                 prevDyn = dyns[-1]
+                swelling = (False,"\\!")
+            # if transitional, update booleans accordingly
+            elif dyns[-1] in dynList[8:]:
+                #print("Updating swelling boolean because of chosen transitional " + dyns[-1] + ".")
+                if dyns[-1] == "\\<":
+                    swelling = (True,"\\<")
+                if dyns[-1] == "\\>":
+                    swelling = (True,"\\>")
+                if dyns[-1] == "\\!":
+                    swelling = (False,"\\!")     
+                    dyns[-1] = dynList[math.ceil(ghostDyn)]
         else:
-            #print("Not good to dynamicize.")
-            dyns.append("")
-    dyns.append(random.choice([x for x in dynList[:-3] if not x == prevDyn]))
+            #print("Not good to dynamicize. If swelling, cut it off.")
+            if swelling[0]:
+                dyns.append(dynList[math.ceil(ghostDyn)])
+                swelling = (False,"\\!")
+            else:
+                dyns.append("")
+        if swelling == (True, "\\<"):
+            ghostDyn = dynList.index(prevDyn)+0.5
+        elif swelling == (True, "\\>"):
+            ghostDyn = dynList.index(prevDyn)-0.5
+        #print(dyns)
+        #print()
+    # append automatic dynamic on final note
+    if not mel[-2][2] == "~":
+        if swelling == (True, "\\<"):
+            dyns.append(random.choice([x for x in dynList[dynList.index(prevDyn):-3] if not x == prevDyn and not x == dyns[-1] and not x == swelling[1]] + [""]*20))
+        elif swelling == (True, "\\>"):
+            dyns.append(random.choice([x for x in dynList[:dynList.index(prevDyn)] if not x == prevDyn and not x == dyns[-1] and not x == swelling[1]] + [""]*20))
+        else:
+            dyns.append(random.choice([x for x in dynList if not x == prevDyn and not x == dyns[-1]] + [""]*20))
+    else:
+        dyns.append(random.choice(["\\<","\\>",""]))
+    #print("Dynamics: " + str(dyns) + "\n")
+    #print(len(dyns))
+    #print(len(mel))
     return [(mel[i][0], mel[i][1], mel[i][2], mel[i][3], dyns[i]) for i in range(len(dyns))]
 # beam where appropriate
 def beam(mel):
@@ -403,11 +457,11 @@ def beam(mel):
             qsUsed = qsUsed%qsBeforeTie
             totalUsed = totalUsed%m
         i += 1
-    
+    #print("Beams: " + str([n[2] for n in beamedMel]) + "\n")
     return beamedMel
 # final lilypond output formatter
 def lilyIze(ls):
-    return [pitchTrans[x[0]] + rhythmTrans[x[1]] + x[2] + x[3] + x[4] + " " for x in ls]
+    return [pitchToLily[x[0]] + rhythmTrans[x[1]] + x[2] + x[3] + x[4] + " " for x in ls]
 # returns inverted tone row
 def makeInversion(ls):
     start = 0
@@ -425,31 +479,48 @@ def makeInversion(ls):
 tempo = 80
 meter = random.choice(meters)
 noteMap = []
+
+# SERIALISM
 noteMap = list(range(12))
-"""
-for x in list(range(12)):
-    roll = random.randint(1,5)
-    for _ in range(roll):
-        noteMap.append(x)
-"""
+
 printHeader()
 print("Tempo chosen: " + str(tempo))
 print("Meter chosen: " + meter)
-print("Note Map: " + str(noteMap) + "\n")
 
-# CHOOSE PITCHES
-restFreq = random.randrange(10, 100)
+# CHOOSE PITCHES SERIALLY
+#while not vl(pitches):
+restFreq = random.randrange(10, 20)
 while len(noteMap) > 0:
     dieRoll = random.randint(0, restFreq)
     if dieRoll < 2:
         pitches.append(None)
     else:
         choice = random.choice(noteMap)
-        pitches.append(choice)
+        regBounce = random.randint(0,4)
+        if regBounce < 1:
+            pitches.append(choice+12)
+        else:
+            pitches.append(choice)
         noteMap.remove(choice)
-print("Pitches: " + str(pitches) + "\n")
+        # register correct
+        if len(pitches) > 1:
+            if type(pitches[-1]) == int and type(pitches[-2]) == int:
+                if abs(pitches[-1] - pitches[-2]) > 12:
+                    if pitches[-1] < pitches[-2]:
+                        pitches[-1] += 12
+                    elif pitches[-2] < pitches[-1]:
+                        pitches[-2] += 12
+
+    #print(pitches)
+#print("Pitches: " + str(pitches) + "\n")
+
 
 # DETERMINE SCALE AND KEY SIG BASED ON PITCH SELECTION
+#
+#
+#
+#
+
 
 # CHOOSE RHYTHMS FOR MELODY
 row_length_ok = False
@@ -458,7 +529,7 @@ while not row_length_ok:
     sumRhythms = sum(rhythmList)
     if sumRhythms % int(meter[0]) == 0:
         row_length_ok = True
-print("Rhythms: " + str(rhythmList) + "\n")
+#print("Rhythms: " + str(rhythmList) + "\n")
 
 # REGISTERIZE THE MELODY
 
@@ -467,33 +538,30 @@ tone_row = [(pitches[i], rhythmList[i]) for i in range(len(pitches))]
 row_length = sum([x[1] for x in tone_row])
 
 # ADD ARTICULATIONS, BEAMING, and DYNAMICS
+#print("Tone Row: " + str(tone_row) + "\n")
 row_a_artic = articulate(tone_row)
 row_a_beam = beam(row_a_artic)
 row_a_dyn = dynamicize(row_a_beam)
 row_a = lilyIze(row_a_dyn)
-print("Row: " + str(row_a))
+print("\nP-0: " + str([x%12 for x in pitches if not x == None]) + "\n")
+print("LilyPond Formatted Row: " + str(row_a) + "\n")
 
 # FORMAT LILYPOND CODE
-s = "\\header { title = \"" + "Analyze This" + "\"}"
+title = "P-0"
+"""
+for i in range(len(pitches)-1):
+    if not pitches[i] == None:
+        title += str(pitches[i])
+        title += ", "
+title += str(pitches[-1])
+"""
+s = "\\header { title = \"" + title + "\"}"
 s += "\\score { \\new Staff { \\set Staff.midiInstrument = \"violin\" \\clef \"treble\" "
 s += "\\key c \\major \\time " + meter + " \\tempo Andante 4 = 80 "
+# AABA LOGIC
 for x in row_a:
     s += x
-"""
-invPitches = makeInversion([x for x in pitches])
-rhythmList.reverse()
-inv_row = [(invPitches[i], rhythmList[i]) for i in range(len(invPitches))]
-row_b_artic = articulate(inv_row)
-row_b_beam = beam(row_b_artic)
-row_b = lilyIze(row_b_beam)
-print("Inverted Row (Meter: " + str(meter) + "): ")
-print(row_b)
-for x in row_b:
-    s += x
-for x in row_a:
-    s += x
-"""
-s += "\\fermata"
+s += "\\fermata "
 s += "}\n}\\version \"2.22.2\""
 #print()
 #print("Output code:")

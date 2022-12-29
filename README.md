@@ -7,15 +7,24 @@ Current supported features:
 - 'melody.py' -> Equipped with many modes of generating a melody.
 - 'serial.py' -> Revamped version of 'melody.py' with advanced features.
 
-'melody.py' and 'serial.py' TODO: 
+'serial.py' TODO: 
+- Implement repeats
+- Implement P-0 x2, P-6, P-0 form
+- Make tempo random
+- Give pitch creation its own function
+- Investigate slurMode
 - Implement dynamics!
+---> PrevDyn is still wonky because duplicate dynamics are still happening.
+---> Decided what to do about dynamicizing tied notes.
+---> Sotto voce needs to be no louder than pp.
+---> Staccato ghost rests are getting dynamicized when they shouldn't be.
 - Implement logic for melody analysis
 - Implement ability to choose instrument for solo
 - Implement 'metric change' ability
-- Implement 'weighted scale degrees' when choosing leaps and steps
+- Implement 'key-defining scale degrees' that hold more weight
 - Implement pickup notes
-- Implement 'raga' feature (drone, long meter, etc.)
-- Implement 'mirror' melody feature
+- Implement 'raga' feature (bass drone, long meter, etc.)
+- Implement 'mirror' melody feature (build from both ends!)
 - Release control of hardcoded values (phraseLength, genRhythmVals, articChoices, etc.)
 - Implement feature which supports talea and color
 
