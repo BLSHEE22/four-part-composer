@@ -14,11 +14,6 @@ UNDERLINE = '\033[4m'
 pitches = []
 rhythmKey = [0.25,0.5,0.75,1,1.5,2,3,4]
 rhythms = [0.25,0.5,0.75,1,1.5,2,3,4]
-"""
-pitchTrans = {None:"r",0:"c''",1:"cis''",2:"d''",3:"dis''",
-              4:"e''",5:"f''",6:"fis''",7:"g''",8:"gis''",
-              9:"a''",10:"ais''",11:"b''",12:"c'''"}
-"""
 pitchTrans = {None:"r",0:"c'",1:"cis'",2:"d'",3:"ees'",
               4:"e'",5:"f'",6:"fis'",7:"g'",8:"aes'",
               9:"a'",10:"bes'",11:"b'"}
@@ -168,7 +163,38 @@ def articulate(mel):
         #print("Artics So Far: " + str(artics) + "\n")
     
     return [(mel[i][0], mel[i][1], articToLily[artics[i]]) for i in range(len(mel))]
-# def dynamicize(mel):  
+# writes dynamics for the melody
+def dynamicize(mel):
+    dynList = ["\\ppp","\\pp","\\p","\\mp","\\mf","\\f","\\ff","\\fff","\\<","\\>","\\!"]
+    dyns = []
+    delayStart = 0
+    while not all([x == "" for x in dyns]):
+        print(delayStart)
+        if not mel[delayStart][0] == None:
+            break
+        else:
+            dyns.append("")
+        delayStart += 1
+    dyns.append(random.choice(dynList[:-3]))
+    prevDyn = dyns[delayStart-1]
+    # randomly choose dynamics
+    for i in range(1, len(mel)-2-delayStart):
+        # don't dynamicize if rest or if preceded by tie
+        #print(mel[i-1])
+        #print(mel[i])
+        if not mel[i][0] == None:
+            if not mel[i-1][2] == "~":
+                #print("Good to dynamicize!")
+                dyns.append(random.choice([x for x in dynList if not x == prevDyn] + [""]*20))
+            else:
+                dyns.append(random.choice([x for x in dynList if not x == prevDyn] + ["\\<","\\>","\\!"] + [""]*20))
+            if not dyns[-1] == "":
+                prevDyn = dyns[-1]
+        else:
+            #print("Not good to dynamicize.")
+            dyns.append("")
+    dyns.append(random.choice([x for x in dynList[:-3] if not x == prevDyn]))
+    return [(mel[i][0], mel[i][1], mel[i][2], mel[i][3], dyns[i]) for i in range(len(dyns))]
 # beam where appropriate
 def beam(mel):
     beamedMel = []
@@ -381,7 +407,7 @@ def beam(mel):
     return beamedMel
 # final lilypond output formatter
 def lilyIze(ls):
-    return [pitchTrans[x[0]] + rhythmTrans[x[1]] + x[2] + x[3] + " " for x in ls]
+    return [pitchTrans[x[0]] + rhythmTrans[x[1]] + x[2] + x[3] + x[4] + " " for x in ls]
 # returns inverted tone row
 def makeInversion(ls):
     start = 0
@@ -440,10 +466,11 @@ print("Rhythms: " + str(rhythmList) + "\n")
 tone_row = [(pitches[i], rhythmList[i]) for i in range(len(pitches))]
 row_length = sum([x[1] for x in tone_row])
 
-# ADD ARTICULATIONS, DYNAMICS, AND BEAM
+# ADD ARTICULATIONS, BEAMING, and DYNAMICS
 row_a_artic = articulate(tone_row)
 row_a_beam = beam(row_a_artic)
-row_a = lilyIze(row_a_beam)
+row_a_dyn = dynamicize(row_a_beam)
+row_a = lilyIze(row_a_dyn)
 print("Row: " + str(row_a))
 
 # FORMAT LILYPOND CODE

@@ -5,12 +5,12 @@ ACE™ (Algorithmic Composition Engine).
 Current supported features:
 - 'makeFourParts.py' -> Writes a 16-bar, AABA, four-part harmonized tune.
 - 'melody.py' -> Equipped with many modes of generating a melody.
+- 'serial.py' -> Revamped version of 'melody.py' with advanced features.
 
-'melody.py' TODO: 
-- Fix beaming over multiple bars (only a problem in 2/4)
+'melody.py' and 'serial.py' TODO: 
 - Implement dynamics!
 - Implement logic for melody analysis
-- Let the melody dictate its own length and meter
+- Implement ability to choose instrument for solo
 - Implement 'metric change' ability
 - Implement 'weighted scale degrees' when choosing leaps and steps
 - Implement pickup notes

@@ -4,7 +4,6 @@ import sys
 
 # GLOBAL list of melodies
 mels = []
-
 melRests = []
 melHolds = []
 melPassTones = []
