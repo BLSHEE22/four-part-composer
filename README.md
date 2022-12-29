@@ -3,9 +3,9 @@
 ACE™ (Algorithmic Composition Engine).
 
 Current supported features:
-- 'makeFourParts.py' -> Writes a 16-bar, AABA, four-part harmonized tune.
-- 'melody.py' -> Equipped with many modes of generating a melody.
-- 'serial.py' -> Revamped version of 'melody.py' with advanced features.
+- 'makeFourParts.py' -> Writes a 16-bar, AABA tune with four-part harmony.
+- 'melody.py' -> Writes a melody and applies it to various piece contexts.
+- 'serial.py' -> Writes a violin solo in the style of serialism.
 
 'serial.py' TODO: 
 - Implement repeats
