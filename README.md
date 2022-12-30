@@ -8,7 +8,8 @@ Current supported features:
 - 'serial.py' -> Writes a violin solo in the style of serialism.
 
 'serial.py' TODO: 
-- Implement repeats
+- Keep the same contour on the b section. Func to enforce this.
+- Implement function that intersperses rests in a tone row
 - Implement extended serial forms
 - Implement ability to choose instrument for solo
 - Give pitch creation its own function

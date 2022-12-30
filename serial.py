@@ -18,7 +18,7 @@ FAIL = '\033[91m'
 ENDC = '\033[0m'
 BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
-pitches = []
+rows = []
 rhythmKey = [0.25,0.5,0.75,1,1.5,2,3,4]
 rhythms = [0.25,0.5,0.75,1,1.5,2,3,4]
 pitchToLily = {None:"r",0:"c'",1:"cis'",2:"d'",3:"ees'",
@@ -27,7 +27,7 @@ pitchToLily = {None:"r",0:"c'",1:"cis'",2:"d'",3:"ees'",
               14:"d''",15:"ees''",16:"e''",17:"f''",18:"fis''",
               19:"g''",20:"aes''",21:"a''",22:"bes''",23:"b''",}
 rhythmTrans = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1"}
-tempos = [("Largo",(40,60)),("Adagio",(61-75)),("Andante",(76,107)),("Moderato",(108,119)),("Allegro",(120,155)),("Vivace",(156-175)),("Presto",(168,200))]
+tempos = [("Largo",(40,60)),("Adagio",(61,75)),("Andante",(76,107)),("Moderato",(108,119)),("Allegro",(120,155)),("Vivace",(156,175)),("Presto",(168,200))]
 meters = [("3/4",3),("4/4",4),("4/4",4),("4/4",4),("4/4",4),("5/4",5),("6/4",3),("7/4",7)]
 
 # print ACE header
@@ -39,6 +39,39 @@ def printHeader():
     print(OKGREEN,end="")
     print("#"*220,end="")
     print(ENDC)
+# chooses pitch order of a set
+def choosePitches():
+    noteMap = list(range(12))
+    pitches = []
+    restFreq = random.randrange(10, 20)
+    while len(noteMap) > 0:
+        dieRoll = random.randint(0, restFreq)
+        if dieRoll < 2:
+            pitches.append(None)
+        else:
+            choice = random.choice(noteMap)
+            regBounce = random.randint(0,4)
+            if regBounce < 1:
+                pitches.append(choice+12)
+            else:
+                pitches.append(choice)
+            noteMap.remove(choice)
+            # register correct
+            def regCorrect(p, l, r):
+                if len(pitches) > 1 and not l < 0:
+                    if type(p[l]) == int and type(p[r]) == int:
+                        if abs(p[r] - p[l]) > 12:
+                            if p[r] < p[l]:
+                                p[r] += 12
+                            elif p[l] < p[r]:
+                                p[l] += 12
+                            regCorrect(p,l-1,l)
+                        return
+                    return
+                return
+            regCorrect(pitches, -2, -1)
+    return pitches
+    #print("Pitches: " + str(pitches) + "\n")
 # generates a list of rhythm values
 def genRhythms():
     c = -1000000
@@ -164,7 +197,10 @@ def articulate(mel):
                 currMode = artic[1]
             else:
                 if currMode == colLegMode or currMode == pizzMode:
-                    artics.append(4)
+                    if not mel[i][0] == None:
+                        artics.append(4)
+                    else:
+                        artic.append(0)
                 else:
                     artics.append(0)
         else:
@@ -498,56 +534,20 @@ def makeInversion(ls):
     inv = [x%12 if not x == None else None for x in inv]
     return inv
 
-# CHOOSE TEMPO, METER, and NOTE MAP
+# CHOOSE TEMPO, METER and SOLO INSTRUMENT (perhaps prompt the user for the latter (or all of these!))
 tempoMark = random.choice(tempos)
 bpm = random.randint(tempoMark[1][0],tempoMark[1][1])
 tempo = (tempoMark[0], str(bpm))
 meter = random.choice(meters)
-noteMap = []
-
-# SERIALISM
-noteMap = list(range(12))
-
 printHeader()
 print("Tempo chosen: " + str(tempo))
 print("Meter chosen: " + meter[0])
 
-# CHOOSE PITCHES SERIALLY
-restFreq = random.randrange(10, 20)
-while len(noteMap) > 0:
-    dieRoll = random.randint(0, restFreq)
-    if dieRoll < 2:
-        pitches.append(None)
-    else:
-        choice = random.choice(noteMap)
-        regBounce = random.randint(0,4)
-        if regBounce < 1:
-            pitches.append(choice+12)
-        else:
-            pitches.append(choice)
-        noteMap.remove(choice)
-        # register correct
-        if len(pitches) > 1:
-            def regCorrect(p, l, r):
-                if type(p[l]) == int and type(p[r]) == int:
-                    if abs(p[r] - p[l]) > 12:
-                        if p[r] < p[l]:
-                            p[r] += 12
-                        elif p[l] < p[r]:
-                            p[l] += 12
-                        regCorrect(p,l-1,l)
-                    return
-                return
-            regCorrect(pitches, -2, -1)
-#print("Pitches: " + str(pitches) + "\n")
+# CHOOSE PITCHES
+pitches = choosePitches()
+rows.append([x for x in pitches if not x == None])
 
-
-# DETERMINE SCALE AND KEY SIG BASED ON PITCH SELECTION
-#
-#
-#
-#
-
+# DETERMINE SCALE AND KEY SIG BASED ON PITCH SELECTION (for non-serial modes)
 
 # CHOOSE RHYTHMS FOR MELODY
 row_length_ok = False
@@ -557,8 +557,6 @@ while not row_length_ok:
     if sumRhythms % int(meter[0][0]) == 0:
         row_length_ok = True
 #print("Rhythms: " + str(rhythmList) + "\n")
-
-# REGISTERIZE THE MELODY
 
 # CREATE TONE ROW AND CALCULATE LENGTH
 tone_row = [(pitches[i], rhythmList[i]) for i in range(len(pitches))]
@@ -570,29 +568,50 @@ row_a_artic = articulate(tone_row)
 row_a_beam = beam(row_a_artic)
 row_a_dyn = dynamicize(row_a_beam)
 row_a = lilyIze(row_a_dyn)
-print("\nP-0: " + str([x%12 for x in pitches if not x == None]) + "\n")
-print("LilyPond Formatted Row: " + str(row_a) + "\n")
+print("\nP-0: " + str([x%12 if not x == None else x for x in pitches]) + "\n")
 
 # FORMAT LILYPOND CODE
-title = "P-0"
-"""
-for i in range(len(pitches)-1):
-    if not pitches[i] == None:
-        title += str(pitches[i])
-        title += ", "
-title += str(pitches[-1])
-"""
+row_b_start = ((rows[0][-1]+6)%12-rows[0][0])%12
+row_b_pitches = [(x + row_b_start)%12 if not x == None else x for x in pitches]
+title = "P-0, P-" + str(row_b_start) + ", P-0"
 s = "\\header { title = \"" + title + "\"}"
 s += "\\score { \\new Staff { \\set Staff.midiInstrument = \"violin\" \\clef \"treble\" "
 s += "\\key c \\major \\time " + meter[0] + " \\tempo " + tempo[0] + " 4 = " + tempo[1]
-# AABA LOGIC
+s += "\\set Score.repeatCommands = #'(start-repeat) "
+# A: P-0
+#print("LilyPond Formatted Row: " + str(row_a) + "\n")
 for x in row_a:
     s += x
-s += "\\fermata "
+s += "\\fermata \\set Score.repeatCommands = #'(end-repeat)"
+# B: P-(P-0[-1]+6)%12
+print("P-" + str(row_b_start) + ": " + str(row_b_pitches) + "\n")
+rows.append([x for x in row_b_pitches if not x == None])
+row_length_ok = False
+while not row_length_ok:
+    rhythmList = genRhythms()
+    sumRhythms = sum(rhythmList)
+    if sumRhythms % int(meter[0][0]) == 0:
+        row_length_ok = True
+row_b = [(row_b_pitches[i], rhythmList[i]) for i in range(len(row_b_pitches))]
+row_length = sum([x[1] for x in row_b])
+row_b_artic = articulate(row_b)
+row_b_beam = beam(row_b_artic)
+row_b_dyn = dynamicize(row_b_beam)
+row_b_final = lilyIze(row_b_dyn)
+#print("LilyPond Formatted Row: " + str(row_b_final) + "\n")
+for x in row_b_final:
+    s += x
+s += "\\fermata \\bar \"||\""
+# A: P-0 
+row_a_final = articulate(tone_row)
+row_a_final = beam(row_a_final)
+row_a_final = dynamicize(row_a_final)
+row_a_final = lilyIze(row_a_final)
+#print("LilyPond Formatted Row: " + str(row_a_final) + "\n")
+for x in row_a_final:
+    s += x
+s += "\\fermata \\bar \"|.\""
 s += "}\n}\\version \"2.22.2\""
-#print()
-#print("Output code:")
-#print(s)
 o = open("serial.ly", "w")
 o.write(s)
 o.close()
