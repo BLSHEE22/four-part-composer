@@ -27,6 +27,7 @@ pitchToLily = {None:"r",0:"c'",1:"cis'",2:"d'",3:"ees'",
               14:"d''",15:"ees''",16:"e''",17:"f''",18:"fis''",
               19:"g''",20:"aes''",21:"a''",22:"bes''",23:"b''",}
 rhythmTrans = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1"}
+tempos = [("Largo",(40,60)),("Adagio",(61-75)),("Andante",(76,107)),("Moderato",(108,119)),("Allegro",(120,155)),("Vivace",(156-175)),("Presto",(168,200))]
 meters = [("3/4",3),("4/4",4),("4/4",4),("4/4",4),("4/4",4),("5/4",5),("6/4",3),("7/4",7)]
 
 # print ACE header
@@ -498,7 +499,7 @@ def makeInversion(ls):
     return inv
 
 # CHOOSE TEMPO, METER, and NOTE MAP
-tempoMark = ("Andante", (75,90))
+tempoMark = random.choice(tempos)
 bpm = random.randint(tempoMark[1][0],tempoMark[1][1])
 tempo = (tempoMark[0], str(bpm))
 meter = random.choice(meters)
@@ -512,7 +513,6 @@ print("Tempo chosen: " + str(tempo))
 print("Meter chosen: " + meter[0])
 
 # CHOOSE PITCHES SERIALLY
-#while not vl(pitches):
 restFreq = random.randrange(10, 20)
 while len(noteMap) > 0:
     dieRoll = random.randint(0, restFreq)
@@ -528,14 +528,17 @@ while len(noteMap) > 0:
         noteMap.remove(choice)
         # register correct
         if len(pitches) > 1:
-            if type(pitches[-1]) == int and type(pitches[-2]) == int:
-                if abs(pitches[-1] - pitches[-2]) > 12:
-                    if pitches[-1] < pitches[-2]:
-                        pitches[-1] += 12
-                    elif pitches[-2] < pitches[-1]:
-                        pitches[-2] += 12
-
-    #print(pitches)
+            def regCorrect(p, l, r):
+                if type(p[l]) == int and type(p[r]) == int:
+                    if abs(p[r] - p[l]) > 12:
+                        if p[r] < p[l]:
+                            p[r] += 12
+                        elif p[l] < p[r]:
+                            p[l] += 12
+                        regCorrect(p,l-1,l)
+                    return
+                return
+            regCorrect(pitches, -2, -1)
 #print("Pitches: " + str(pitches) + "\n")
 
 
