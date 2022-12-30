@@ -9,17 +9,15 @@ Current supported features:
 
 'serial.py' TODO: 
 - Implement repeats
-- Implement P-0 x2, P-6, P-0 form
-- Make tempo random
+- Implement extended serial forms
+- Implement ability to choose instrument for solo
 - Give pitch creation its own function
-- Investigate slurMode
-- Implement dynamics!
+- Investigate slurMode, something off about it
+- Keep debugging dynamics!
 ---> PrevDyn is still wonky because duplicate dynamics are still happening.
----> Decide what to do about dynamicizing tied notes.
 ---> Sotto voce needs to be no louder than pp.
 ---> Staccato ghost rests are getting dynamicized when they shouldn't be.
 - Implement logic for melody analysis
-- Implement ability to choose instrument for solo
 - Implement metric change ability
 - Implement tempo change ability
 - Implement 'key-defining scale degrees' that hold more weight
