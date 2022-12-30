@@ -27,7 +27,7 @@ pitchToLily = {None:"r",0:"c'",1:"cis'",2:"d'",3:"ees'",
               14:"d''",15:"ees''",16:"e''",17:"f''",18:"fis''",
               19:"g''",20:"aes''",21:"a''",22:"bes''",23:"b''",}
 rhythmTrans = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1"}
-meters = ["3/4","3/4","4/4","4/4","4/4","4/4","4/4","5/4","6/4","7/4"]
+meters = [("3/4",3),("4/4",4),("4/4",4),("4/4",4),("4/4",4),("5/4",5),("6/4",3),("7/4",7)]
 
 # print ACE header
 def printHeader():
@@ -191,6 +191,7 @@ def dynamicize(mel):
     dyns.append(random.choice(dynList[:-3]))
     prevDyn = dyns[-1]
     ghostDyn = dynList.index(prevDyn)
+    okToDyn = True
     # choose dynamics
     for i in range(1, len(mel)-1-delayStart):
         # don't dynamicize rests or notes preceded by a tie
@@ -198,15 +199,33 @@ def dynamicize(mel):
         #print(mel[i])
         #print(prevDyn)
         #print(ghostDyn)
+        place = sum([m[1] for m in mel[:i]])
+        #print(place)
         if not mel[i][0] == None:
-            # if not mel[i-1][2] == "~":
-            #print("Good to dynamicize!")
-            if swelling == (True, "\\<"):
-                dyns.append(random.choice([x for x in dynList[dynList.index(prevDyn):] if not x == prevDyn and not x == swelling[1]] + [""]*20))
-            elif swelling == (True, "\\>"):
-                dyns.append(random.choice([x for x in dynList[:dynList.index(prevDyn)] if not x == prevDyn and not x == swelling[1]] + [""]*20))
+            # downbeat
+            if place % 1 == 0 or place % 1 == 0.5:
+                # initial attack of note or tied note during a swell
+                if not mel[i-1][2] == "~" or (mel[i-1][2] == "~" and swelling[0]):
+                    #print("Good to dynamicize!")
+                    if swelling == (True, "\\<"):
+                        dyns.append(random.choice([x for x in dynList[dynList.index(prevDyn):] if not x == prevDyn and not x == swelling[1]] + [""]*20))
+                    elif swelling == (True, "\\>"):
+                        dyns.append(random.choice([x for x in dynList[:dynList.index(prevDyn)] if not x == prevDyn and not x == swelling[1]] + [""]*20))
+                    else:
+                        dyns.append(random.choice([x for x in dynList if not x == prevDyn] + [""]*20))
+                # tied note not during a swell deserves no dynamic
+                else:
+                    #print("Tied note, no dynamic.")
+                    dyns.append(random.choice(["\\<","\\>"]))
+            # on offbeat, just keep swelling/non-swelling. Essentially, also no dynamic.
             else:
-                dyns.append(random.choice([x for x in dynList if not x == prevDyn] + [""]*20))
+                #print("Offbeat. Just keep swelling/non-swelling.")
+                if swelling[0]:
+                    swellOpts = ["\\<","\\>"]
+                    swellOpts.remove(swelling[1])
+                    dyns.append(random.choice(swellOpts))
+                else:
+                    dyns.append(random.choice(["\\<","\\>","","","",""]))
             # only store dynamics as prevDyn
             if dyns[-1] in dynList[:-3]:
                 #print("Storing dynamic " + dyns[-1] + " as prevDyn.")
@@ -222,17 +241,19 @@ def dynamicize(mel):
                 if dyns[-1] == "\\!":
                     swelling = (False,"\\!")     
                     dyns[-1] = dynList[math.ceil(ghostDyn)]
+                    prevDyn = dyns[-1]
         else:
             #print("Not good to dynamicize. If swelling, cut it off.")
             if swelling[0]:
                 dyns.append(dynList[math.ceil(ghostDyn)])
+                prevDyn = dyns[-1]
                 swelling = (False,"\\!")
             else:
                 dyns.append("")
         if swelling == (True, "\\<"):
-            ghostDyn = dynList.index(prevDyn)+0.5
+            ghostDyn = dynList.index(prevDyn)+1
         elif swelling == (True, "\\>"):
-            ghostDyn = dynList.index(prevDyn)-0.5
+            ghostDyn = dynList.index(prevDyn)-1
         #print(dyns)
         #print()
     # append automatic dynamic on final note
@@ -255,7 +276,8 @@ def beam(mel):
     i = 0
     qsUsed = 0
     totalUsed = 0
-    m = float(meter[:meter.index("/")])/float(int(meter[meter.index("/")+1:])/4)
+    #m = float(meter[:meter.index("/")])/float(int(meter[meter.index("/")+1:])/4)
+    m = meter[1]
     qsBeforeTie = 1
     while i < len(mel):
         rhythmToLily = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1",6:"1.",8:"\\breve"}
@@ -266,7 +288,7 @@ def beam(mel):
         # tie logic
         def tieUp(pitch, val, firstPiece, artic, meterSize, noteLength, barPlace, barSize):
             #print("Writing tie piece of length " + str(val) + "...")
-            colLegArtics = ["\\staccatissimo ","\\staccato ","\\staccato ^\\markup \"col legno\" "]
+            colLegArtics = ["\\staccatissimo ","\\staccato ","\\staccato ^\\markup \"col legno\" ","^\\markup pizz. \\staccato ","\\snappizzicato \\accent "]
             persistArtics = ["\\) ","\\( ","\\portato ",":32 ","\\tenuto ","\\glissando "]
             lastArtic = artic
             if artic not in persistArtics:
@@ -476,7 +498,9 @@ def makeInversion(ls):
     return inv
 
 # CHOOSE TEMPO, METER, and NOTE MAP
-tempo = 80
+tempoMark = ("Andante", (75,90))
+bpm = random.randint(tempoMark[1][0],tempoMark[1][1])
+tempo = (tempoMark[0], str(bpm))
 meter = random.choice(meters)
 noteMap = []
 
@@ -485,7 +509,7 @@ noteMap = list(range(12))
 
 printHeader()
 print("Tempo chosen: " + str(tempo))
-print("Meter chosen: " + meter)
+print("Meter chosen: " + meter[0])
 
 # CHOOSE PITCHES SERIALLY
 #while not vl(pitches):
@@ -527,7 +551,7 @@ row_length_ok = False
 while not row_length_ok:
     rhythmList = genRhythms()
     sumRhythms = sum(rhythmList)
-    if sumRhythms % int(meter[0]) == 0:
+    if sumRhythms % int(meter[0][0]) == 0:
         row_length_ok = True
 #print("Rhythms: " + str(rhythmList) + "\n")
 
@@ -557,7 +581,7 @@ title += str(pitches[-1])
 """
 s = "\\header { title = \"" + title + "\"}"
 s += "\\score { \\new Staff { \\set Staff.midiInstrument = \"violin\" \\clef \"treble\" "
-s += "\\key c \\major \\time " + meter + " \\tempo Andante 4 = 80 "
+s += "\\key c \\major \\time " + meter[0] + " \\tempo " + tempo[0] + " 4 = " + tempo[1]
 # AABA LOGIC
 for x in row_a:
     s += x

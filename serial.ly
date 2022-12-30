@@ -1,2 +1,2 @@
-\header { title = "P-0"}\score { \new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key c \major \time 3/4 \tempo Andante 4 = 80 d'8\ppp r8~ r4 r4~ r4 r2~ r2 a'4\marcato ^\markup "au talon"  c'16 e'16 cis'16\marcato  b'16~\marcato  b'8\< fis'4.~ fis'2~ fis'8 f'8^\markup naturale  bes'2.\tenuto \fff aes'8^\markup pizz. \staccato \pp ees'8~ ees'4. g'8\stopped  \fermata }
+\header { title = "P-0"}\score { \new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key c \major \time 6/4 \tempo Andante 4 = 87cis''16\p a'8\> bes'16\staccato \< d'2~ d'4 r2~\mp r4 g'8^\markup non-vib.  e'4.~ e'4.\> f'16 fis'16~\< fis'8 aes''8 b''2.\> ees''4. c''8~\ppp c''4 \fermata }
 }\version "2.22.2"

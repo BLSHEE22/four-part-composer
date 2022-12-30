@@ -15,14 +15,17 @@ Current supported features:
 - Investigate slurMode
 - Implement dynamics!
 ---> PrevDyn is still wonky because duplicate dynamics are still happening.
----> Decided what to do about dynamicizing tied notes.
+---> Decide what to do about dynamicizing tied notes.
 ---> Sotto voce needs to be no louder than pp.
 ---> Staccato ghost rests are getting dynamicized when they shouldn't be.
 - Implement logic for melody analysis
 - Implement ability to choose instrument for solo
-- Implement 'metric change' ability
+- Implement metric change ability
+- Implement tempo change ability
 - Implement 'key-defining scale degrees' that hold more weight
 - Implement pickup notes
+- Implement 'passacaglia' feature
+- Implement 'multi-harmonize' feature
 - Implement 'raga' feature (bass drone, long meter, etc.)
 - Implement 'mirror' melody feature (build from both ends!)
 - Release control of hardcoded values (phraseLength, genRhythmVals, articChoices, etc.)
