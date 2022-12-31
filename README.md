@@ -8,11 +8,11 @@ Current supported features:
 - 'serial.py' -> Writes a violin solo in the style of serialism.
 
 'serial.py' TODO: 
+- TieUp every staccato note that's longer than a quarter
 - Keep the same contour on the b section. Func to enforce this.
 - Implement function that intersperses rests in a tone row
-- Implement extended serial forms
+- Implement set-matrix function
 - Implement ability to choose instrument for solo
-- Give pitch creation its own function
 - Investigate slurMode, something off about it
 - Keep debugging dynamics!
 ---> PrevDyn is still wonky because duplicate dynamics are still happening.
@@ -27,7 +27,6 @@ Current supported features:
 - Implement 'multi-harmonize' feature
 - Implement 'raga' feature (bass drone, long meter, etc.)
 - Implement 'mirror' melody feature (build from both ends!)
-- Release control of hardcoded values (phraseLength, genRhythmVals, articChoices, etc.)
 - Implement feature which supports talea and color
 
 Development Road Map for 'Fugue' Feature: 
