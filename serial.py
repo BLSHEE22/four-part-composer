@@ -25,7 +25,10 @@ pitchToLily = {None:"r",0:"c'",1:"cis'",2:"d'",3:"ees'",
               4:"e'",5:"f'",6:"fis'",7:"g'",8:"aes'",
               9:"a'",10:"bes'",11:"b'",12:"c''",13:"cis''",
               14:"d''",15:"ees''",16:"e''",17:"f''",18:"fis''",
-              19:"g''",20:"aes''",21:"a''",22:"bes''",23:"b''",}
+              19:"g''",20:"aes''",21:"a''",22:"bes''",23:"b''",
+              24:"c'''",25:"cis'''",26:"d'''",27:"ees'''",28:"e'''",
+              29:"f'''",30:"fis'''",31:"g'''",32:"aes'''",33:"a'''",
+              34:"bes'''",35:"b'''",36:"c''''"}
 rhythmTrans = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1"}
 tempos = [("Largo",(40,60)),("Adagio",(61,75)),("Andante",(76,107)),("Moderato",(108,119)),("Allegro",(120,155)),("Vivace",(156,175)),("Presto",(168,200))]
 meters = [("3/4",3),("4/4",4),("4/4",4),("4/4",4),("4/4",4),("5/4",5),("6/4",3),("7/4",7)]
@@ -42,6 +45,13 @@ def printHeader():
 # chooses pitch order of a set
 def choosePitches():
     noteMap = list(range(12))
+    """
+    noteMap = [0,0,0,3,3,3,5,5,5,7,7,7,10,10,10]
+    center = random.randint(0,11)
+    noteMap = [x+center for x in noteMap]
+    print(center)
+    print(noteMap)
+    """
     pitches = []
     restFreq = random.randrange(10, 20)
     while len(noteMap) > 0:
