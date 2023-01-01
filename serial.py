@@ -225,23 +225,28 @@ def dynamicize(mel):
     delayStart = 0
     swelling = (False, "\\!", 0)
     # place dynamic on first sounding note
-    print("First pitch: " + str(mel[delayStart][0]))
+    print("\nStart: " + str(delayStart))
+    print("Pitch: " + str(mel[delayStart][0]))
     if mel[delayStart][0] == None:
         dyns.append("")
         delayStart += 1
-        while not all([x == "" for x in dyns]):
-            print(dyns)
+        print("Start: " + str(delayStart))
+        print("Dyns: " + str(dyns))
+        print("Dyns is all rests? " + str(all([x == "" for x in dyns])))
+        while all([x == "" for x in dyns]):
+            print("Pitch: " + str(mel[delayStart][0]))
             if not mel[delayStart][0] == None:
                 break
             else:
                 dyns.append("")
             delayStart += 1
+    print("First pitch found: " + str(mel[delayStart][0]))
     dyns.append(random.choice(dynList[:-3]))
     prevDyn = dyns[-1]
     ghostDyn = dynList.index(prevDyn)
     justDyned = True
     # choose dynamics
-    for i in range(1+delayStart, len(mel)-1-delayStart):
+    for i in range(delayStart+1, len(mel)-1):
         # don't dynamicize rests or notes preceded by a tie
         print("Prev: " + str(mel[i-1]))
         print("Curr: " + str(mel[i]))
@@ -266,7 +271,8 @@ def dynamicize(mel):
                         else:
                             bucket.append([x for x in dynList[8:] if not x == prevDyn and not x == swelling[1]] + [""]*20)
                         if math.floor(ghostDyn) == 0:
-                            bucket[0].remove("\\>")
+                            if "\\>" in bucket[0]:
+                                bucket[0].remove("\\>")
                         dyns.append(random.choice(bucket[0]))
                     elif swelling == (True, "\\>"):
                         if not justDyned:
@@ -274,7 +280,8 @@ def dynamicize(mel):
                         else:
                             bucket.append([x for x in dynList[8:] if not x == prevDyn and not x == swelling[1]] + [""]*20)
                         if math.ceil(ghostDyn) == 7:
-                            bucket[0].remove("\\<")
+                            if "\\<" in bucket[0]:
+                                bucket[0].remove("\\<")
                         dyns.append(random.choice(bucket[0]))
                     else:
                         if not justDyned:
@@ -300,10 +307,10 @@ def dynamicize(mel):
                         swellOpts.remove(swelling[1])
                         if math.ceil(ghostDyn) == 7:
                             if "\\<" in swellOpts:
-                                opts.remove("\\<")
+                                swellOpts.remove("\\<")
                         elif math.floor(ghostDyn) == 0:
                             if "\\>" in swellOpts:
-                                opts.remove("\\>")
+                                swellOpts.remove("\\>")
                         dyns.append(random.choice(swellOpts))
                     else:
                         if math.ceil(ghostDyn) == 7:
