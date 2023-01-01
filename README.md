@@ -8,17 +8,16 @@ Current supported features:
 - 'serial.py' -> Writes a violin solo in the style of serialism.
 
 'serial.py' TODO: 
+- REFACTOR 'dynamicize'
 - Figure out why slurs are getting dropped.
+- Decide what to do about sotto voce dynamic override
 - TieUp every staccato note that's longer than a quarter.
 - Implement harmonics
 - Implement function to keep the contour the same for the b section (interval check)
-- Implement function that intersperses rests in a tone row
+- Implement function that intersperses rests in a tone row (same count that are in prime)
 - Implement set-matrix function
 - Implement ability to choose instrument for solo
-- Keep debugging dynamics!
----> PrevDyn is still wonky because duplicate dynamics are still happening.
----> Sotto voce needs to be no louder than pp.
-- Implement logic for melody analysis
+- Implement 'melody analyzer'
 - Implement metric change ability
 - Implement tempo change ability
 - Implement 'key-defining scale degrees' that hold more weight
