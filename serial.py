@@ -177,7 +177,7 @@ def articulate(mel):
             elif currMode == nonvibMode:
                 artic = random.choice((0, (20, defMode)))
             elif currMode == pizzMode:
-                artic = (23, defMode)
+                artic = random.choice((0,(23, defMode)))
             elif not currMode == defMode:
                 artic = random.choice((0,(24, defMode)))
             else:
@@ -194,7 +194,9 @@ def articulate(mel):
             # only change mode if following a REST OR RHYTHM LONGER THAN 2
             #print("Is following REST or RHYTHM LONGER THAN 2?")
             if mel[i-1][0] == None or mel[i-1][1] > 2:
-                #print("Yes, changing mode.")
+                #print("Yes, changing mode. Unless trying to start slur on last note, that will be dumped.")
+                if artic[0] == "\\( ":
+                    artic = (0, defMode)
                 artics.append(artic[0])
                 currMode = artic[1]
             else:
@@ -223,10 +225,12 @@ def dynamicize(mel):
     delayStart = 0
     swelling = (False, "\\!", 0)
     # place dynamic on first sounding note
+    print("First pitch: " + str(mel[delayStart][0]))
     if mel[delayStart][0] == None:
         dyns.append("")
         delayStart += 1
         while not all([x == "" for x in dyns]):
+            print(dyns)
             if not mel[delayStart][0] == None:
                 break
             else:
@@ -237,14 +241,14 @@ def dynamicize(mel):
     ghostDyn = dynList.index(prevDyn)
     justDyned = True
     # choose dynamics
-    for i in range(1, len(mel)-1-delayStart):
+    for i in range(1+delayStart, len(mel)-1-delayStart):
         # don't dynamicize rests or notes preceded by a tie
-        print(mel[i-1])
-        print(mel[i])
-        print(swelling)
-        print(prevDyn)
-        print(ghostDyn)
-        print(justDyned)
+        print("Prev: " + str(mel[i-1]))
+        print("Curr: " + str(mel[i]))
+        print("Swelling: " + str(swelling))
+        print("PrevDyn: " + str(prevDyn))
+        print("GhostDyn: " + str(ghostDyn))
+        print("JustDyned: " + str(justDyned))
         place = sum([m[1] for m in mel[:i]])
         bucket = []
         backProp = False
@@ -261,32 +265,54 @@ def dynamicize(mel):
                             bucket.append([x for x in dynList[dynList.index(prevDyn):] if not x == prevDyn and not x == swelling[1]] + [""]*20)
                         else:
                             bucket.append([x for x in dynList[8:] if not x == prevDyn and not x == swelling[1]] + [""]*20)
+                        if math.floor(ghostDyn) == 0:
+                            bucket[0].remove("\\>")
                         dyns.append(random.choice(bucket[0]))
                     elif swelling == (True, "\\>"):
                         if not justDyned:
                             bucket.append([x for x in dynList[:dynList.index(prevDyn)] if not x == prevDyn and not x == swelling[1]] + [""]*20)
                         else:
                             bucket.append([x for x in dynList[8:] if not x == prevDyn and not x == swelling[1]] + [""]*20)
+                        if math.ceil(ghostDyn) == 7:
+                            bucket[0].remove("\\<")
                         dyns.append(random.choice(bucket[0]))
                     else:
                         if not justDyned:
-                            bucket.append([x for x in dynList if not x == prevDyn] + [""]*20)
+                            bucket.append([x for x in dynList[:-1] if not x == prevDyn] + [""]*20)
                         else:
-                            bucket.append([x for x in dynList[8:] if not x == prevDyn] + [""]*20)
+                            bucket.append([x for x in dynList[8:-1] if not x == prevDyn] + [""]*20)
                         dyns.append(random.choice(bucket[0]))
-                # tied note not during a swell deserves no dynamic
+                # tied note not during a swell deserves no dynamic, can start swelling
                 else:
-                    print("Tied note, no dynamic.")
-                    dyns.append(random.choice(["\\<","\\>",""]))
+                    print("Tied note not during a swell, don't dynamicize. Can start swelling.")
+                    opts = ["\\>","\\<","",""]
+                    if math.ceil(ghostDyn) == 7:
+                        opts.remove("\\<")
+                    elif math.floor(ghostDyn) == 0:
+                        opts.remove("\\>")
+                    dyns.append(random.choice(opts))
             # on offbeat, just keep swelling/non-swelling. Essentially, also no dynamic.
             else:
                 print("Offbeat. Just keep swelling/non-swelling.")
-                if swelling[0]:
+                if not i == len(mel)-1-delayStart:
                     swellOpts = ["\\<","\\>","",""]
-                    swellOpts.remove(swelling[1])
-                    dyns.append(random.choice(swellOpts))
+                    if swelling[0]:
+                        swellOpts.remove(swelling[1])
+                        if math.ceil(ghostDyn) == 7:
+                            if "\\<" in swellOpts:
+                                opts.remove("\\<")
+                        elif math.floor(ghostDyn) == 0:
+                            if "\\>" in swellOpts:
+                                opts.remove("\\>")
+                        dyns.append(random.choice(swellOpts))
+                    else:
+                        if math.ceil(ghostDyn) == 7:
+                            swellOpts.remove("\\<")
+                        elif math.floor(ghostDyn) == 0:
+                            swellOpts.remove("\\>")
+                        dyns.append(random.choice(swellOpts))
                 else:
-                    dyns.append(random.choice(["\\<","\\>","","","",""]))
+                    dyns.append("")
             # only store dynamics as prevDyn
             if dyns[-1] in dynList[:-3]:
                 print("Storing dynamic " + dyns[-1] + " as prevDyn.")
@@ -303,7 +329,7 @@ def dynamicize(mel):
                     if not dynList[math.floor(ghostDyn)] == prevDyn:   
                         dyns[-1] = dynList[math.floor(ghostDyn)]
                     else:
-                        dyns[-1] = ""
+                        dyns[-1] = "\\!"
         # REST
         else:
             print("Not good to dynamicize. If swelling, cut it off.")
@@ -342,22 +368,22 @@ def dynamicize(mel):
                             backProp = True
                 swelling = (False,"\\!")
             else:
-                dyns.append("\\!")
+                dyns.append("")
         if swelling == (True, "\\<"):
             if not ghostDyn == len(dynList)-4:
-                ghostDyn += 1
+                ghostDyn += 0.5
         elif swelling == (True, "\\>"):
             if not ghostDyn == 0:
-                ghostDyn -= 1
+                ghostDyn -= 0.5            
         if dyns[-1] in dynList[:-3]:
             prevDyn = dyns[-1]
+            ghostDyn = dynList.index(prevDyn)
             print("Updating justDyned to True.")
             justDyned = True
         else:
             print("Updating justDyned to False.")
             justDyned = False
-        if backProp:
-            prevDyn = dyns[-2]
+        prevDyn = [x for x in dyns if x not in ["\\<","\\>","\\!",""]][-1]
         print(dyns)
         print()
     # append automatic dynamic on final note
