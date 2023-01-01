@@ -8,7 +8,7 @@ Current supported features:
 - 'serial.py' -> Writes a violin solo in the style of serialism.
 
 'serial.py' TODO: 
-- REFACTOR 'dynamicize'
+- REFACTOR CODE!!!!!!!!!!
 - Figure out why slurs are getting dropped.
 - Decide what to do about sotto voce dynamic override
 - TieUp every staccato note that's longer than a quarter.
