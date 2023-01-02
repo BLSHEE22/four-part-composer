@@ -21,14 +21,14 @@ UNDERLINE = '\033[4m'
 rows = []
 rhythmKey = [0.25,0.5,0.75,1,1.5,2,3,4]
 rhythms = [0.25,0.5,0.75,1,1.5,2,3,4]
-pitchToLily = {None:"r",0:"c'",1:"cis'",2:"d'",3:"ees'",
-              4:"e'",5:"f'",6:"fis'",7:"g'",8:"aes'",
-              9:"a'",10:"bes'",11:"b'",12:"c''",13:"cis''",
-              14:"d''",15:"ees''",16:"e''",17:"f''",18:"fis''",
-              19:"g''",20:"aes''",21:"a''",22:"bes''",23:"b''",
-              24:"c'''",25:"cis'''",26:"d'''",27:"ees'''",28:"e'''",
-              29:"f'''",30:"fis'''",31:"g'''",32:"aes'''",33:"a'''",
-              34:"bes'''",35:"b'''",36:"c''''"}
+pitchToLily = {None:"r",0:"c'",1:"cis'",2:"d'",3:"dis'",
+              4:"e'",5:"f'",6:"fis'",7:"g'",8:"gis'",
+              9:"a'",10:"ais'",11:"b'",12:"c''",13:"cis''",
+              14:"d''",15:"dis''",16:"e''",17:"f''",18:"fis''",
+              19:"g''",20:"gis''",21:"a''",22:"ais''",23:"b''",
+              24:"c'''",25:"cis'''",26:"d'''",27:"dis'''",28:"e'''",
+              29:"f'''",30:"fis'''",31:"g'''",32:"gis'''",33:"a'''",
+              34:"ais'''",35:"b'''",36:"c''''"}
 rhythmTrans = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1"}
 tempos = [("Largo",(40,60)),("Adagio",(61,75)),("Andante",(76,107)),("Moderato",(108,119)),("Allegro",(120,155)),("Vivace",(156,175)),("Presto",(168,200))]
 meters = [("3/4",3),("4/4",4),("4/4",4),("4/4",4),("4/4",4),("5/4",5),("6/4",3),("7/4",7)]
@@ -166,51 +166,76 @@ def articulate(mel):
     currMode = defMode
     modeCt = 0
     for i in range(len(mel)):
-        #print("Pitch Val: " + str(mel[i][0]))
-        #print("Rhythm Val: " + str(mel[i][1]))
-        #print("Option Index: " + str(rhythms.index(mel[i][1])))
-        #print("Length of currMode: " + str(len(currMode)) + ", ColLegMode: " + str(currMode == colLegMode))
-        #print("Length of defMode: " + str(len(defMode)))
-        #print("ModeCt: " + str(modeCt))
+        print("Pitch Val: " + str(mel[i][0]))
+        print("Rhythm Val: " + str(mel[i][1]))
+        print("Option Index: " + str(rhythms.index(mel[i][1])))
+        print("Length of currMode: " + str(len(currMode)) + ", SlurMode: " + str(currMode == slurMode))
+        print("Length of defMode: " + str(len(defMode)))
+        print("ModeCt: " + str(modeCt))
         if len(currMode) == 0:
             currMode = defMode
-            #print("Fixing empty list....")
-            #print("Length of currMode: " + str(len(currMode)))
+            print("Fixing empty list....")
+            print("Length of currMode: " + str(len(currMode)))
+        currSlur = False
+        nonZs = [x for x in artics if not x == 0]
+        if nonZs:
+            currSlur = nonZs[-1]
         # automatically end modes that go on too long
-        if mel[i][0] == None or (currMode == slurMode and modeCt > 3):
-            #print("Rest recognized.")
-            if currMode == slurMode:
-                artics[-1] = 19
-                artic = 0
-                currMode = defMode
-                modeCt = 0
-            elif currMode == nonvibMode:
-                artic = random.choice((0, (20, defMode)))
-            elif currMode == pizzMode:
-                artic = random.choice((0,(23, defMode)))
-            elif not currMode == defMode:
-                artic = random.choice((0,(24, defMode)))
+        if mel[i][0] == None or ((currSlur == 9 or currSlur == 18) and modeCt > 1):
+            print("Rest recognized OR slur limit reached.")
+            if (currSlur == 9 or currSlur == 18) and modeCt > 1 and not mel[i][0] == None:
+                print("Slur limit reached.")
+                artic = (19, defMode)
             else:
-                artic = 0
+                print("Rest recognized.")
+                if currSlur == 9:
+                    print("Don't begin slur. If we just began slur, remove it.")
+                    if artics[-1] == 9:
+                        artics[-1] = 0
+                    else:
+                        artics[-1] = 19
+                    artic = 0
+                    currMode = defMode
+                    modeCt = 0
+                elif currMode == nonvibMode:
+                    artic = random.choice((0, (20, defMode)))
+                elif currMode == pizzMode:
+                    artic = random.choice((0,(23, defMode)))
+                elif not currMode == defMode:
+                    artic = random.choice((0,(24, defMode)))
+                else:
+                    artic = 0
         else:
-            #print("Note recognized.")
+            print("Note recognized.")
             if currMode == colLegMode:
-                #print("ColLegMode recognized.")
+                print("ColLegMode recognized.")
                 artic = random.choice([4,(24,defMode)])
             else:
+                print("Non ColLegMode recognized.")
                 artic = random.choice(currMode[rhythms.index(mel[i][1])])
                 modeCt += mel[i][1]
+        # end slur on final note if still slurring
+        if i == len(mel)-1:
+            if currSlur == 9 or currSlur == 18:
+                artic = (19,defMode)
         if type(artic) is tuple:
+            #print(artic[0])
+            #print(i)
+            #print(len(mel)-1)
+            # don't start slur on final note
+            if artic[0] == 9 and i == len(mel)-1:
+                artic = (0,defMode)
             # only change mode if following a REST OR RHYTHM LONGER THAN 2
             #print("Is following REST or RHYTHM LONGER THAN 2?")
             if mel[i-1][0] == None or mel[i-1][1] > 2:
-                #print("Yes, changing mode. Unless trying to start slur on last note, that will be dumped.")
-                if artic[0] == "\\( ":
-                    artic = (0, defMode)
+                #print("Yes, changing mode. Unless trying to start slur on last note, that has been overrided.")    
                 artics.append(artic[0])
                 currMode = artic[1]
+                modeCt = 0
+                if artic[0] == 9:
+                    modeCt += mel[i][1]
             else:
-                #print("No, keeping mode. Unless...")
+                #print("No, keeping mode - unless at the end of melody.")
                 if currMode == colLegMode or currMode == pizzMode:
                     if not mel[i][0] == None:
                         #print("Non rest in pizz mode, keeping the staccato.")
@@ -219,14 +244,16 @@ def articulate(mel):
                         #print("Rest in pizz mode, time for arco.")
                         artics.append(23)
                         currMode = defMode
-                        #artics.append(0)
-                else:
+                elif not artic[0] == 19:
                     artics.append(0)
+                else:
+                    artics.append(artic[0])
+                    currMode = defMode
         else:
             artics.append(artic)
         #print("Artic chosen: " + articToLily[artics[-1]])
         #print("Artics So Far: " + str(artics) + "\n")
-    #print("Articulations: " + str([articToLily[a] for a in artics]) + "\n")
+    print("Articulations: " + str([articToLily[a] for a in artics]) + "\n")
     return [(mel[i][0], mel[i][1], articToLily[artics[i]]) for i in range(len(mel))]
 # writes dynamics for the melody
 def dynamicize(mel):
