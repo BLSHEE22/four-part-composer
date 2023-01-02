@@ -166,12 +166,12 @@ def articulate(mel):
     currMode = defMode
     modeCt = 0
     for i in range(len(mel)):
-        print("Pitch Val: " + str(mel[i][0]))
-        print("Rhythm Val: " + str(mel[i][1]))
-        print("Option Index: " + str(rhythms.index(mel[i][1])))
-        print("Length of currMode: " + str(len(currMode)) + ", SlurMode: " + str(currMode == slurMode))
-        print("Length of defMode: " + str(len(defMode)))
-        print("ModeCt: " + str(modeCt))
+        #print("Pitch Val: " + str(mel[i][0]))
+        #print("Rhythm Val: " + str(mel[i][1]))
+        #print("Option Index: " + str(rhythms.index(mel[i][1])))
+        #print("Length of currMode: " + str(len(currMode)) + ", SlurMode: " + str(currMode == slurMode))
+        #print("Length of defMode: " + str(len(defMode)))
+        #print("ModeCt: " + str(modeCt))
         if len(currMode) == 0:
             currMode = defMode
             print("Fixing empty list....")
@@ -182,14 +182,14 @@ def articulate(mel):
             currSlur = nonZs[-1]
         # automatically end modes that go on too long
         if mel[i][0] == None or ((currSlur == 9 or currSlur == 18) and modeCt > 1):
-            print("Rest recognized OR slur limit reached.")
+            #print("Rest recognized OR slur limit reached.")
             if (currSlur == 9 or currSlur == 18) and modeCt > 1 and not mel[i][0] == None:
-                print("Slur limit reached.")
+                #print("Slur limit reached.")
                 artic = (19, defMode)
             else:
-                print("Rest recognized.")
+                #print("Rest recognized.")
                 if currSlur == 9:
-                    print("Don't begin slur. If we just began slur, remove it.")
+                    #print("Don't begin slur. If we just began slur, remove it.")
                     if artics[-1] == 9:
                         artics[-1] = 0
                     else:
@@ -206,12 +206,12 @@ def articulate(mel):
                 else:
                     artic = 0
         else:
-            print("Note recognized.")
+            #print("Note recognized.")
             if currMode == colLegMode:
-                print("ColLegMode recognized.")
+                #print("ColLegMode recognized.")
                 artic = random.choice([4,(24,defMode)])
             else:
-                print("Non ColLegMode recognized.")
+                #print("Non ColLegMode recognized.")
                 artic = random.choice(currMode[rhythms.index(mel[i][1])])
                 modeCt += mel[i][1]
         # end slur on final note if still slurring
@@ -253,7 +253,7 @@ def articulate(mel):
             artics.append(artic)
         #print("Artic chosen: " + articToLily[artics[-1]])
         #print("Artics So Far: " + str(artics) + "\n")
-    print("Articulations: " + str([articToLily[a] for a in artics]) + "\n")
+    #print("Articulations: " + str([articToLily[a] for a in artics]) + "\n")
     return [(mel[i][0], mel[i][1], articToLily[artics[i]]) for i in range(len(mel))]
 # writes dynamics for the melody
 def dynamicize(mel):
