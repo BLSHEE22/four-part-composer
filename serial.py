@@ -19,19 +19,42 @@ ENDC = '\033[0m'
 BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
 rows = []
+mels = []
+scales = []
 rhythmKey = [0.25,0.5,0.75,1,1.5,2,3,4]
 rhythms = [0.25,0.5,0.75,1,1.5,2,3,4]
+melRange = [i for i in range(-5,32)]
 pitchToLily = {None:"r",0:"c'",1:"cis'",2:"d'",3:"dis'",
               4:"e'",5:"f'",6:"fis'",7:"g'",8:"gis'",
-              9:"a'",10:"ais'",11:"b'",12:"c''",13:"cis''",
-              14:"d''",15:"dis''",16:"e''",17:"f''",18:"fis''",
-              19:"g''",20:"gis''",21:"a''",22:"ais''",23:"b''",
-              24:"c'''",25:"cis'''",26:"d'''",27:"dis'''",28:"e'''",
-              29:"f'''",30:"fis'''",31:"g'''",32:"gis'''",33:"a'''",
-              34:"ais'''",35:"b'''",36:"c''''"}
+              9:"a'",10:"ais",11:"b"}
 rhythmTrans = {0.25:"16",0.5:"8",0.75:"8.",1:"4",1.5:"4.",2:"2",3:"2.",4:"1"}
 tempos = [("Largo",(40,60)),("Adagio",(61,75)),("Andante",(76,107)),("Moderato",(108,119)),("Allegro",(120,155)),("Vivace",(156,175)),("Presto",(168,200))]
 meters = [("3/4",3),("4/4",4),("4/4",4),("4/4",4),("4/4",4),("5/4",5),("6/4",3),("7/4",7)]
+majScales = {0:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
+                1:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
+                2:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
+                3:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
+                4:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
+                5:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
+                6:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"eis",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
+                7:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
+                8:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
+                9:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
+                10:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
+                11:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},} 
+minScales = {-1:{0:"c",1:"cis",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"bes",11:"b"},
+                0:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
+                1:{0:"bis",1:"cis",2:"d",3:"dis",4:"e",5:"eis",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
+                2:{0:"c",1:"cis",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
+                3:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"ces"},
+                4:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
+                5:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
+                6:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"eis",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
+                7:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
+                8:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
+                9:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
+                10:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
+                11:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},} 
 
 # print ACE header
 def printHeader():
@@ -43,7 +66,7 @@ def printHeader():
     print("#"*220,end="")
     print(ENDC)
 # chooses pitch order of a set
-def choosePitches():
+def genToneRow():
     noteMap = list(range(12))
     """
     noteMap = [0,0,0,3,3,3,5,5,5,7,7,7,10,10,10]
@@ -82,39 +105,137 @@ def choosePitches():
             pitches = regCorrect(pitches, -2, -1)
     #print("Pitches: " + str(pitches) + "\n")
     return pitches
-# generates a list of rhythm values
-def genRhythms():
-    c = -1000000
-    c = 0
-    rhythmSplat = []
-    #luckyRhythm = random.choice(rhythms)
-    #luckyRhythm = 0
-    for r in range(len(rhythms)):
-        lottery = random.randrange(1, random.randrange(2,10))
-        # LUCKY RHYTHM
-        #if rhythms[r] == luckyRhythm:
-            #lottery *= 100
-        for _ in range(lottery):
-            rhythmSplat.append(rhythms[r])    
-    rhythmChoices = [random.choice(rhythmSplat)]
-    row_length_good = False
-    row_choice_good = False
-    while not row_length_good:
-        while not row_choice_good:
-            choice = random.choice(rhythmSplat)
-            if c == 1:
-                row_length = sum(rhythmChoices) + choice
-                if row_length % 1 == 0 or row_length % 1 == 0.5:
-                    row_choice_good = True
-                    c = 0
-            else:
-                row_choice_good = True
-                c += 1
-        rhythmChoices.append(choice)
-        if len(rhythmChoices) == len(pitches):
-            row_length_good = True 
+# generates rhythms
+def genRhythms(meter, length):
+    def goodLength(length):
+        c = 0
+        rhythmSplat = []
+        #luckyRhythm = random.choice(rhythms)
+        #luckyRhythm = 0
+        for r in range(len(rhythms)):
+            lottery = random.randrange(1, random.randrange(2,10))
+            # LUCKY RHYTHM
+            #if rhythms[r] == luckyRhythm:
+                #lottery *= 100
+            for _ in range(lottery):
+                rhythmSplat.append(rhythms[r])    
+        rhythmChoices = [random.choice(rhythmSplat)]
+        row_length_good = False
         row_choice_good = False
-    return rhythmChoices
+        while not row_length_good:
+            while not row_choice_good:
+                choice = random.choice(rhythmSplat)
+                #print("Trying rhythm " + str(choice) + "...")
+                if c == 1:
+                    row_length = sum(rhythmChoices) + choice
+                    if row_length % 1 == 0 or row_length % 1 == 0.5:
+                        row_choice_good = True
+                        c = 0
+                else:
+                    row_choice_good = True
+                    c += 1
+            rhythmChoices.append(choice)
+            if not length == 0:
+                if len(rhythmChoices) == length:
+                    row_length_good = True
+            elif length == 0:
+                if sum(rhythmChoices) > (int(meter[0][0])*8)-0.25 and sum(rhythmChoices) % 4 == 0:
+                    row_length_good = True 
+            row_choice_good = False
+        #print(rhythmChoices)
+        return rhythmChoices
+    row_length_ok = False
+    while not row_length_ok:
+        rhythmList = goodLength(length)
+        sumRhythms = sum(rhythmList)
+        if sumRhythms % int(meter[0][0]) == 0:
+            row_length_ok = True
+    return rhythmList
+# generates pitches
+def genPitches(mel, scale, offset, domStart=0):
+    # choose ###PITCH### of next note
+    pitches = []
+    if not domStart == 0:
+        pitches = [offset+7]
+    else:
+        pitches = [random.choice(list(scale))]
+    notesLeft = len(mel)-1
+    goLeap = False
+    justLeaped = (0, 0)
+    # create instrumental range of notes
+    phraseRange = [x-offset for x in melRange]
+    while notesLeft > 0:
+        # find last pitch
+        nonRests = [x for x in pitches if not x == None]
+        lastPitch = nonRests[-1]
+        # initialize newPitch to tonal center
+        newPitch = 0
+        # roll for a rest (0), rests have a 1/16 chance of getting picked
+        rest = random.randrange(0,16)
+        if rest == 0:
+            pitches.append(None)
+        else:
+            # 0 or 1 is a leap, leaps have a 4/10 chance of getting picked
+            # mod2==0 is up, mod2==1 is down.
+            motionType = random.randrange(0, 10)
+            # if we didn't just leap previously and we rolled a leap, set goLeap to True
+            if justLeaped[0] == 0 and motionType < 4: goLeap = True
+            # find legal moves
+            def findMoves(note, scale, moveType, direction, bounds):
+                legalMoves = []
+                moveStart = moveType[0]
+                moveEnd = moveType[1]
+                moveInc = 1
+                # if downward move, flip all signs
+                if direction == 1:
+                    moveStart = 0-moveType[0]
+                    moveEnd = 0-moveType[1]
+                    moveInc = 0-1
+                dist = moveStart
+                while not dist == moveEnd:
+                    possMove = note + dist
+                    if possMove%12 in scale:
+                        if possMove in bounds:
+                            #print("MOVE ADDED")
+                            legalMoves.append(possMove)
+                    dist += moveInc
+                # if failed to find any moves in one direction, TRY THE OTHER DIRECTION.
+                if not legalMoves:
+                    #print("No legal moves found.")
+                    # Try other direction!
+                    if direction == 0:
+                        return findMoves(note, scale, moveType, direction+1, bounds)
+                    else:
+                        return findMoves(note, scale, moveType, direction-1, bounds)
+                #print("Legal moves found.")
+                return (legalMoves, direction)
+
+            # LEAP LOGIC
+            if goLeap:
+                # find legal leaps
+                legalLeaps = findMoves(lastPitch, scale, (5,13), motionType%2, phraseRange)
+                newPitch = random.choice(legalLeaps[0])
+                justLeaped = (2, legalLeaps[1])
+                goLeap = False
+            # POST-LEAP BALANCE LOGIC
+            elif justLeaped[0] > 0:
+                prevVal = justLeaped[0]
+                # balance direction overrided to the opposite of the previous leap
+                oppFromLeap = 1
+                if justLeaped[1] == 1:
+                    oppFromLeap = 0
+                legalSteps = findMoves(lastPitch, scale, (1,4), oppFromLeap, phraseRange)
+                newPitch = random.choice(legalSteps[0])
+                lastDir = justLeaped[1]
+                justLeaped = (prevVal-1, lastDir)
+            # STEP LOGIC
+            else:
+                # find legal steps
+                legalSteps = findMoves(lastPitch, scale, (1,4), motionType%2, phraseRange)
+                newPitch = random.choice(legalSteps[0])
+            pitches.append(newPitch) 
+        notesLeft -= 1
+    return [x+offset if not x==None else None for x in pitches]
 # places articulations on notes of the melody
 def articulate(mel):
     artics = []
@@ -174,8 +295,8 @@ def articulate(mel):
         #print("ModeCt: " + str(modeCt))
         if len(currMode) == 0:
             currMode = defMode
-            print("Fixing empty list....")
-            print("Length of currMode: " + str(len(currMode)))
+            #print("Fixing empty list....")
+            #print("Length of currMode: " + str(len(currMode)))
         currSlur = False
         nonZs = [x for x in artics if not x == 0]
         if nonZs:
@@ -676,10 +797,113 @@ def beam(mel):
     #print("Beams: " + str([n[2] for n in beamedMel]) + "\n")
     return beamedMel
 # final lilypond output formatter
-def lilyIze(ls):
-    return [pitchToLily[x[0]] + rhythmTrans[x[1]] + x[2] + x[3] + x[4] + " " for x in ls]
-# returns inverted tone row
-def makeInversion(ls):
+def lilyIze(ls, offset):
+    # ls = [0, -7, -5, -3, -5, 4, 2, 0, 2]
+    # scale = {0,2,4,5,7,9,11}
+    # offset = 2
+    # minScales[offset] = {0:"c",1:"cis",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"}
+    #print(ls)
+    lilyMel = [minScales[offset][x[0]%12] if not x[0] == None else "r" for x in ls]
+    for i in range(len(ls)):
+        if not ls[i][0] == None:
+            #ls[i] = (ls[i][0]+12, ls[i][1], ls[i][2], ls[i][3], ls[i][4])
+            if ls[i][0] < -12:
+                while ls[i][0] < -12:
+                    lilyMel[i] += ","
+                    ls[i] = (ls[i][0]+12, ls[i][1], ls[i][2], ls[i][3], ls[i][4])
+            elif ls[i][0] > -1:
+                while ls[i][0] > -1:
+                    lilyMel[i] += "'"
+                    ls[i] = (ls[i][0]-12, ls[i][1], ls[i][2], ls[i][3], ls[i][4])  
+    return [lilyMel[i] + rhythmTrans[ls[i][1]] + ls[i][2] + ls[i][3] + ls[i][4] + " " for i in range(len(ls))]
+# init tone row with chosen pitch order
+def initRow(p):
+    global rows
+    rows.append([x for x in p if not x == None])
+# init melody with chosen pitches and rhythms, artics, beams, dynamics, and lilycode
+def initMel(p, r, o):
+    global mels
+    melody = [(p[i], r[i]) for i in range(len(p))]
+    mels.append(melody)
+    finalMel = articulate(melody)
+    finalMel = beam(finalMel)
+    finalMel = dynamicize(finalMel)
+    finalMel = lilyIze(finalMel, o)
+    return finalMel
+# format lilypond output code
+def startOut(meter, tempo, scaleQual, title, offset):
+    s = "\\header { title = \"" + title + "\"}"
+    s += "\\score { \\new Staff { \\set Staff.midiInstrument = \"violin\" \\clef \"treble\" "
+    s += "\\key " + minScales[-1][offset] + "\\" + scaleQual + "\\time " + meter[0] + " \\tempo " + tempo[0] + " 4 = " + tempo[1]
+    return s  
+# write a section of the form in the lilypond output code
+def section(mel, s, phraseStop, repeat=False, bSec = False):
+    for x in mel:
+        s += x
+    if repeat:
+        s += phraseStop + "\\set Score.repeatCommands = #'(end-repeat)" 
+    elif bSec:
+        s += phraseStop + "\\bar \"||\""
+    return s
+# finish lilypond output code
+def finishOut(s):
+    s += "\\fermata \\bar \"|.\""
+    s += "}\n}\\version \"2.22.2\""
+    o = open("serial.ly", "w")
+    o.write(s)
+    o.close()   
+# write a serialist piece
+def serialSolo(meter, tempo):
+    # P-0
+    pitches = genToneRow()
+    initRow(pitches)
+    rhythms = genRhythms(meter, len(pitches))
+    row_a = initMel(pitches, rhythms, 0)
+    print("\nP-0: " + str([x%12 if not x == None else x for x in pitches]) + "\n")
+    # P-((P-0[0]-P-0[-1])%12),
+    row_b_start = (rows[0][0]-rows[0][-1])%12
+    row_b_pitches = [(x + row_b_start)%12 if not x == None else x for x in pitches]
+    title = "P-0, P-" + str(row_b_start) + ", P-0"
+    print("P-" + str(row_b_start) + ": " + str(row_b_pitches) + "\n")
+    initRow(row_b_pitches)
+    b_rhythms = genRhythms(meter, len(row_b_pitches))
+    b_trans = initMel(row_b_pitches, b_rhythms, 0)
+    # P-0 (restatement)
+    output = startOut(meter, tempo, "major", title, 0)
+    output = section(row_a, output, "\\fermata ", True)
+    output = section(b_trans, output, "\\fermata ", False, True)
+    row_a_final = articulate(mels[0])
+    row_a_final = beam(row_a_final)
+    row_a_final = dynamicize(row_a_final)
+    row_a_final = lilyIze(row_a_final, 0)
+    output = section(row_a_final, output, "")
+    output = finishOut(output)
+# write a diatonic solo piece
+def diatonicSolo(meter, tempo):
+    offset = random.randint(0,11)
+    scale = {0,2,3,5,7,8,10}
+    scaleQual = "minor"
+    print("Scale: " + str(scale))
+    # AA
+    rhythms = genRhythms(meter, 0)
+    pitches = genPitches(rhythms, scale, offset)
+    a_melody = initMel(pitches, rhythms, offset)
+    output = startOut(meter, tempo, scaleQual, "Solo for Violin", offset) 
+    output = section(a_melody, output, "", True)
+    # B
+    b_rhythms = genRhythms(meter, 0)
+    b_pitches = genPitches(b_rhythms, scale, offset, 7)
+    b_melody = initMel(b_pitches, b_rhythms, offset)
+    output = section(b_melody, output, "", False, True)
+    # A
+    mel_a_final = articulate(mels[0])
+    mel_a_final = beam(mel_a_final)
+    mel_a_final = dynamicize(mel_a_final)
+    mel_a_final = lilyIze(mel_a_final, offset)
+    output = section(mel_a_final, output, "")
+    output = finishOut(output)
+# returns set matrix for given prime form
+def makeMatrix(ls):
     start = 0
     for l in ls:
         if not l == None:
@@ -690,7 +914,7 @@ def makeInversion(ls):
     inv = [x+start if not x == None else None for x in inv]
     inv = [x%12 if not x == None else None for x in inv]
     return inv
-
+   
 # CHOOSE TEMPO, METER and SOLO INSTRUMENT (perhaps prompt the user for the latter (or all of these!))
 tempoMark = random.choice(tempos)
 bpm = random.randint(tempoMark[1][0],tempoMark[1][1])
@@ -699,76 +923,12 @@ meter = random.choice(meters)
 printHeader()
 print("Tempo chosen: " + str(tempo))
 print("Meter chosen: " + meter[0])
+print("Generating solo...")
 
-# CHOOSE PITCHES
-pitches = choosePitches()
-rows.append([x for x in pitches if not x == None])
+# WRITE SOLO (SERIALISM)
+serialSolo(meter, tempo)
 
-# DETERMINE SCALE AND KEY SIG BASED ON PITCH SELECTION (for non-serial modes)
+# WRITE SOLO (DIATONICISM)
+#diatonicSolo(meter, tempo)
 
-# CHOOSE RHYTHMS FOR MELODY
-row_length_ok = False
-while not row_length_ok:
-    rhythmList = genRhythms()
-    sumRhythms = sum(rhythmList)
-    if sumRhythms % int(meter[0][0]) == 0:
-        row_length_ok = True
-#print("Rhythms: " + str(rhythmList) + "\n")
-
-# CREATE TONE ROW AND CALCULATE LENGTH
-tone_row = [(pitches[i], rhythmList[i]) for i in range(len(pitches))]
-row_length = sum([x[1] for x in tone_row])
-
-# ADD ARTICULATIONS, BEAMING, and DYNAMICS
-#print("Tone Row: " + str(tone_row) + "\n")
-row_a_artic = articulate(tone_row)
-row_a_beam = beam(row_a_artic)
-row_a_dyn = dynamicize(row_a_beam)
-row_a = lilyIze(row_a_dyn)
-print("\nP-0: " + str([x%12 if not x == None else x for x in pitches]) + "\n")
-
-# FORMAT LILYPOND CODE
-#row_b_start = ((rows[0][-1]+6)%12-rows[0][0])%12
-row_b_start = (rows[0][0]-rows[0][-1])%12
-row_b_pitches = [(x + row_b_start)%12 if not x == None else x for x in pitches]
-title = "P-0, P-" + str(row_b_start) + ", P-0"
-s = "\\header { title = \"" + title + "\"}"
-s += "\\score { \\new Staff { \\set Staff.midiInstrument = \"violin\" \\clef \"treble\" "
-s += "\\key c \\major \\time " + meter[0] + " \\tempo " + tempo[0] + " 4 = " + tempo[1]
-# A x2: P-0
-#print("LilyPond Formatted Row: " + str(row_a) + "\n")
-for x in row_a:
-    s += x
-s += "\\fermata \\set Score.repeatCommands = #'(end-repeat)"
-# B: P-(P-0[-1]+6)%12
-print("P-" + str(row_b_start) + ": " + str(row_b_pitches) + "\n")
-rows.append([x for x in row_b_pitches if not x == None])
-row_length_ok = False
-while not row_length_ok:
-    rhythmList = genRhythms()
-    sumRhythms = sum(rhythmList)
-    if sumRhythms % int(meter[0][0]) == 0:
-        row_length_ok = True
-row_b = [(row_b_pitches[i], rhythmList[i]) for i in range(len(row_b_pitches))]
-row_length = sum([x[1] for x in row_b])
-row_b_artic = articulate(row_b)
-row_b_beam = beam(row_b_artic)
-row_b_dyn = dynamicize(row_b_beam)
-row_b_final = lilyIze(row_b_dyn)
-#print("LilyPond Formatted Row: " + str(row_b_final) + "\n")
-for x in row_b_final:
-    s += x
-s += "\\fermata \\bar \"||\""
-# A: P-0 
-row_a_final = articulate(tone_row)
-row_a_final = beam(row_a_final)
-row_a_final = dynamicize(row_a_final)
-row_a_final = lilyIze(row_a_final)
-#print("LilyPond Formatted Row: " + str(row_a_final) + "\n")
-for x in row_a_final:
-    s += x
-s += "\\fermata \\bar \"|.\""
-s += "}\n}\\version \"2.22.2\""
-o = open("serial.ly", "w")
-o.write(s)
-o.close()
+print("Solo generated.")

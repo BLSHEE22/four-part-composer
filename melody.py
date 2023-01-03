@@ -111,6 +111,7 @@ def main():
         else:
             scale = scales[0]
 
+        print(scale)
         prevRest = False
         goLeap = False
         justLeaped = (0, 0)
@@ -184,6 +185,7 @@ def main():
                         #print("SHORTENING RHYTHM VALUE BY " + str(min(rhythmVals)))
                         rhythmVal -= min(rhythmVals) 
                     rhythmValsPicked.append(rhythmVal)
+                    print("Rhythm Chosen: " + str(rhythmValsPicked))
 
                 # choose ###PITCH### of next note
                 newNote = 0
