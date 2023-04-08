@@ -925,10 +925,13 @@ def serialPart(s, instr, meter, tempo, row):
         rhythms = genRhythms(meter, len(pitches), (True, a_length))
     print(f"{instr} A: {pitches}, length={sum(rhythms)}")
     row_a = initMel(pitches, rhythms, 0, instr, "a")
+    # print(mels)
     sectionsWritten.append("a")
-    row_b_start = (rows[0][0]-rows[0][-1])%12
-    # KEEP THE RESTS IN THE SAME SPOT AS A
-    row_b_pitches = [(x + row_b_start)%12 if not x == None else x for x in pitches]
+    # row_b_start_mod = (rows[0][0]-rows[0][-1])%12
+    row_b_start = rows[0][0]-rows[0][-1]
+    # KEEP THE RESTS IN THE SAME SPOT AS A, AND KEEP CONTOUR FROM A
+    # row_b_pitches_mod = [(x + row_b_start)%12 if not x == None else x for x in pitches]
+    row_b_pitches = [x + row_b_start if not x == None else x for x in pitches]
     initRow(row_b_pitches)
     if "b" not in sectionsWritten:
         b_rhythms = genRhythms(meter, len(row_b_pitches), (True, a_length))
@@ -940,6 +943,7 @@ def serialPart(s, instr, meter, tempo, row):
         b_rhythms = genRhythms(meter, len(row_b_pitches), (True, b_length))
     print(f"{instr} B: {row_b_pitches}, length={sum(b_rhythms)}")
     b_trans = initMel(row_b_pitches, b_rhythms, 0, instr, "b")
+    # print(mels)
     sectionsWritten.append("b")
     phraseEnding = ""
     if "solo" in pieceType:
@@ -951,7 +955,7 @@ def serialPart(s, instr, meter, tempo, row):
     output = section(row_a, output, phraseEnding, list(toneRowDict.keys())[[list(map(mod12, m)) for m in toneRowDict.values()].index([(x+instrOffset[instr])%12 for x in pitches if not x == None])], True)
     output = section(b_trans, output, phraseEnding, list(toneRowDict.keys())[[list(map(mod12, m))for m in toneRowDict.values()].index([(x+instrOffset[instr])%12 for x in row_b_pitches if not x == None])], False, True)
     # print(mels[-1])
-    print(f"{instr} A: {pitches}, length={sum(rhythms)}")
+    # print(f"{instr} A: {pitches}, length={sum(rhythms)}")
     row_a_final = articulate(a_mels[-1])
     row_a_final = beam(row_a_final)
     row_a_final = dynamicize(row_a_final)
@@ -1065,7 +1069,7 @@ print(tempo)
 print("Choosing meter...")
 print(meter)
 # 3. GENERATE TONE ROW + MATRIX
-print("Generating tone row...")
+print("Choosing tone row...")
 toneRowDict = {}
 toneRow = genToneRow()
 initRow(toneRow)
@@ -1081,12 +1085,12 @@ retroInversions = [x[::-1] for x in inversions]
 # POPULATE TONE ROW DICT
 for p in primes:
     toneRowDict[f"P-{(p[0]-startNote)%12}"] = p
-# for r in retrogrades:
-#     toneRowDict[f"R-{(r[-1]-startNote)%12}"] = r
-# for i in inversions:
-#     toneRowDict[f"I-{(i[0]-startNote)%12}"] = i
-# for ri in retroInversions:
-#     toneRowDict[f"RI-{(ri[-1]-startNote)%12}"] = ri
+for r in retrogrades:
+    toneRowDict[f"R-{(r[-1]-startNote)%12}"] = r
+for i in inversions:
+    toneRowDict[f"I-{(i[0]-startNote)%12}"] = i
+for ri in retroInversions:
+    toneRowDict[f"RI-{(ri[-1]-startNote)%12}"] = ri
 
 # 4. FORM PARTS, EACH LIKE SO: -> \new Staff { \set Staff.midiInstrument = "instr" \clef "clef" 
 #    \key c \major \time 4/4\tempo Moderato 4 = 101 MUSIC }
