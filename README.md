@@ -2,7 +2,7 @@
 
 a.k.a the 'ACE' (Algorithmic Composition Engine).
 
-Current supported features:
+Currently supported features:
 - 'makeFourParts.py' -> Writes a 16-bar, AABA tune with four-part harmony.
 - 'melody.py' -> Writes a melody and applies it to various piece contexts.
 - 'serial.py' -> Writes a violin solo in the style of serialism.
