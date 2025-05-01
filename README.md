@@ -1,6 +1,6 @@
 # four-part-composer
 
-ACE™ (Algorithmic Composition Engine).
+a.k.a the 'ACE' (Algorithmic Composition Engine).
 
 Current supported features:
 - 'makeFourParts.py' -> Writes a 16-bar, AABA tune with four-part harmony.
