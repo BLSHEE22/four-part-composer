@@ -1,6 +1,9 @@
 import datetime
 import random
 import math
+import time
+import subprocess
+from pathlib import Path
 
 # CONFIGURATION
 # Python Note:
@@ -69,6 +72,9 @@ lead = ""
 alto = ""
 tenor = ""
 bass = ""
+
+# path to midi files
+midi_path = Path("midi")
 
 # print ACE header
 def printHeader():
@@ -890,10 +896,11 @@ def finishPart(s):
     return s
 # write the lilypond file
 def finishLilyFile(s):
-    if "solo" not in pieceType:
-        s += ">>}"
+    #if "solo" not in pieceType:
+    s += "\layout{ }"
+    s += "\midi{ }}"
     s += "\n\\version \"2.22.2\""
-    o = open("serial.ly", "w")
+    o = open("midi/serial.ly", "w")
     o.write(s)
     o.close()   
 # write a serialist piece
@@ -1021,7 +1028,7 @@ pieceTypes = list(partsForType.keys())
 pieceTypeTable = tableize(pieceTypes)
 soloInstruments = ["violin","viola","cello","contrabass"]
 soloInstrTable = tableize(soloInstruments)
-tempoMark = random.choice(tempos)
+tempoMark = random.choice(tempos[:3])
 bpm = random.randint(tempoMark[1][0],tempoMark[1][1])
 tempo = (tempoMark[0], str(bpm))
 meter = random.choice(meters)
@@ -1031,7 +1038,7 @@ altoWait = 5
 tenorWait = 9
 bassWait = 13
 # 1. ASK FOR TYPE OF PIECE (SOLO, DUET, TRIO, QUARTET)
-print("\nNeed some music written fast?\n")
+print("\nNeed some serialist music written fast?\n")
 def pieceTypeAsk(options):
     global pieceType
     pieceTypeAns = input("What type of piece would you like me to write today? " +
@@ -1054,6 +1061,7 @@ if "solo" in pieceType:
     titleInstr = soloInstr.capitalize()
     title = titleInstr + " Solo"
     lilyFile += "\\header { title = \"" + title + "\"}"
+    lilyFile += "\\score {"
     partsToMake = [soloInstr]
     print("\nA " + soloInstr + " solo, got it. Generating piece...\n")
 # ELSE partsToMake corresponds to the numbers of parts in the pieceType
@@ -1107,3 +1115,8 @@ for instr in partsToMake:
 # 5. FORM FINISHER -> finishLilyFile(lilyFile)
 finishLilyFile(lilyFile)
 print("\nPiece generated.\n")
+time.sleep(1)
+# Compile LilyPond file
+subprocess.run(["lilypond", "serial.ly"], cwd=midi_path, check=True)
+# Open the generated MIDI file with default app
+subprocess.run(["open", "serial.midi"], cwd=midi_path)

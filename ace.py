@@ -1,7 +1,10 @@
 from datetime import date
 from datetime import datetime
+import subprocess
+from pathlib import Path
 import random
 import math
+import time
 import sys
 
 # GLOBAL list of melodies and rhythms
@@ -56,6 +59,9 @@ minScales = {-1:{0:"c",1:"cis",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"gis",9
                 9:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},
                 10:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
                 11:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},} 
+
+# path to midi folder
+midi_path = Path("midi")
 
 
 def main():
@@ -895,10 +901,10 @@ def main():
             code += "\\score {\n"
             code += "\\" + "new Staff { \set Staff.midiInstrument = \"violin\" \clef \"treble\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + " \\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + m + "}\n"
-            #code += "\\midi{}\n"
+            code += "\\midi{}\n"
             code += "}\n"
             code += "\\version \"2.22.2\""
-            f = open("melody.ly", "w")
+            f = open(f"midi/{mode}.ly", "w")
             f.write(code)
             f.close()
         elif mode == "reich":
@@ -910,10 +916,10 @@ def main():
             code += "\\" + "new Staff { \set Staff.midiInstrument = \"cello\" \clef \"bass\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + t + "}\n"
             code += ">>\n"
-            #code += "\\midi{}\n"
+            code += "\\midi{}\n"
             code += "}\n"
             code += "\\version \"2.22.2\""
-            f = open("melody.ly", "w")
+            f = open(f"midi/{mode}.ly", "w")
             f.write(code)
             f.close()
         else:
@@ -932,7 +938,7 @@ def main():
             code += "\\midi{}\n"
             code += "}\n"
             code += "\\version \"2.22.2\""
-            f = open("melody.ly", "w")
+            f = open(f"midi/{mode}.ly", "w")
             f.write(code)
             f.close()
 
@@ -1013,6 +1019,11 @@ def main():
         scaleSigStart = majScales[0][offset]
     printFile(scaleStart, scaleType, scaleSigStart, scaleSigQual, modeChoice, (meter, bpmFormat), (tempoMark, bpm), fullMel, alto, tenor, bass)
     print("Done.\n")
+    time.sleep(1)
+    # Compile LilyPond file
+    subprocess.run(["lilypond", f"{modeChoice}.ly"], cwd=midi_path, check=True)
+    # Open the generated MIDI file with default app
+    subprocess.run(["open", f"{modeChoice}.midi"], cwd=midi_path)
 
 if __name__ == "__main__":
     main()
