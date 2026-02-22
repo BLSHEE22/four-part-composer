@@ -1,9 +1,9 @@
 \header {
-  title = "G# Minor Pentatonic Solo "
+  title = "F Chromatic Solo "
 }
 
 \score {
-\new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key gis \minor \time 4/4 \tempo Moderato 4 = 95 gis'8 fis'8~ fis'8 b8~ b8 cis'8 dis'8 fis'8\trill  dis'16\tenuto  cis'8.~ cis'16 b8.~\accent  b16 cis'8. b'16 gis'8.~ gis'16 fis'8.~ fis'16 dis'8.\tenuto  cis'4\tenuto  gis'4\trill  r2 fis'2^\markup flautando  gis'8 fis'8~ fis'8 b8~ b8 cis'8 dis'8 fis'8\trill  dis'16\tenuto  cis'8.~ cis'16 b8.~\accent  b16 cis'8. b'16 gis'8.~ gis'16 fis'8.~ fis'16 dis'8.\tenuto  cis'4\tenuto  gis'4\trill  r2 fis'2^\markup flautando  fis''4\accent  dis''2 cis''4\tenuto  dis''2.^\markup non-vib.  cis''8 dis'8~\marcato  dis'4. fis'8^\markup vib.  gis'8 b'8~ b'8 fis''8~\tenuto  fis''8 dis''8 cis''4\accent  fis'8\accent  gis'8~ gis'8 b'16 cis''16 gis'8 fis'8~ fis'8 b8~ b8 cis'8 dis'8 fis'8\trill  dis'16\tenuto  cis'8.~ cis'16 b8.~\accent  b16 cis'8. b'16 gis'8.~ gis'16 fis'8.~ fis'16 dis'8.\tenuto  cis'4\tenuto  gis'4\trill  r2 fis'2^\markup flautando  dis''1 }
+\new Staff { \set Staff.midiInstrument = "violin" \clef "treble" \key c \major \time 4/4 \tempo Allegro 4 = 131 f'2\accent  e'4 g'4\accent  r2. ges'4^\markup "sul tasto"  ees'4\accent  des'2.~\accent  des'4 ees'2\staccato  ges'8\tenuto  aes'8\marcato  f'2\accent  e'4 g'4\accent  r2. ges'4^\markup "sul tasto"  ees'4\accent  des'2.~\accent  des'4 ees'2\staccato  ges'8\tenuto  aes'8\marcato  a4 b2.\accent  r8 d'8~ d'4 c''8\staccatissimo  bes'8~^\markup non-vib.  bes'8 g'8~ g'8 ges'8 ees'4~^\markup vib.  ees'8 bes16\staccato  b16\(  des'4~\)  des'4 aes4\tenuto  a'2 f'2\accent  e'4 g'4\accent  r2. ges'4^\markup "sul tasto"  ees'4\accent  des'2.~\accent  des'4 ees'2\staccato  ges'8\tenuto  aes'8\marcato  a'1 }
 \midi{}
 }
 \version "2.22.2"

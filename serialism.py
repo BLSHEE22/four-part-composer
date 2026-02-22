@@ -896,11 +896,13 @@ def finishPart(s):
     return s
 # write the lilypond file
 def finishLilyFile(s):
-    #if "solo" not in pieceType:
+    if "solo" not in pieceType:
+        s += ">>"
+    #s += "\layout{ }"
     s += "\layout{ }"
     s += "\midi{ }}"
     s += "\n\\version \"2.22.2\""
-    o = open("midi/serial.ly", "w")
+    o = open("midi/serialism.ly", "w")
     o.write(s)
     o.close()   
 # write a serialist piece
@@ -1117,6 +1119,8 @@ finishLilyFile(lilyFile)
 print("\nPiece generated.\n")
 time.sleep(1)
 # Compile LilyPond file
-subprocess.run(["lilypond", "serial.ly"], cwd=midi_path, check=True)
+subprocess.run(["lilypond", "serialism.ly"], cwd=midi_path, check=True)
 # Open the generated MIDI file with default app
-subprocess.run(["open", "serial.midi"], cwd=midi_path)
+subprocess.run(["open", "serialism.midi"], cwd=midi_path)
+# Open the generated PDF file with default app
+# subprocess.run(["open", "serialism.pdf"], cwd=midi_path)
