@@ -3,7 +3,7 @@ import random
 import math
 import time
 import subprocess
-from pathlib import Path
+from config import *
 
 # CONFIGURATION
 # Python Note:
@@ -12,15 +12,6 @@ from pathlib import Path
 # String -> pitchToLily[pitch] + rhythmToLily[rhythm] + tie + articulation + dynamic
 
 # GLOBALS
-HEADER = '\033[95m'
-OKBLUE = '\033[94m'
-OKCYAN = '\033[96m'
-OKGREEN = '\033[92m'
-WARNING = '\033[93m'
-FAIL = '\033[91m'
-ENDC = '\033[0m'
-BOLD = '\033[1m'
-UNDERLINE = '\033[4m'
 rows = []
 mels = []
 rhythmMotifs = {}
@@ -73,17 +64,14 @@ alto = ""
 tenor = ""
 bass = ""
 
-# path to midi files
-midi_path = Path("midi")
-
 # print ACE header
 def printHeader():
-    print(OKGREEN,end="")
-    print("#"*218,end="")
-    print(FAIL,end="")
-    print("ALGORITHMIC COMPOSITION ENGINE",end="")
-    print(OKGREEN,end="")
-    print("#"*220,end="")
+    print(OKCYAN,end="")
+    print("#"*256,end="")
+    print(OKMAGENTA,end="")
+    print("ACE SERIALISM",end="")
+    print(OKCYAN,end="")
+    print("#"*256,end="")
     print(ENDC)
 # chooses pitch order of a set
 def genToneRow(length=12):
@@ -279,14 +267,14 @@ def articulate(mel):
     # (11 pizz, 21 snap, 22 stopped, 23 arco)
     # think of something for 2,6,8 
     # don't let staccato go onto long notes (2 or greater)
-    articToLily = {0:"",1:"\\accent ",2:"\\tenuto ",3:"\\marcato ",4:"\\staccato ",
+    articToLily = {0:"",1:"\\accent ",2:"\\tenuto ",3:"\\" + "marcato ",4:"\\staccato ",
                    5:"\\staccatissimo ",6:":32 ",7:"\\glissando ", 8:":32 ",
-                   9:"\\( ", 10:"^\\markup non-vib. ", 11:"^\\markup pizz.", 
-                  12:"^\\markup \"sul ponticello\" ", 13:"^\\markup \"sul tasto\" ", 
-                  14:"\\staccato ^\\markup \"col legno\" ", 
-                  15:"\\marcato ^\\markup \"au talon\" ", 16:"^\\markup \"sotto voce\" ",  
-                  17:"^\\markup flautando ", 18:"\\portato ", 19:"\\) ", 20:"^\\markup vib. ",
-                  21:"\\snappizzicato \\accent ", 22:"\\stopped ", 23:"^\\markup arco ", 24:"^\\markup naturale "}
+                   9:"\\( ", 10:"^\\" + "markup non-vib. ", 11:"^\\" + "markup pizz.", 
+                  12:"^\\" + "markup \"sul ponticello\" ", 13:"^\\" + "markup \"sul tasto\" ", 
+                  14:"\\staccato ^\\" + "markup \"col legno\" ", 
+                  15:"\\" + "marcato ^\\" + "markup \"au talon\" ", 16:"^\\" + "markup \"sotto voce\" ",  
+                  17:"^\\" + "markup flautando ", 18:"\\portato ", 19:"\\) ", 20:"^\\" + "markup vib. ",
+                  21:"\\snappizzicato \\accent ", 22:"\\stopped ", 23:"^\\" + "markup arco ", 24:"^\\" + "markup naturale "}
     defMode = []
     for h in range(2):
         slurMode = [[0,0,0,0,18,(19,defMode)], [0,0,0,0,18,(19,defMode)], [0,0,0,0,18,(19,defMode)],
@@ -414,7 +402,7 @@ def articulate(mel):
     return [(mel[i][0], mel[i][1], articToLily[artics[i]]) for i in range(len(mel))]
 # writes dynamics for the melody
 def dynamicize(mel):
-    dynList = ["\\ppp","\\pp","\\p","\\mp","\\mf","\\f","\\ff","\\fff","\\<","\\>","\\!"]
+    dynList = ["\\ppp","\\pp","\\p","\\" + "mp","\\" + "mf","\\f","\\ff","\\fff","\\<","\\>","\\!"]
     dyns = []
     delayStart = 0
     swelling = (False, "\\!", 0)
@@ -622,7 +610,7 @@ def dynamicize(mel):
     #print(len(mel))
     return [(mel[i][0], mel[i][1], mel[i][2], mel[i][3], dyns[i]) for i in range(len(dyns))]
 # beam where appropriate
-def beam(mel):
+def beam(mel, meter):
     beamedMel = []
     i = 0
     qsUsed = 0
@@ -639,7 +627,7 @@ def beam(mel):
         # tie logic
         def tieUp(pitch, val, firstPiece, artic, meterSize, noteLength, barPlace, barSize):
             #print("Writing tie piece of length " + str(val) + "...")
-            colLegArtics = ["\\staccatissimo ","\\staccato ","\\staccato ^\\markup \"col legno\" ","^\\markup pizz. \\staccato ","\\snappizzicato \\accent "]
+            colLegArtics = ["\\staccatissimo ","\\staccato ","\\staccato ^\\" + "markup \"col legno\" ","^\\" + "markup pizz. \\staccato ","\\snappizzicato \\accent "]
             persistArtics = ["\\) ","\\( ","\\portato ",":32 ","\\tenuto ","\\glissando "]
             lastArtic = artic
             if artic not in persistArtics:
@@ -857,7 +845,7 @@ def initRow(p):
     global rows
     rows.append([x for x in p if not x == None])
 # init melody with chosen pitches and rhythms, artics, beams, dynamics, and lilycode
-def initMel(p, r, o, instr, section):
+def initMel(p, r, o, instr, section, meter):
     global mels
     instrOffset = {"violin":0,"viola":-12,"cello":-12,"contrabass":-18}
     melody = [(p[i]+instrOffset[instr], r[i]) if not p[i] == None else (p[i], r[i]) for i in range(len(p))]
@@ -869,7 +857,7 @@ def initMel(p, r, o, instr, section):
         b_mels.append(melody)
         b_pitches.append(p)
     finalMel = articulate(melody)
-    finalMel = beam(finalMel)
+    finalMel = beam(finalMel, meter)
     finalMel = dynamicize(finalMel)
     finalMel = lilyIze(finalMel, o)
     return finalMel
@@ -882,7 +870,7 @@ def startPart(s, instr, meter, tempo, scaleQual, offset):
 # write a section of the form in the lilypond output code
 def section(mel, s, phraseStop, rowName, repeat=False, bSec = False):
     s += mel[0]
-    s += " \\finger \markup \\text \"" + rowName + "\" " 
+    s += " \\finger \\" + "markup \\text \"" + rowName + "\" " 
     for i in range(1, len(mel)):
         s += mel[i]
     if repeat:
@@ -895,18 +883,18 @@ def finishPart(s):
     s += "\\fermata \\bar \"|.\"}"
     return s
 # write the lilypond file
-def finishLilyFile(s):
+def finishLilyFile(s, pieceType):
     if "solo" not in pieceType:
         s += ">>"
     #s += "\layout{ }"
-    s += "\layout{ }"
-    s += "\midi{ }}"
+    s += "\\layout{ }"
+    s += "\\" + "midi{ }}"
     s += "\n\\version \"2.22.2\""
-    o = open("midi/serialism.ly", "w")
+    o = open("serialism.ly", "w")
     o.write(s)
     o.close()   
 # write a serialist piece
-def serialPart(s, instr, meter, tempo, row):
+def serialPart(s, instr, meter, tempo, row, pieceType, toneRowDict):
     global a_length
     global b_length
     global pieceLength
@@ -933,7 +921,7 @@ def serialPart(s, instr, meter, tempo, row):
         pitches = insertRests(noNones)
         rhythms = genRhythms(meter, len(pitches), (True, a_length))
     print(f"{instr} A: {pitches}, length={sum(rhythms)}")
-    row_a = initMel(pitches, rhythms, 0, instr, "a")
+    row_a = initMel(pitches, rhythms, 0, instr, "a", meter)
     # print(mels)
     sectionsWritten.append("a")
     # row_b_start_mod = (rows[0][0]-rows[0][-1])%12
@@ -951,7 +939,7 @@ def serialPart(s, instr, meter, tempo, row):
     else:
         b_rhythms = genRhythms(meter, len(row_b_pitches), (True, b_length))
     print(f"{instr} B: {row_b_pitches}, length={sum(b_rhythms)}")
-    b_trans = initMel(row_b_pitches, b_rhythms, 0, instr, "b")
+    b_trans = initMel(row_b_pitches, b_rhythms, 0, instr, "b", meter)
     # print(mels)
     sectionsWritten.append("b")
     phraseEnding = ""
@@ -966,7 +954,7 @@ def serialPart(s, instr, meter, tempo, row):
     # print(mels[-1])
     # print(f"{instr} A: {pitches}, length={sum(rhythms)}")
     row_a_final = articulate(a_mels[-1])
-    row_a_final = beam(row_a_final)
+    row_a_final = beam(row_a_final, meter)
     row_a_final = dynamicize(row_a_final)
     row_a_final = lilyIze(row_a_final, 0)
     output = section(row_a_final, output, "", list(toneRowDict.keys())[[list(map(mod12, m)) for m in toneRowDict.values()].index([(x+instrOffset[instr])%12 for x in pitches if not x == None])])
@@ -983,7 +971,7 @@ def serialPart(s, instr, meter, tempo, row):
     output = finishPart(output)
     return output
 # write a diatonic solo piece (STILL IN DEVELOPMENT)
-def diatonicSolo(meter, tempo):
+def diatonicSolo(meter, tempo, startOut):
     offset = random.randint(0,11)
     scale = {0,2,3,5,7,8,10}
     scaleQual = "minor"
@@ -991,17 +979,17 @@ def diatonicSolo(meter, tempo):
     # AA
     rhythms = genRhythms(meter, 0)
     pitches = genPitches(rhythms, scale, offset)
-    a_melody = initMel(pitches, rhythms, offset)
+    a_melody = initMel(pitches, rhythms, offset, meter)
     output = startOut(meter, tempo, scaleQual, "Solo for Violin", offset) 
     output = section(a_melody, output, "", True)
     # B
     b_rhythms = genRhythms(meter, 0)
     b_pitches = genPitches(b_rhythms, scale, offset, 7)
-    b_melody = initMel(b_pitches, b_rhythms, offset)
+    b_melody = initMel(b_pitches, b_rhythms, offset, meter)
     output = section(b_melody, output, "", False, True)
     # A
     mel_a_final = articulate(mels[0])
-    mel_a_final = beam(mel_a_final)
+    mel_a_final = beam(mel_a_final, meter)
     mel_a_final = dynamicize(mel_a_final)
     mel_a_final = lilyIze(mel_a_final, offset)
     output = section(mel_a_final, output, "")
@@ -1023,104 +1011,103 @@ def tableize(option_list):
         table += x
         table += "\n"
     return table
-partsForType = {"string solo":["violin"], "string duet":["violin","viola"], 
-                "string trio":["violin","viola","cello"], "string quartet":["violin","viola","cello","contrabass"]}
-pieceType = ""
-pieceTypes = list(partsForType.keys())
-pieceTypeTable = tableize(pieceTypes)
-soloInstruments = ["violin","viola","cello","contrabass"]
-soloInstrTable = tableize(soloInstruments)
-tempoMark = random.choice(tempos[:3])
-bpm = random.randint(tempoMark[1][0],tempoMark[1][1])
-tempo = (tempoMark[0], str(bpm))
-meter = random.choice(meters)
-printHeader()
-lilyFile = ""
-altoWait = 5
-tenorWait = 9
-bassWait = 13
-# 1. ASK FOR TYPE OF PIECE (SOLO, DUET, TRIO, QUARTET)
-print("\nNeed some serialist music written fast?\n")
-def pieceTypeAsk(options):
-    global pieceType
-    pieceTypeAns = input("What type of piece would you like me to write today? " +
-                    "Here are the following types I can write so far...\n\n" + pieceTypeTable + "\n")
-    if pieceTypeAns in options:
+
+######################################
+
+def main():
+    partsForType = {"string solo":["violin"], "string duet":["violin","viola"], 
+                    "string trio":["violin","viola","cello"], "string quartet":["violin","viola","cello","contrabass"]}
+    pieceType = ""
+    pieceTypes = list(partsForType.keys())
+    pieceTypeTable = tableize(pieceTypes)
+    soloInstruments = ["violin","viola","cello","contrabass"]
+    soloInstrTable = tableize(soloInstruments)
+    tempoMark = random.choice(tempos[:3])
+    bpm = random.randint(tempoMark[1][0],tempoMark[1][1])
+    tempo = (tempoMark[0], str(bpm))
+    meter = random.choice(meters)
+    printHeader()
+    lilyFile = ""
+    altoWait = 5
+    tenorWait = 9
+    bassWait = 13
+    # 1. ASK FOR TYPE OF PIECE (SOLO, DUET, TRIO, QUARTET)
+    print("\nNeed some serialist music written fast?\n")
+    print("What type of piece would you like me to write today? " +
+                        "Here are the following types I can write so far...\n\n" + pieceTypeTable)
+    deciding_instrumentation = True
+    while deciding_instrumentation:
+        pieceTypeAns = input("\n")
+        if pieceTypeAns not in pieceTypeTable:
+            print(WARNING + "\nPlease enter one of the options listed above." + ENDC)
+            continue
         pieceType = pieceTypeAns
-        return
+        deciding_instrumentation = False
+
+    title = pieceType
+    # 2. IF SOLO -> ASK WHAT INSTRUMENT, partsToMake = 1
+    if "solo" in pieceType:
+        soloInstr = input("\nA " + pieceType + ", nice. What instrument would you like me to write the " + pieceType + " for? Currently," +  
+                        " only the four main string instruments are supported.\n\n" + soloInstrTable + "\n")
+        # CHANGE TITLE TO MATCH SOLO INSTRUMENT
+        titleInstr = soloInstr.capitalize()
+        title = titleInstr + " Solo"
+        lilyFile += "\\header { title = \"" + title + "\"}"
+        lilyFile += "\\score {"
+        partsToMake = [soloInstr]
+        print("\nA " + soloInstr + " solo, got it. Generating piece...\n")
+    # ELSE partsToMake corresponds to the numbers of parts in the pieceType
     else:
-        print("\nI'm sorry, I can't write that type of piece.\n")
-        pieceTypeAsk(options)
+        title = [x.capitalize() for x in pieceType.split()]
+        lilyFile += "\\header { title = \"" + " ".join(title) + "\"}"
+        lilyFile += "\\score {\\new PianoStaff <<"
+        partsToMake = partsForType[pieceType]
+        print("\nGenerating " + pieceType + "...\n")
 
-pieceTypeAsk(pieceTypes)
-title = pieceType
-print(pieceType)
-# 2. IF SOLO -> ASK WHAT INSTRUMENT, partsToMake = 1
-if "solo" in pieceType:
-    soloInstr = input("\nA " + pieceType + ", nice. What instrument would you like me to write the " + pieceType + " for? Currently," +  
-                      " only the four main string instruments are supported.\n\n" + soloInstrTable + "\n")
-    # CHANGE TITLE TO MATCH SOLO INSTRUMENT
-    titleInstr = soloInstr.capitalize()
-    title = titleInstr + " Solo"
-    lilyFile += "\\header { title = \"" + title + "\"}"
-    lilyFile += "\\score {"
-    partsToMake = [soloInstr]
-    print("\nA " + soloInstr + " solo, got it. Generating piece...\n")
-# ELSE partsToMake corresponds to the numbers of parts in the pieceType
-else:
-    title = [x.capitalize() for x in pieceType.split()]
-    lilyFile += "\\header { title = \"" + " ".join(title) + "\"}"
-    lilyFile += "\\score {\\new PianoStaff <<"
-    partsToMake = partsForType[pieceType]
-    print("\nGenerating " + pieceType + "...\n")
+    print("Choosing tempo...")
+    print(tempo)
+    print("Choosing meter...")
+    print(meter)
+    # 3. GENERATE TONE ROW + MATRIX
+    print("Choosing tone row...")
+    toneRowDict = {}
+    toneRow = genToneRow()
+    initRow(toneRow)
+    p0 = toneRow
+    print(str([x%12 for x in p0]) + "\n")
+    startNote = p0[0]%12
+    primes = makeMatrix(p0)
+    retrogrades = [x[::-1] for x in primes]
+    inversions = []
+    for a in range(len(primes[0])):
+        inversions.append([x[a] for x in primes])
+    retroInversions = [x[::-1] for x in inversions]
+    # POPULATE TONE ROW DICT
+    for p in primes:
+        toneRowDict[f"P-{(p[0]-startNote)%12}"] = p
+    for r in retrogrades:
+        toneRowDict[f"R-{(r[-1]-startNote)%12}"] = r
+    for i in inversions:
+        toneRowDict[f"I-{(i[0]-startNote)%12}"] = i
+    for ri in retroInversions:
+        toneRowDict[f"RI-{(ri[-1]-startNote)%12}"] = ri
 
-print("Choosing tempo...")
-print(tempo)
-print("Choosing meter...")
-print(meter)
-# 3. GENERATE TONE ROW + MATRIX
-print("Choosing tone row...")
-toneRowDict = {}
-toneRow = genToneRow()
-initRow(toneRow)
-p0 = toneRow
-print(str([x%12 for x in p0]) + "\n")
-startNote = p0[0]%12
-primes = makeMatrix(p0)
-retrogrades = [x[::-1] for x in primes]
-inversions = []
-for a in range(len(primes[0])):
-    inversions.append([x[a] for x in primes])
-retroInversions = [x[::-1] for x in inversions]
-# POPULATE TONE ROW DICT
-for p in primes:
-    toneRowDict[f"P-{(p[0]-startNote)%12}"] = p
-for r in retrogrades:
-    toneRowDict[f"R-{(r[-1]-startNote)%12}"] = r
-for i in inversions:
-    toneRowDict[f"I-{(i[0]-startNote)%12}"] = i
-for ri in retroInversions:
-    toneRowDict[f"RI-{(ri[-1]-startNote)%12}"] = ri
+    # 4. FORM PARTS, EACH LIKE SO: -> \new Staff { \set Staff.midiInstrument = "instr" \clef "clef" 
+    #    \key c \major \time 4/4\tempo Moderato 4 = 101 MUSIC }
+    for instr in partsToMake:
+        print("Writing " + instr + " part...")
+        if instr == partsToMake[0]:
+            rowChoice = ("P-0", toneRowDict["P-0"])
+        else:
+            rowChoiceId = random.choice(list(toneRowDict.keys()))
+            rowChoice = (rowChoiceId, toneRowDict[rowChoiceId])
+        lilyFile = serialPart(lilyFile, instr, meter, tempo, rowChoice, pieceType, toneRowDict)
+        #print(rows)
 
-# 4. FORM PARTS, EACH LIKE SO: -> \new Staff { \set Staff.midiInstrument = "instr" \clef "clef" 
-#    \key c \major \time 4/4\tempo Moderato 4 = 101 MUSIC }
-for instr in partsToMake:
-    print("Writing " + instr + " part...")
-    if instr == partsToMake[0]:
-        rowChoice = ("P-0", toneRowDict["P-0"])
-    else:
-        rowChoiceId = random.choice(list(toneRowDict.keys()))
-        rowChoice = (rowChoiceId, toneRowDict[rowChoiceId])
-    lilyFile = serialPart(lilyFile, instr, meter, tempo, rowChoice)
-    #print(rows)
+    # # 5. FORM FINISHER -> finishLilyFile(lilyFile)
+    finishLilyFile(lilyFile, pieceType)
+    #print("\nPiece generated.\n")
 
-# 5. FORM FINISHER -> finishLilyFile(lilyFile)
-finishLilyFile(lilyFile)
-print("\nPiece generated.\n")
-time.sleep(1)
-# Compile LilyPond file
-subprocess.run(["lilypond", "serialism.ly"], cwd=midi_path, check=True)
-# Open the generated MIDI file with default app
-subprocess.run(["open", "serialism.midi"], cwd=midi_path)
-# Open the generated PDF file with default app
-# subprocess.run(["open", "serialism.pdf"], cwd=midi_path)
+
+if __name__ == "__main__":
+    main()

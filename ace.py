@@ -1,22 +1,15 @@
-from datetime import date
-from datetime import datetime
+from datetime import date, datetime
+from satb import generate_satb
+from serialism import main as generate_serialism
 import subprocess
-from pathlib import Path
+from config import *
+import shutil
 import random
 import math
 import time
 import sys
 
-# GLOBAL list of melodies and rhythms
-HEADER = '\033[95m'
-OKBLUE = '\033[94m'
-OKCYAN = '\033[96m'
-OKGREEN = '\033[92m'
-WARNING = '\033[93m'
-FAIL = '\033[91m'
-ENDC = '\033[0m'
-BOLD = '\033[1m'
-UNDERLINE = '\033[4m'
+# GLOBALS
 mels = []
 rhythms = []
 scales = []
@@ -60,20 +53,17 @@ minScales = {-1:{0:"c",1:"cis",2:"d",3:"ees",4:"e",5:"f",6:"fis",7:"g",8:"gis",9
                 10:{0:"c",1:"des",2:"d",3:"ees",4:"e",5:"f",6:"ges",7:"g",8:"aes",9:"a",10:"bes",11:"b"},
                 11:{0:"c",1:"cis",2:"d",3:"dis",4:"e",5:"f",6:"fis",7:"g",8:"gis",9:"a",10:"ais",11:"b"},} 
 
-# path to midi folder
-midi_path = Path("midi")
-
-
+# MAIN
 def main():
 
     # print ACE header
     def printHeader():
         print(OKGREEN,end="")
-        print("#"*218,end="")
+        print("#"*248,end="")
         print(FAIL,end="")
         print("ALGORITHMIC COMPOSITION ENGINE",end="")
         print(OKGREEN,end="")
-        print("#"*220,end="")
+        print("#"*247,end="")
         print(ENDC)
 
     # write a counterpoint line
@@ -877,13 +867,14 @@ def main():
         if ans == "8":
             ans = str(random.choice(list(viableScales.values())))
         if ans not in [str(x) for x in viableScales.values()]:
-            print("Your melody will use a randomly built scale.")
+            print("Your melody will use a randomly built scale.\n")
         else:
             for y in viableScales.keys():
                 if str(viableScales[y]) == ans:
                     sc = y
                     break
-            print("Your melody will use the " + sc + " scale.")            
+            print("Your melody will use the " + sc + " scale.\n")    
+        time.sleep(1)        
         # print("Tonal center of " + majScales[0][offset] + " chosen.")
         return sc
 
@@ -901,10 +892,11 @@ def main():
             code += "\\score {\n"
             code += "\\" + "new Staff { \\" + "set Staff.midiInstrument = \"violin\" \\" + "clef \"treble\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + " \\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + m + "}\n"
+            code += "\\layout{}\n"
             code += "\\midi{}\n"
             code += "}\n"
-            code += "\\version \"2.22.2\""
-            f = open(f"midi/{mode}.ly", "w")
+            code += "\\version \"2.24.4\""
+            f = open(f"{mode}.ly", "w")
             f.write(code)
             f.close()
         elif mode == "reich":
@@ -916,10 +908,11 @@ def main():
             code += "\\" + "new Staff { \\" + "set Staff.midiInstrument = \"cello\" \\" + "clef \"bass\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + t + "}\n"
             code += ">>\n"
+            code += "\\layout{}\n"
             code += "\\midi{}\n"
             code += "}\n"
             code += "\\version \"2.22.2\""
-            f = open(f"midi/{mode}.ly", "w")
+            f = open(f"{mode}.ly", "w")
             f.write(code)
             f.close()
         else:
@@ -935,10 +928,11 @@ def main():
             code += "\\" + "new Staff { \\" + "set Staff.midiInstrument = \"contrabass\" \\" + "clef \"bass\" \\key " + scaleSigStart + " \\" + scaleSigQual + " "
             code += "\\time " + time[0] + "\\tempo " + tempo[0] + " " + time[1] + " = " + tempo[1] + " " + b + "}\n"
             code += ">>\n"
+            code += "\\layout{}\n"
             code += "\\midi{}\n"
             code += "}\n"
             code += "\\version \"2.22.2\""
-            f = open(f"midi/{mode}.ly", "w")
+            f = open(f"{mode}.ly", "w")
             f.write(code)
             f.close()
 
@@ -956,73 +950,100 @@ def main():
     # possibly setup 'serial' as scale choice rather than mode choice?
     # make 'raga' mode -> need drone
     # make 'mirror' mode -> part of build from both ends
-    viableModes = ["solo","freeform","reich","fugue"]
-    modeChoice = input("Choose your mode by entering its keyword.\n\n- AABA Solo (solo)\n- Freeform Solo (freeform)\n- Phasing Piece (reich)\n- Fugue (fugue)\n\n")
-    if modeChoice not in viableModes:
-        modeChoice = "freeform"
-    print("\nYou have chosen " + modeChoice + " mode.\n")
+    viableModes = ["solo","chorale","reich","fugue","serialism"]
+    print("Choose your mode by entering its keyword (written in parentheses).\n\n- Solo (solo)\n- Chorale (chorale)\n- Phasing Piece (reich)\n- Fugue (fugue)\n- Serialism (serialism)")
+    deciding = True
+    while deciding:
+        modeChoice = input("\n")
+        if modeChoice not in viableModes:
+            print(WARNING + "\nPlease enter a valid mode keyword. The keywords are displayed inside parentheses." + ENDC)
+            continue
+        deciding = False
+    print("\nYou have chosen " + BOLD + modeChoice.upper() + ENDC + " mode.\n")
+    if modeChoice == "chorale":
+        generate_satb()
+    elif modeChoice == "serialism":
+        generate_serialism()
+    else:
     # ask what scale the user wants to use
-    scaleType = scaleAsk()
-    scaleChart = majScales
-    if scaleType == "minor" or scaleType == "minor pentatonic" or scaleType == "harmonic minor":
-        scaleChart = minScales
-    elif scaleType == "wt-0":
-        while offset not in [0,2,4,6,8,10]:
-            offset = random.choice([0,2,4,6,8,10])
-    elif scaleType == "wt-1":
-        while offset not in [1,3,5,7,9,11]:
-            offset = random.choice([1,3,5,7,9,11])
-    print("Tonal center of " + majScales[0][offset] + " chosen.")
-    print()
-    if modeChoice == 'solo':
-        print("A solo melody will be generated.\n")
-        solo(offset, scaleChart, scaleType, meter)
-    elif modeChoice == "freeform":
-        print("A freeform melody will be generated.\n")
-        freeform(offset, scaleType, random.randrange(32,256), meter)
-    elif modeChoice == "reich":
-        print("Reich fan huh? Hopefully this will change your mind.\nA two-part phasing piece will be generated.\n")
-        reich(majScales, scaleType, offset, meter)
-    elif modeChoice == "fugue":
-        print("THIS FEATURE IS A WORK IN PROGRESS. BE READY TO COVER YOUR EARS.")
-        fugue(majScales, scaleType, offset, meter)
+        scaleType = scaleAsk()
+        scaleChart = majScales
+        if scaleType == "minor" or scaleType == "minor pentatonic" or scaleType == "harmonic minor":
+            scaleChart = minScales
+        elif scaleType == "wt-0":
+            while offset not in [0,2,4,6,8,10]:
+                offset = random.choice([0,2,4,6,8,10])
+        elif scaleType == "wt-1":
+            while offset not in [1,3,5,7,9,11]:
+                offset = random.choice([1,3,5,7,9,11])
+        #print("Tonal center of " + majScales[0][offset] + " chosen.")
+        if modeChoice == 'solo':
+            print("Generating solo... \n")
+            time.sleep(3)
+            solo(offset, scaleChart, scaleType, meter)
+        elif modeChoice == "freeform":
+            print("Generating freeform solo... \n")
+            time.sleep(3)
+            freeform(offset, scaleType, random.randrange(32,256), meter)
+        elif modeChoice == "reich":
+            print("Reich fan huh? Hopefully this will change your mind.\n")
+            time.sleep(3)
+            print("Generating two-part phasing piece... \n")
+            time.sleep(3)
+            reich(majScales, scaleType, offset, meter)
+        elif modeChoice == "fugue":
+            print(WARNING + "THE 'FUGUE' FEATURE IS A WORK IN PROGRESS. BE READY TO COVER YOUR EARS.\n" + ENDC)
+            time.sleep(3)
+            fugue(majScales, scaleType, offset, meter)
 
-    # ANALYSIS
-    # Give points for: variety of pitches, pitches stressing intended center (key-defining pitches), arcing contour, wide dynamics, good voice leading
-    # Take away points for: lack of variety of pitches, pitches stressing NON-intended center, flat contour, narrow dynamics, 
-    # --------------------: too large distances between consecutive notes
-    pitchAnalysis = sorted([x[0] for x in mels[-1][-1] if not int(x[1]) > 700])
-    def count_elements(seq) -> dict:
-        hist = {}
-        for i in seq:
-            hist[i] = hist.get(i, 0) + 1
-        return hist
-    def ascii_histogram(seq) -> None:
-        counted = count_elements(seq)
-        for k in sorted(counted):
-            print('{0:5d} {1}'.format(k, '+' * counted[k]))
-    print("Analyzing solo...")
-    ascii_histogram(pitchAnalysis)
-    print("Solo passed tests. Proceeding to export stage.\n")
+        # ANALYSIS
+        # Give points for: variety of pitches, pitches stressing intended center (key-defining pitches), arcing contour, wide dynamics, good voice leading
+        # Take away points for: lack of variety of pitches, pitches stressing NON-intended center, flat contour, narrow dynamics, 
+        # --------------------: too large distances between consecutive notes
+        pitchAnalysis = sorted([x[0] for x in mels[-1][-1] if not int(x[1]) > 700])
+        def count_elements(seq) -> dict:
+            hist = {}
+            for i in seq:
+                hist[i] = hist.get(i, 0) + 1
+            return hist
+        def ascii_histogram(seq) -> None:
+            counted = count_elements(seq)
+            for k in sorted(counted):
+                print('{0:5d} {1}'.format(k, '+' * counted[k]))
+        print("Analyzing solo...")
+        ascii_histogram(pitchAnalysis)
+        print("Solo passed tests. Proceeding to export stage.\n")
 
-    # EXPORT LOGIC
-    print("Exporting song to .ly...")
-    # set scale values back to their abstract value
-    scaleStart = majScales[0][offset]
-    scaleSigStart = majScales[0][0]
-    scaleSigQual = "major"
-    if scaleType == "minor" or scaleType == "minor pentatonic" or scaleType == "harmonic minor":
-        scaleStart = minScales[-1][offset]
-        scaleSigStart = minScales[-1][offset]
-        scaleSigQual = "minor"
-    elif scaleType == "major" or scaleType == "major pentatonic":
-        scaleSigStart = majScales[0][offset]
-    printFile(scaleStart, scaleType, scaleSigStart, scaleSigQual, modeChoice, (meter, bpmFormat), (tempoMark, bpm), fullMel, alto, tenor, bass)
-    print("Done.\n")
-    time.sleep(1)
+        # EXPORT LOGIC
+        print("Exporting song to .ly...")
+        # set scale values back to their abstract value
+        scaleStart = majScales[0][offset]
+        scaleSigStart = majScales[0][0]
+        scaleSigQual = "major"
+        if scaleType == "minor" or scaleType == "minor pentatonic" or scaleType == "harmonic minor":
+            scaleStart = minScales[-1][offset]
+            scaleSigStart = minScales[-1][offset]
+            scaleSigQual = "minor"
+        elif scaleType == "major" or scaleType == "major pentatonic":
+            scaleSigStart = majScales[0][offset]
+        printFile(scaleStart, scaleType, scaleSigStart, scaleSigQual, modeChoice, (meter, bpmFormat), (tempoMark, bpm), fullMel, alto, tenor, bass)
+    
+    # AUTOMATION
     # Compile LilyPond file
-    subprocess.run(["lilypond", f"{modeChoice}.ly"], cwd=midi_path, check=True)
+    print("Converting LilyPond file to MIDI...\n")
+    subprocess.run(["lilypond", f"{modeChoice}.ly"], check=True)
+    time.sleep(1)
+    # organize files
+    print("Organizing files...")
+    time.sleep(.33)
+    shutil.move(f"{modeChoice}.pdf", f"pdf/{modeChoice}.pdf")
+    time.sleep(.33)
+    shutil.move(f"{modeChoice}.midi", f"midi/{modeChoice}.midi")
+    time.sleep(.33)
+    shutil.move(f"{modeChoice}.ly", f"ly/{modeChoice}.ly")
+    time.sleep(.33)
     # Open the generated MIDI file with default app
+    print("Opening MIDI file...")
     subprocess.run(["open", f"{modeChoice}.midi"], cwd=midi_path)
 
 if __name__ == "__main__":

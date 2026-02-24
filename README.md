@@ -2,10 +2,14 @@
 
 a.k.a the 'ACE' (Algorithmic Composition Engine).
 
-Currently supported features:
-- 'makeFourParts.py' -> Writes a 16-bar, AABA tune with four-part harmony.
-- 'melody.py' -> Writes a melody and applies it to various piece contexts.
-- 'serial.py' -> Writes a violin solo in the style of serialism.
+Currently supported modes:
+- **SOLO** -> Writes an AABA solo using the scale of your choice.
+- **CHORALE** -> Writes a four-part AABA tune in a random major key.
+  - TODO: Add support for minor keys!
+- **REICH** -> Writes a two-part phasing piece.
+- **FUGUE** -> Writes a four-part fugue.
+  - TODO: Re-work restatement logic
+- **SERIALISM** -> Writes a serialist piece.
 
 'serial.py' TODO: 
 - REFACTOR CODE!!!!!!!!!!
@@ -15,8 +19,6 @@ Currently supported features:
 - Implement function to keep the contour the same for the b section (interval check)
 - Implement function that intersperses rests in a tone row (same count that are in prime)
 - Implement set-matrix function
-- Implement ability to choose instrument for solo
-- Implement 'melody analyzer'
 - Implement metric change ability
 - Implement tempo change ability
 - Implement 'key-defining scale degrees' that hold more weight
@@ -45,7 +47,7 @@ Setup Instructions:
 - Navigate to the repository in your terminal (cd four-part-composer).
 
 Generating Music:
-- Run the script of your choice by entering the command 'python3 _filename_'.
+- Run `python3 ace.py`.
 - Follow the instructions in the program to generate your score.
 
 Enjoy!
