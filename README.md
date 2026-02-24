@@ -2,7 +2,12 @@
 
 a.k.a the 'ACE' (Algorithmic Composition Engine).
 
-Run:
+## Prerequisites
+- Python3
+- LilyPond (http://lilypond.org/download.html)
+- Notation software that can open MIDI files (MuseScore for example)
+
+### Run
 `python3 ace.py`
 
 Currently supported modes:
@@ -13,7 +18,7 @@ Currently supported modes:
 - **SERIALISM** -> Writes a serialist piece.
 <br>
 
-'serial.py' TODO: 
+TODO: 
 - Add support for minor chorale keys
 - Offer more harmonic progression options for chorales
 - Re-work fugue mode
@@ -31,11 +36,6 @@ Development Road Map for 'Fugue' Feature:
 - 'voiceLead.py' -> Creates solid voice leading for four-part harmony
 - 'form.py' -> Handles the writing and usage of main themes, motifs, and the tonal road map.
 - 'fugue.py' -> Combines all of the above scripts into the ultimate fugue composition script.
-
-Prerequisites:
-- Python3
-- LilyPond (http://lilypond.org/download.html)
-- Notation software that can open MIDI files (MuseScore for example)
 
 Setup Instructions:
 - Open terminal.
