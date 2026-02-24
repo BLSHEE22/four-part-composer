@@ -7,8 +7,9 @@ a.k.a the 'ACE' (Algorithmic Composition Engine).
 - LilyPond (http://lilypond.org/download.html)
 - Notation software that can open MIDI files (MuseScore for example)
 
-### Run
+## Run
 `python3 ace.py`
+<br><br>
 
 Currently supported modes:
 - **SOLO** -> Writes an AABA solo using the scale of your choice.
@@ -36,6 +37,7 @@ Development Road Map for 'Fugue' Feature:
 - 'voiceLead.py' -> Creates solid voice leading for four-part harmony
 - 'form.py' -> Handles the writing and usage of main themes, motifs, and the tonal road map.
 - 'fugue.py' -> Combines all of the above scripts into the ultimate fugue composition script.
+<br>
 
 Setup Instructions:
 - Open terminal.
@@ -45,5 +47,6 @@ Setup Instructions:
 Generating Music:
 - Type 'python3 ace.py' in the terminal and press Enter.
 - Follow the instructions in the program to generate your score.
+<br>
 
 Enjoy!
