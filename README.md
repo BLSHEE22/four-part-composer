@@ -19,26 +19,6 @@ Currently supported modes:
 - **SERIALISM** -> Writes a serialist piece.
 <br>
 
-TODO: 
-- Add support for minor chorale keys
-- Offer more harmonic progression options for chorales
-- Re-work fugue mode
-- Implement harmonics
-- Implement function to keep the contour the same for the b section (interval check)
-- Implement pickup notes
-- Implement 'passacaglia' feature
-- Implement 'raga' feature (bass drone, long meter, etc.)
-- Implement 'mirror' melody feature (build from both ends!)
-- Implement feature which supports talea and color
-
-Development Road Map for 'Fugue' Feature: 
-- 'bassline.py' -> Writes a bassline which harmonizes a given melody
-- 'harmony.py -> Decides vertical harmonies to correspond with a given melody and bassline
-- 'voiceLead.py' -> Creates solid voice leading for four-part harmony
-- 'form.py' -> Handles the writing and usage of main themes, motifs, and the tonal road map.
-- 'fugue.py' -> Combines all of the above scripts into the ultimate fugue composition script.
-<br>
-
 Setup Instructions:
 - Open terminal.
 - Clone this repository onto your computer.
