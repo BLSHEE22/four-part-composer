@@ -5,7 +5,6 @@ a.k.a the 'ACE' (Algorithmic Composition Engine).
 Run:
 `python3 ace.py`
 
-<br>
 Currently supported modes:
 - **SOLO** -> Writes an AABA solo using the scale of your choice.
 - **CHORALE** -> Writes a four-part AABA tune in a random major key.
